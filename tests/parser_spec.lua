@@ -1,6 +1,6 @@
 describe ("parser", function()
 
-	local ml = require("src/lantern")
+	local ml = require("src/moonlight")
 
 	it ("verb noun", function() 
 		local result = ml:parse("open door")		

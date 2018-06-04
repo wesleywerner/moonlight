@@ -1,6 +1,5 @@
 
 
---- Define options that lantern looks at during world simulation.
 local options = {
 	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on"},
 	synonymns = {

@@ -23,6 +23,11 @@ local options = {
 		}
 }
 
+--- API callbacks for [verb][noun] combinations
+local hooks = { }
+
+-- List of output responses for the current turn
+local responses = { }
 
 --- Split a string.
 local function split(s, delimiter)
@@ -138,10 +143,76 @@ local function parse (self, sentence, known_nouns)
 		end
 	end
 
-
+	-- TODO: rename item to noun
 	return { verb=verb, item=item, direction=direction, nouns=nouns }
 
 end
 
+
+--- Apply a parsed command to a world model.
+-- The model can be a partial view of the world, usually the room
+-- that the player is in.
+local function apply (self, command)
+
+
+
+end
+
+
+--- The main turn step.
+-- The given sentence is parsed, applied to the world model
+-- and a response is generated.
+local function turn (self, sentence)
+
+	-- Clear the previous turn responses
+	responses = { }
+
+	-- Parse the sentence
+	local command = parse (self, sentence)
+	
+	-- Call any hooks for the verb and noun
+	if type(hooks[command.verb]) == "table" then
+		local hook = hooks[command.verb][command.item]
+		if type(hook) == "function" then
+			local hookResult = hook(self, command)
+			-- Stop further processing
+			if hookResult == false then
+				return
+			end
+		end
+	end
+	
+	-- Apply the command to the model
+	local commandResult = apply (self, command)
+	
+	-- Increase the turn
+	if commandResult == true then
+		
+	end
+
+end
+
+
+--- Provide an API that hooks into the turn step.
+-- If verb and noun match the parsed command it triggers the callback.
+-- A nil noun matches any. A nil verb should not be allowed.
+-- The callback should return a false to stop further turn processing.
+local function hook (self, verb, noun, callback)
+	
+	if type(verb) == "nil" then
+		error(string.format("You tried to hook a nil verb for the %s noun. The verb has to be a word for the hook to be useful."), noun)
+	end
+	
+	hooks[verb] = hooks[verb] or { }
+	
+	-- use default if noun is nil
+	if type(noun) == "nil" then
+		noun = "default"
+	end
+	
+	hooks[verb][noun] = callback
+	
+end
+
 -- return the lantern object
-return { options=options, parse=parse }
+return { options=options, parse=parse, turn=turn, hook=hook, responses=responses }

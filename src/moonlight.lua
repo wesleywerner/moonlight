@@ -73,28 +73,18 @@ local function contains (t, cmp)
 end
 
 
---- Our sentence parser.
+--- Parse a sentence and return a table of the verb, target item and nouns.
 local function parse (self, sentence, known_nouns)
 
---		// split the parts of the sentence. Always work in lowercase.
---		var parts = sentence.toLowerCase().split(' ');
---		var sense = { };
-
+	-- Split the sentence into parts. Always work in lowercase.
 	local parts = split(sentence:lower(), " ")
 	
---		
---		// find directions
---		sense.dir = parts.find(function (item) { return directions.indexOf(item) > -1 });
-
+	-- Extract the direction.
 	local direction = find(parts, function(k, v)
 		return contains(self.options.directions, v)
 	end)
 
-
---		// remove ignored and directions from further processing
---		parts = parts.filter(function (item) { return _options.ignores.indexOf(item) == -1 });
---		parts = parts.filter(function (item) { return directions.indexOf(item) == -1 });
-
+	-- Remove ignored words and directions from further processing.
 	parts = filter(parts, function(k, v) 
 		return not contains(self.options.directions, v)
 	end)
@@ -103,25 +93,8 @@ local function parse (self, sentence, known_nouns)
 		return not contains(self.options.ignores, v)
 	end)
 
---
---		// replace any partial nouns with the known nouns.
---		// this works for the most part, except if a partial can
---		// match multiple known nouns, it will match the last one.
---		if (known_nouns) {
---			parts.forEach(function (singlepart, i, arr) {
---				// match start of word boundary, but allow a wildcard ending.
---				// this allows for more relaxed noun matching.
---				var re = new RegExp('\\b'+singlepart);
---				known_nouns.forEach(function (noun) {
---					var match = noun.match(re);
---					if (match != null) {
---						arr[i] = noun;
---					}
---				});
---			});
---		}
-
-
+	-- Replace any partial nouns with the known nouns.
+	-- If a partial matches multiple known nouns, it will match the last one.
 	if known_nouns then
 		for partno, part in ipairs(parts) do
 			for nounno, noun in ipairs(known_nouns) do
@@ -134,32 +107,21 @@ local function parse (self, sentence, known_nouns)
 		end
 	end
 
---		
---		// remove duplicates.
---		// this can happen when known nouns are matched to multiple parts.
---		parts = parts.filter(function (item, index, arr) {
---			return arr.indexOf(item) == index;
---		});
-
+	-- Remove duplicates which can occur from the above step.
 	parts = filter(parts, function(k, v)
 		return indexOf(parts, v) == k
 	end)
 
-
---		
---		sense.verb = (parts.length > 0) && parts[0] || null;
---		sense.item = (parts.length > 1) && parts[1] || null;
---		sense.nouns = (parts.length > 2) && parts.slice(2) || null;
---		sense.all = parts;
-
+	-- Extract the verb
 	local verb = #parts > 0 and parts[1]
 	
+	-- Extract the target noun
 	local item = nil
 	if #parts > 1 then
 		item = parts[2]
 	end
 	
-		-- remove first two parts to get the nouns
+	-- Remove first two parts to get the remaining nouns.
 	local nouns = parts
 	if #parts > 2 then
 		table.remove(nouns, 1)
@@ -168,16 +130,8 @@ local function parse (self, sentence, known_nouns)
 		nouns = nil
 	end
 
---		
---		// change verbs to their root synonymn. The first entry is the root word.
---		_options.synonymns.forEach(function(wordlist) {
---			if (wordlist.indexOf(sense.verb) > 0) {
---				sense.verb = wordlist[0];
---			}
---		});
---		
---		return sense;
-
+	-- Change verbs to their root synonymn.
+	-- The first entry is the synonym list is the root word.
 	for i, wl in ipairs(self.options.synonymns) do
 		if contains(wl, verb) then
 			verb = wl[1]

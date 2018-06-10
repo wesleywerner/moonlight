@@ -20,7 +20,10 @@ local options = {
 		"northwest", "nw",
 		"southwest", "sw",
 		"up", "down", "in", "out"
-		}
+		},
+	roomLead = "There is %s here.",
+	containerLead = "Inside it is %s.",
+	supporterLead = "On top of it is %s."
 }
 
 --- API callbacks for [verb][noun] combinations
@@ -244,23 +247,27 @@ end
 local function joinNames(self, names)
 
 	if #names == 2 then
-		return table.concat(names, " and ") .. "."
+		return table.concat(names, " and ")
 	elseif #names > 2 then
 		local lastitem = table.remove(names)
-		return table.concat(names, ", ") .. " and " .. lastitem .. "."
+		return table.concat(names, ", ") .. " and " .. lastitem
 	else
-		return table.concat(names) .. "."
+		return table.concat(names)
 	end
 
 end
 
 
 --- Describes the given noun.
-local function describe(self, noun)
+local function describe(self, noun, isRoom)
 
-	local desc = noun.description or string.format("It is a %s", noun.name)
-	local lead = " Inside it is "
+	-- default item description if none is specified
+	local desc = noun.description or string.format("It is a %s.", noun.name)
+
+	-- list all the items contained in the noun, or on top of the noun.
 	local items = { }
+	local containerText = nil
+	local supporterText = nil
 
 	if type(noun.contains) == "table" then
 		for k, v in pairs(noun.contains) do
@@ -268,16 +275,31 @@ local function describe(self, noun)
 				table.insert(items, withArticle(self, v))
 			end
 		end
+		-- switch to room lead text
+		if isRoom then
+			containerText = string.format(self.options.roomLead, joinNames(self, items))
+		else
+			containerText = string.format(self.options.containerLead, joinNames(self, items))
+		end
 	end
 
+	-- list things on top of the noun
 	if type(noun.supporter) == "table" then
 		for k, v in pairs(noun.supporter) do
 			table.insert(items, withArticle(self, v))
 		end
-		lead = "On it is "
+		supporterText = string.format(self.options.supporterLead, joinNames(self, items))
 	end
 
-	return desc .. lead .. joinNames(self, items)
+	if containerText and supporterText then
+		return string.format("%s %s %s", desc, containerText, supporterText)
+	elseif containerText then
+		return string.format("%s %s", desc, containerText)
+	elseif supporterText then
+		return string.format("%s %s", desc, supporterText)
+	else
+		return desc
+	end
 
 end
 
@@ -287,11 +309,13 @@ end
 -- that the player is in.
 local function apply (self, command)
 
+	local nounIsRoom = false
 	local noun = findItem(self, command.nouns[1])
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then
 		noun = room
+		nounIsRoom = true
 	end
 
 	-- TODO: add response
@@ -304,7 +328,11 @@ local function apply (self, command)
 
 	if command.verb == "examine" then
 
-		table.insert(self.responses, describe(self, noun))
+		if nounIsRoom then
+			table.insert(self.responses, describe(self, noun, true))
+		else
+			table.insert(self.responses, describe(self, noun))
+		end
 		return true
 
 	end

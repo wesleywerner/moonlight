@@ -9,7 +9,7 @@ describe("simulation", function()
 
 		local sucker = { }
 		sucker.name = "sucker"
-		sucker.description = "a cherry sucker"
+		sucker.description = "A cherry sucker."
 		sucker.edible = true
 
 		local bowl = { }
@@ -57,7 +57,7 @@ describe("simulation", function()
 	it("examines the room", function()
 		ml.world = makeWorld()
 		ml:turn("look")
-		local expected = "You are in the hotel lobby. Inside it is a podium."
+		local expected = "You are in the hotel lobby. There is a podium here."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 

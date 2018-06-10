@@ -40,18 +40,25 @@ describe("simulation", function()
 
 	local ml = require("src/moonlight")
 
+	it("adds to the turn number on valid commands", function()
+		ml.world = makeWorld()
+		local tn = ml.turnNumber
+		ml:turn("look")
+		assert.are.equals(tn+1, ml.turnNumber)
+	end)
 
-	pending("adds to the turn counter", function()
-
+	it("does not add to the turn number on invalid commands", function()
+		ml.world = makeWorld()
+		local tn = ml.turnNumber
+		ml:turn("snafu foobar")
+		assert.are.equals(tn, ml.turnNumber)
 	end)
 
 	it("examines the room", function()
-
 		ml.world = makeWorld()
 		ml:turn("look")
 		local expected = "You are in the hotel lobby"
 		assert.are.equals(expected, ml.responses[1])
-
 	end)
 
 	pending("should not list yourself in the room", function()

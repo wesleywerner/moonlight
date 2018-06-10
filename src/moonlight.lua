@@ -237,7 +237,7 @@ local function apply (self, command)
 
 	-- TODO: add response
 	if noun == nil then
-		error("I can't any such thing")
+		table.insert(responses, "I don't see the " .. command.nouns[1])
 		return false
 	end
 
@@ -247,6 +247,7 @@ local function apply (self, command)
 	if command.verb == "examine" then
 
 		table.insert(self.responses, noun.description)
+		return true
 
 	end
 
@@ -302,7 +303,7 @@ local function turn (self, sentence)
 
 	-- Increase the turn
 	if commandResult == true then
-
+		self.turnNumber = self.turnNumber + 1
 	end
 
 end
@@ -330,4 +331,4 @@ local function hook (self, verb, noun, callback)
 end
 
 -- return the lantern object
-return { options=options, parse=parse, turn=turn, hook=hook, responses=responses, findPlayer=findPlayer }
+return { options=options, parse=parse, turn=turn, hook=hook, responses=responses, turnNumber=1 }

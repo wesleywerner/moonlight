@@ -185,7 +185,7 @@ local function findPlayer(self)
 end
 
 
---- Finds the given item by name
+--- Finds the given item by name in the current room.
 local function findItem(self, name)
 
 	local checklist = { }
@@ -301,6 +301,53 @@ local function describe(self, noun, isRoom)
 end
 
 
+--- Removes an item from it's parent.
+local function removeFromParent(self, noun, parent)
+
+	parent = parent or self.room
+
+	-- TODO
+
+end
+
+
+--- Moves an item to another item.
+local function move(self, what, where)
+	where.contains = where.contains or { }
+	table.insert(where.contains, what)
+	removeFromParent(self, noun)
+	return true
+end
+
+
+--- Try to take the given noun.
+local function tryTake(self, noun, nounIsRoom)
+
+	if nounIsRoom then
+		table.insert(self.responses, "Be a little more specific what you want to take.")
+		return false
+	end
+
+	if noun.person then
+		table.insert(self.responses, string.format("%s wouldn't like that.", noun.name))
+		return false
+	end
+
+	if noun.fixed then
+		table.insert(self.responses, string.format("The %s is fixed in place.", noun.name))
+		return false
+	end
+
+	-- TODO space check
+
+	-- success
+	table.insert(self.responses, string.format("You take the %s.", noun.name))
+	move(self, noun, self.player)
+	return true
+
+end
+
+
 --- Apply a parsed command to a world model.
 -- The model can be a partial view of the world, usually the room
 -- that the player is in.
@@ -324,14 +371,10 @@ local function apply (self, command)
 	print("applying " .. command.verb .. " to " .. tostring(noun.name))
 
 	if command.verb == "examine" then
-
-		if nounIsRoom then
-			table.insert(self.responses, describe(self, noun, true))
-		else
-			table.insert(self.responses, describe(self, noun))
-		end
+		table.insert(self.responses, describe(self, noun, nounIsRoom))
 		return true
-
+	elseif command.verb == "take" then
+		return tryTake(self, noun, nounIsRoom)
 	end
 
 end
@@ -416,4 +459,11 @@ local function hook (self, verb, noun, callback)
 end
 
 -- return the lantern object
-return { options=options, parse=parse, turn=turn, hook=hook, responses={}, turnNumber=1 }
+return {
+	options=options,
+	parse=parse,
+	turn=turn,
+	findItem=findItem,
+	hook=hook,
+	responses={}, turnNumber=1
+}

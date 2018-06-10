@@ -7,19 +7,19 @@ describe("simulation", function()
 		ego.description = "As good looking as ever."
 		ego.player = true
 
-		local sucker = { }
-		sucker.name = "sucker"
-		sucker.description = "A cherry sucker."
-		sucker.edible = true
+		local mint = { }
+		mint.name = "mint"
+		mint.description = "A small round, white peppermint."
+		mint.edible = true
 
 		local bowl = { }
 		bowl.name = "bowl"
 		bowl.description = "An opaque blue bowl."
 		-- any item with a "contains" table is a container
-		bowl.contains = { sucker }
+		bowl.contains = { mint }
 		-- in future allow setting how much it can hold
 		bowl.space = 1
-		sucker.size = 0.1
+		mint.size = 0.1
 
 		local podium = { }
 		podium.name = "podium"
@@ -61,23 +61,45 @@ describe("simulation", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("should not list yourself in the room", function()
-
-	end)
-
-	pending("examines the podium", function()
-
-	end)
-
 	it("examines containers", function()
 		ml.world = makeWorld()
 		ml:turn("look in the bowl")
-		local expected = "An opaque blue bowl. Inside it is a sucker."
+		local expected = "An opaque blue bowl. Inside it is a mint."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("should not take the podium", function()
+	it("examine supporters", function()
+		ml.world = makeWorld()
+		ml:turn("x podium")
+		local expected = "A short podium supporting a bowl. On it is a bowl."
+		assert.are.equals(expected, ml.responses[1])
+	end)
 
+	pending("examine supporting containers", function()
+
+	end)
+
+	it("take something into inventory", function()
+		ml.world = makeWorld()
+		ml:turn("get mint")
+		local expected = "You take the mint."
+		assert.are.equals(expected, ml.responses[1])
+
+		-- check the mint is in inventory
+		local inventory = ml.player.contains
+		assert.are.equals("table", type(inventory))
+		assert.are.equals(1, #inventory)
+		assert.are.equals("mint", inventory[1].name)
+	end)
+
+	it("take something removes it from position", function()
+		ml.world = makeWorld()
+		ml:turn("get mint")
+		-- check the mint is not in the bowl
+		local bowl = ml:findItem("bowl")
+		assert.is.truthy(bowl)
+		local mint = bowl.contains[1]
+		assert.is_not.truthy(mint)
 	end)
 
 	pending("", function()

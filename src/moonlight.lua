@@ -29,6 +29,9 @@ local hooks = { }
 -- List of output responses for the current turn
 local responses = { }
 
+-- Tracks the player and the current room
+local player, room
+
 --- Split a string.
 local function split(s, delimiter)
     result = {};
@@ -83,18 +86,18 @@ local function parse (self, sentence, known_nouns)
 
 	-- Split the sentence into parts. Always work in lowercase.
 	local parts = split(sentence:lower(), " ")
-	
+
 	-- Extract the direction.
 	local direction = find(parts, function(k, v)
 		return contains(self.options.directions, v)
 	end)
 
 	-- Remove ignored words and directions from further processing.
-	parts = filter(parts, function(k, v) 
+	parts = filter(parts, function(k, v)
 		return not contains(self.options.directions, v)
 	end)
 
-	parts = filter(parts, function(k, v) 
+	parts = filter(parts, function(k, v)
 		return not contains(self.options.ignores, v)
 	end)
 
@@ -142,12 +145,110 @@ local function parse (self, sentence, known_nouns)
 end
 
 
+--- Finds the player in the world model.
+local function findPlayer(self)
+
+	if not self.world then
+		error("The world is empty, you must set the world value first.")
+	end
+
+	for k, r in pairs(self.world) do
+
+		local checklist = { }
+
+		if type(r.contains) == "table" then
+			for a, b in pairs(r.contains) do
+				table.insert(checklist, b)
+			end
+		end
+
+		while #checklist > 0 do
+
+			local v = table.remove(checklist)
+
+			if v.player == true then
+				return v, r
+			end
+
+			if type(v.contains) == "table" then
+				for a, b in pairs(v.contains) do
+					table.insert(checklist, b)
+				end
+			end
+			if type(v.supports) == "table" then
+				for a, b in pairs(v.supports) do
+					table.insert(checklist, b)
+				end
+			end
+
+		end
+
+	end
+
+end
+
+
+--- Finds the given item by name
+local function findItem(self, name)
+
+	local checklist = { }
+
+	if type(room.contains) == "table" then
+		for a, b in pairs(room.contains) do
+			table.insert(checklist, b)
+		end
+	end
+
+	while #checklist > 0 do
+
+		local v = table.remove(checklist)
+
+		if v.name == name then
+			return v
+		end
+
+		if type(v.contains) == "table" then
+			for a, b in pairs(v.contains) do
+				table.insert(checklist, b)
+			end
+		end
+		if type(v.supports) == "table" then
+			for a, b in pairs(v.supports) do
+				table.insert(checklist, b)
+			end
+		end
+
+	end
+
+end
+
+
 --- Apply a parsed command to a world model.
 -- The model can be a partial view of the world, usually the room
 -- that the player is in.
 local function apply (self, command)
 
-	print("applying " .. command.verb .. " to " .. tostring(command.noun))
+	local noun = findItem(self, command.nouns[1])
+
+	-- apply the verb to the room if no nouns are given
+	if #command.nouns == 0 then
+		noun = room
+	end
+
+	-- TODO: add response
+	if noun == nil then
+		error("I can't any such thing")
+		return false
+	end
+
+	print("applying " .. command.verb .. " to " .. tostring(noun.name))
+
+
+	if command.verb == "examine" then
+
+		table.insert(self.responses, noun.description)
+
+	end
 
 end
 
@@ -157,8 +258,8 @@ local function callHook(self, command)
 
 	-- Call any hooks for the verb and noun
 	if type(hooks[command.verb]) == "table" then
-	
-		local noun = command.nouns[1]		
+
+		local noun = command.nouns[1]
 		local hook = hooks[command.verb][noun]
 
 		if type(hook) == "function" then
@@ -182,19 +283,26 @@ local function turn (self, sentence)
 	-- Clear the previous turn responses
 	responses = { }
 
+	player, room = findPlayer(self)
+
+	if player == nil then
+		error("I could not find a player in the world. They should have the \"player\" value of true.")
+	end
+
 	-- Parse the sentence
+	-- TODO: get list of known nouns from the current room
 	local command = parse (self, sentence)
-	
+
 	if callHook(self, command) == false then
 		return false
 	end
-	
+
 	-- Apply the command to the model
 	local commandResult = apply (self, command)
-	
+
 	-- Increase the turn
 	if commandResult == true then
-		
+
 	end
 
 end
@@ -205,21 +313,21 @@ end
 -- A nil noun matches any. A nil verb should not be allowed.
 -- The callback should return a false to stop further turn processing.
 local function hook (self, verb, noun, callback)
-	
+
 	if type(verb) == "nil" then
 		error(string.format("You tried to hook a nil verb for the %s noun. The verb has to be a word for the hook to be useful."), noun)
 	end
-	
+
 	hooks[verb] = hooks[verb] or { }
-	
+
 	-- use default if noun is nil
 	if type(noun) == "nil" then
 		noun = "default"
 	end
-	
+
 	hooks[verb][noun] = callback
-	
+
 end
 
 -- return the lantern object
-return { options=options, parse=parse, turn=turn, hook=hook, responses=responses }
+return { options=options, parse=parse, turn=turn, hook=hook, responses=responses, findPlayer=findPlayer }

@@ -23,14 +23,11 @@ local options = {
 		},
 	roomLead = "There is %s here.",
 	containerLead = "Inside it is %s.",
-	supporterLead = "On top of it is %s."
+	supporterLead = "On it is %s."
 }
 
 --- API callbacks for [verb][noun] combinations
 local hooks = { }
-
--- Tracks the player and the current room
-local player, room
 
 --- Split a string.
 local function split(s, delimiter)
@@ -193,8 +190,8 @@ local function findItem(self, name)
 
 	local checklist = { }
 
-	if type(room.contains) == "table" then
-		for a, b in pairs(room.contains) do
+	if type(self.room.contains) == "table" then
+		for a, b in pairs(self.room.contains) do
 			table.insert(checklist, b)
 		end
 	end
@@ -284,8 +281,8 @@ local function describe(self, noun, isRoom)
 	end
 
 	-- list things on top of the noun
-	if type(noun.supporter) == "table" then
-		for k, v in pairs(noun.supporter) do
+	if type(noun.supports) == "table" then
+		for k, v in pairs(noun.supports) do
 			table.insert(items, withArticle(self, v))
 		end
 		supporterText = string.format(self.options.supporterLead, joinNames(self, items))
@@ -314,7 +311,7 @@ local function apply (self, command)
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then
-		noun = room
+		noun = self.room
 		nounIsRoom = true
 	end
 
@@ -370,11 +367,11 @@ local function turn (self, sentence)
 	-- Clear the previous turn responses
 	self.responses = { }
 
-	player, room = findPlayer(self)
+	self.player, self.room = findPlayer(self)
 
 	-- TODO: boil the room down
 
-	if player == nil then
+	if self.player == nil then
 		error("I could not find a player in the world. They should have the \"player\" value of true.")
 	end
 

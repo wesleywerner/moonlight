@@ -4,7 +4,7 @@ describe("simulation", function()
 
 		local ego = { }
 		ego.name = "You"
-		ego.description = "As good looking as ever"
+		ego.description = "As good looking as ever."
 		ego.player = true
 
 		local sucker = { }
@@ -14,7 +14,7 @@ describe("simulation", function()
 
 		local bowl = { }
 		bowl.name = "bowl"
-		bowl.description = "It is a bowl full of sweets"
+		bowl.description = "An opaque blue bowl."
 		-- any item with a "contains" table is a container
 		bowl.contains = { sucker }
 		-- in future allow setting how much it can hold
@@ -23,13 +23,13 @@ describe("simulation", function()
 
 		local podium = { }
 		podium.name = "podium"
-		podium.desc = "A short podium supporting a bowl"
+		podium.description = "A short podium supporting a bowl."
 		-- item is a supporter
 		podium.supports = { bowl }
 
 		local lobby = { }
 		lobby.name = "Lobby"
-		lobby.description = "You are in the hotel lobby"
+		lobby.description = "You are in the hotel lobby."
 		lobby.contains = { podium, ego }
 
 		return {
@@ -57,7 +57,7 @@ describe("simulation", function()
 	it("examines the room", function()
 		ml.world = makeWorld()
 		ml:turn("look")
-		local expected = "You are in the hotel lobby"
+		local expected = "You are in the hotel lobby. Inside it is a podium."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
@@ -69,8 +69,11 @@ describe("simulation", function()
 
 	end)
 
-	pending("examines the bowl", function()
-
+	it("examines containers", function()
+		ml.world = makeWorld()
+		ml:turn("look in the bowl")
+		local expected = "An opaque blue bowl. Inside it is a sucker."
+		assert.are.equals(expected, ml.responses[1])
 	end)
 
 	pending("should not take the podium", function()

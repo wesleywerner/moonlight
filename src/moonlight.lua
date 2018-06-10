@@ -26,9 +26,6 @@ local options = {
 --- API callbacks for [verb][noun] combinations
 local hooks = { }
 
--- List of output responses for the current turn
-local responses = { }
-
 -- Tracks the player and the current room
 local player, room
 
@@ -223,6 +220,68 @@ local function findItem(self, name)
 end
 
 
+--- Returns the given name with the article prefixed.
+local function withArticle(self, noun)
+
+	if noun.person == true then
+		return noun.name
+	end
+
+	if noun.article then
+		return string.format("%s %s", noun.article, noun.name)
+	end
+
+	if indexOf(self.options.vowels, string.sub(noun.name, 1, 1)) == 0 then
+		return string.format("a %s", noun.name)
+	else
+		return string.format("an %s", noun.name)
+	end
+
+end
+
+
+--- Joins an array of items to read naturally.
+local function joinNames(self, names)
+
+	if #names == 2 then
+		return table.concat(names, " and ") .. "."
+	elseif #names > 2 then
+		local lastitem = table.remove(names)
+		return table.concat(names, ", ") .. " and " .. lastitem .. "."
+	else
+		return table.concat(names) .. "."
+	end
+
+end
+
+
+--- Describes the given noun.
+local function describe(self, noun)
+
+	local desc = noun.description or string.format("It is a %s", noun.name)
+	local lead = " Inside it is "
+	local items = { }
+
+	if type(noun.contains) == "table" then
+		for k, v in pairs(noun.contains) do
+			if not v.player then
+				table.insert(items, withArticle(self, v))
+			end
+		end
+	end
+
+	if type(noun.supporter) == "table" then
+		for k, v in pairs(noun.supporter) do
+			table.insert(items, withArticle(self, v))
+		end
+		lead = "On it is "
+	end
+
+	return desc .. lead .. joinNames(self, items)
+
+end
+
+
 --- Apply a parsed command to a world model.
 -- The model can be a partial view of the world, usually the room
 -- that the player is in.
@@ -237,16 +296,15 @@ local function apply (self, command)
 
 	-- TODO: add response
 	if noun == nil then
-		table.insert(responses, "I don't see the " .. command.nouns[1])
+		table.insert(self.responses, "I don't see the " .. command.nouns[1])
 		return false
 	end
 
 	print("applying " .. command.verb .. " to " .. tostring(noun.name))
 
-
 	if command.verb == "examine" then
 
-		table.insert(self.responses, noun.description)
+		table.insert(self.responses, describe(self, noun))
 		return true
 
 	end
@@ -282,9 +340,11 @@ end
 local function turn (self, sentence)
 
 	-- Clear the previous turn responses
-	responses = { }
+	self.responses = { }
 
 	player, room = findPlayer(self)
+
+	-- TODO: boil the room down
 
 	if player == nil then
 		error("I could not find a player in the world. They should have the \"player\" value of true.")
@@ -331,4 +391,4 @@ local function hook (self, verb, noun, callback)
 end
 
 -- return the lantern object
-return { options=options, parse=parse, turn=turn, hook=hook, responses=responses, turnNumber=1 }
+return { options=options, parse=parse, turn=turn, hook=hook, responses={}, turnNumber=1 }

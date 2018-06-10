@@ -4,8 +4,10 @@ describe("hook", function()
 	
 	local local_bool = false
 	
-	local examine_callback = function(ml, command)
-		local_bool = true
+	local examine_callback = function(ml, verb, noun, command)
+		if verb == "examine" and noun == "mailbox" then
+			local_bool = true
+		end
 	end
 	
 	ml:hook("examine", "mailbox", examine_callback)

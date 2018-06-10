@@ -6,7 +6,7 @@ describe ("parser", function()
 		local result = ml:parse("open door")		
 		local expected = {
 			verb="open",
-			item="door"
+			nouns={"door"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -15,7 +15,7 @@ describe ("parser", function()
 		local result = ml:parse("open the door")		
 		local expected = {
 			verb="open",
-			item="door"
+			nouns={"door"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -24,8 +24,7 @@ describe ("parser", function()
 		local result = ml:parse("give sword to gargoyle")		
 		local expected = {
 			verb="give",
-			item="sword",
-			nouns={"gargoyle"}
+			nouns={"sword","gargoyle"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -34,8 +33,7 @@ describe ("parser", function()
 		local result = ml:parse("unlock the gate with the skeleton key", {"gate", "skeleton key"})		
 		local expected = {
 			verb="unlock",
-			item="gate",
-			nouns={"skeleton key"}
+			nouns={"gate","skeleton key"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -44,8 +42,7 @@ describe ("parser", function()
 		local result = ml:parse("unlock gate skel", {"gate", "skeleton key"})		
 		local expected = {
 			verb="unlock",
-			item="gate",
-			nouns={"skeleton key"}
+			nouns={"gate","skeleton key"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -54,8 +51,7 @@ describe ("parser", function()
 		local result = ml:parse("ask the wise guy about an unseen tablet", {"wise guy", "computer"})		
 		local expected = {
 			verb="ask",
-			item="wise guy",
-			nouns={"unseen", "tablet"}
+			nouns={"wise guy", "unseen", "tablet"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -64,7 +60,7 @@ describe ("parser", function()
 		local result = ml:parse("look at the gate")		
 		local expected = {
 			verb="examine",
-			item="gate"
+			nouns={"gate"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -73,7 +69,7 @@ describe ("parser", function()
 		local result = ml:parse("get an apple")		
 		local expected = {
 			verb="take",
-			item="apple"
+			nouns={"apple"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -82,8 +78,7 @@ describe ("parser", function()
 		local result = ml:parse("put the box on the table")		
 		local expected = {
 			verb="insert",
-			item="box",
-			nouns={"table"}
+			nouns={"box","table"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -92,7 +87,7 @@ describe ("parser", function()
 		local result = ml:parse("x red apple", {"red apple"})		
 		local expected = {
 			verb="examine",
-			item="red apple"
+			nouns={"red apple"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -100,7 +95,8 @@ describe ("parser", function()
 	it ("interpolate synonymns: i/inventory", function() 
 		local result = ml:parse("i")		
 		local expected = {
-			verb="inventory"
+			verb="inventory",
+			nouns={ }
 			}
 		assert.are.same(expected, result)
 	end)
@@ -109,7 +105,7 @@ describe ("parser", function()
 		local result = ml:parse("talk to the old man", {"old man"})		
 		local expected = {
 			verb="talk",
-			item="old man"
+			nouns={"old man"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -118,7 +114,7 @@ describe ("parser", function()
 		local result = ml:parse("take red", {"red stone", "blue stone"})		
 		local expected = {
 			verb="take",
-			item="red stone"
+			nouns={"red stone"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -127,8 +123,7 @@ describe ("parser", function()
 		local result = ml:parse("ask the wise guy about the computer", {"wise guy", "computer"})		
 		local expected = {
 			verb="ask",
-			item="wise guy",
-			nouns={"computer"}
+			nouns={"wise guy", "computer"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -137,8 +132,7 @@ describe ("parser", function()
 		local result = ml:parse("ask guy the comp", {"wise guy", "computer"})		
 		local expected = {
 			verb="ask",
-			item="wise guy",
-			nouns={"computer"}
+			nouns={"wise guy", "computer"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -147,7 +141,7 @@ describe ("parser", function()
 		local result = ml:parse("eat herb", {"wormwood herb"})		
 		local expected = {
 			verb="eat",
-			item="wormwood herb"
+			nouns={"wormwood herb"}
 			}
 		assert.are.same(expected, result)
 	end)
@@ -156,7 +150,8 @@ describe ("parser", function()
 		local result = ml:parse("go northwest")		
 		local expected = {
 			verb="go",
-			direction="northwest"
+			direction="northwest",
+			nouns={ }
 			}
 		assert.are.same(expected, result)
 	end)
@@ -165,7 +160,8 @@ describe ("parser", function()
 		local result = ml:parse("look e")		
 		local expected = {
 			verb="examine",
-			direction="e"
+			direction="e",
+			nouns={ }
 			}
 		assert.are.same(expected, result)
 	end)
@@ -174,7 +170,7 @@ describe ("parser", function()
 		local result = ml:parse("look in mirror")		
 		local expected = {
 			verb="examine",
-			item="mirror",
+			nouns={"mirror"},
 			direction="in"
 			}
 		assert.are.same(expected, result)

@@ -119,20 +119,14 @@ local function parse (self, sentence, known_nouns)
 
 	-- Extract the verb
 	local verb = #parts > 0 and parts[1]
-	
-	-- Extract the target noun
-	local item = nil
-	if #parts > 1 then
-		item = parts[2]
-	end
-	
-	-- Remove first two parts to get the remaining nouns.
+
+	-- Extract the nouns.
 	local nouns = parts
-	if #parts > 2 then
-		table.remove(nouns, 1)
+	if #parts > 1 then
+		-- remove the verb
 		table.remove(nouns, 1)
 	else
-		nouns = nil
+		nouns = { }
 	end
 
 	-- Change verbs to their root synonymn.
@@ -143,8 +137,7 @@ local function parse (self, sentence, known_nouns)
 		end
 	end
 
-	-- TODO: rename item to noun
-	return { verb=verb, item=item, direction=direction, nouns=nouns }
+	return { verb=verb, nouns=nouns, direction=direction }
 
 end
 
@@ -154,7 +147,29 @@ end
 -- that the player is in.
 local function apply (self, command)
 
+	print("applying " .. command.verb .. " to " .. tostring(command.noun))
 
+end
+
+
+--- Calls a verb/noun hook if it exists.
+local function callHook(self, command)
+
+	-- Call any hooks for the verb and noun
+	if type(hooks[command.verb]) == "table" then
+	
+		local noun = command.nouns[1]		
+		local hook = hooks[command.verb][noun]
+
+		if type(hook) == "function" then
+			local hookResult = hook(self, command.verb, noun, command)
+			-- Stop further processing
+			if hookResult == false then
+				return
+			end
+		end
+
+	end
 
 end
 
@@ -170,16 +185,8 @@ local function turn (self, sentence)
 	-- Parse the sentence
 	local command = parse (self, sentence)
 	
-	-- Call any hooks for the verb and noun
-	if type(hooks[command.verb]) == "table" then
-		local hook = hooks[command.verb][command.item]
-		if type(hook) == "function" then
-			local hookResult = hook(self, command)
-			-- Stop further processing
-			if hookResult == false then
-				return
-			end
-		end
+	if callHook(self, command) == false then
+		return false
 	end
 	
 	-- Apply the command to the model

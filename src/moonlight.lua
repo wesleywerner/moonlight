@@ -463,7 +463,9 @@ return {
 	options=options,
 	parse=parse,
 	turn=turn,
-	findItem=findItem,
 	hook=hook,
-	responses={}, turnNumber=1
+	responses={}, turnNumber=1,
+	api={
+		findItem=findItem,
+	}
 }

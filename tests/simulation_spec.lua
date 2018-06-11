@@ -79,7 +79,7 @@ describe("simulation", function()
 
 	end)
 
-	it("take something into inventory", function()
+	it("take something moves it into inventory", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		local expected = "You take the mint."
@@ -96,10 +96,10 @@ describe("simulation", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
-		local bowl = ml:findItem("bowl")
+		local bowl = ml.api.findItem(ml, "bowl")
 		assert.is.truthy(bowl)
 		local mint = bowl.contains[1]
-		assert.is_not.truthy(mint)
+		assert.is.falsy(mint)
 	end)
 
 	pending("", function()

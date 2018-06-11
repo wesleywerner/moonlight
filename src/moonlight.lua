@@ -185,13 +185,13 @@ local function findPlayer(self)
 end
 
 
---- Finds the given item by name in the current room.
-local function findItem(self, name)
+--- Finds the given item by name or by reference in the current room.
+local function findItem(self, noun, container)
 
 	local checklist = { }
 
-	if type(self.room.contains) == "table" then
-		for a, b in pairs(self.room.contains) do
+	if type(container.contains) == "table" then
+		for a, b in pairs(container.contains) do
 			table.insert(checklist, b)
 		end
 	end
@@ -200,7 +200,7 @@ local function findItem(self, name)
 
 		local v = table.remove(checklist)
 
-		if v.name == name then
+		if v == noun or v.name == noun then
 			return v
 		end
 
@@ -320,6 +320,13 @@ local function move(self, what, where)
 end
 
 
+local function playerHas(self, noun)
+
+	return findItem(self, noun, self.player) ~= nil
+
+end
+
+
 --- Try to take the given noun.
 local function tryTake(self, noun, nounIsRoom)
 
@@ -335,6 +342,11 @@ local function tryTake(self, noun, nounIsRoom)
 
 	if noun.fixed then
 		table.insert(self.responses, string.format("The %s is fixed in place.", noun.name))
+		return false
+	end
+
+	if playerHas(self, noun) then
+		table.insert(self.responses, "You already have it.")
 		return false
 	end
 
@@ -354,7 +366,7 @@ end
 local function apply (self, command)
 
 	local nounIsRoom = false
-	local noun = findItem(self, command.nouns[1])
+	local noun = findItem(self, command.nouns[1], self.room)
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then

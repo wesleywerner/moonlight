@@ -96,10 +96,19 @@ describe("simulation", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
-		local bowl = ml.api.findItem(ml, "bowl")
+		local bowl = ml.api.findItem(ml, "bowl", ml.world)
 		assert.is.truthy(bowl)
 		local mint = bowl.contains[1]
 		assert.is.falsy(mint)
+	end)
+
+	it("cannot take the same thing twice", function()
+		ml.world = makeWorld()
+		ml:turn("get mint")
+		ml:turn("get mint")
+		local expected = "You already have it."
+		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(1, #ml.player.contains)
 	end)
 
 	pending("", function()

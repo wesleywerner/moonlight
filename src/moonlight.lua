@@ -185,36 +185,51 @@ local function findPlayer(self)
 end
 
 
---- Finds the given item by name or by reference in the current room.
-local function findItem(self, noun, container)
+--- Find an item, by name or by reference, in a parent and it's children.
+local function findItem(self, noun, parent)
 
-	local checklist = { }
+	-- search inside the parent
+	if type(parent.contains) == "table" then
+		for k, v in pairs(parent.contains) do
 
-	if type(container.contains) == "table" then
-		for a, b in pairs(container.contains) do
-			table.insert(checklist, b)
+			if v == noun or v.name == noun then
+				return v, parent
+			end
+
+			if type(v.contains) == "table" then
+				for a, b in pairs(v.contains) do
+					return findItem(self, noun, v)
+				end
+			end
+			if type(v.supports) == "table" then
+				for a, b in pairs(v.supports) do
+					return findItem(self, noun, v)
+				end
+			end
+
 		end
 	end
 
-	while #checklist > 0 do
+	-- search on top of the parent
+	if type(parent.supports) == "table" then
+		for k, v in pairs(parent.supports) do
 
-		local v = table.remove(checklist)
-
-		if v == noun or v.name == noun then
-			return v
-		end
-
-		if type(v.contains) == "table" then
-			for a, b in pairs(v.contains) do
-				table.insert(checklist, b)
+			if v == noun or v.name == noun then
+				return v, parent
 			end
-		end
-		if type(v.supports) == "table" then
-			for a, b in pairs(v.supports) do
-				table.insert(checklist, b)
-			end
-		end
 
+			if type(v.contains) == "table" then
+				for a, b in pairs(v.contains) do
+					return findItem(self, noun, v)
+				end
+			end
+			if type(v.supports) == "table" then
+				for a, b in pairs(v.supports) do
+					return findItem(self, noun, v)
+				end
+			end
+
+		end
 	end
 
 end
@@ -306,7 +321,26 @@ local function removeFromParent(self, noun, parent)
 
 	parent = parent or self.room
 
-	-- TODO
+	local match, parent = findItem(self, noun, parent)
+
+	if match and parent then
+		if type(parent.contains) == "table" then
+			for i, v in ipairs(parent.contains) do
+				if v == noun then
+					table.remove(parent.contains, i)
+					return
+				end
+			end
+		end
+		if type(parent.supports) == "table" then
+			for i, v in ipairs(parent.supports) do
+				if v == noun then
+					table.remove(parent.supports, i)
+					return
+				end
+			end
+		end
+	end
 
 end
 
@@ -315,7 +349,7 @@ end
 local function move(self, what, where)
 	where.contains = where.contains or { }
 	table.insert(where.contains, what)
-	removeFromParent(self, noun)
+	removeFromParent(self, what)
 	return true
 end
 
@@ -366,7 +400,7 @@ end
 local function apply (self, command)
 
 	local nounIsRoom = false
-	local noun = findItem(self, command.nouns[1], self.room)
+	local noun, parent = findItem(self, command.nouns[1], self.room)
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then
@@ -374,13 +408,10 @@ local function apply (self, command)
 		nounIsRoom = true
 	end
 
-	-- TODO: add response
 	if noun == nil then
-		table.insert(self.responses, "I don't see the " .. command.nouns[1])
+		table.insert(self.responses, string.format("I don't see the %s.", command.nouns[1]))
 		return false
 	end
-
-	print("applying " .. command.verb .. " to " .. tostring(noun.name))
 
 	if command.verb == "examine" then
 		table.insert(self.responses, describe(self, noun, nounIsRoom))

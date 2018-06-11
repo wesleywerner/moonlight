@@ -96,7 +96,7 @@ describe("simulation", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
-		local bowl = ml.api.findItem(ml, "bowl", ml.world)
+		local bowl = ml.api.findItem(ml, "bowl", ml.world["lobby"])
 		assert.is.truthy(bowl)
 		local mint = bowl.contains[1]
 		assert.is.falsy(mint)

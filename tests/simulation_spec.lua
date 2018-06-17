@@ -26,7 +26,7 @@ describe("simulation", function()
 		podium.name = "podium"
 		podium.description = "A short podium supporting a bowl."
 		-- item is a supporter
-		podium.contains = { bowl }
+		podium.supports = { bowl }
 
 		local lobby = { }
 		lobby.name = "Lobby"
@@ -41,35 +41,35 @@ describe("simulation", function()
 
 	local ml = require("src/moonlight")
 
-	pending("adds to the turn number on valid commands", function()
+	it("adds to the turn number on valid commands", function()
 		ml.world = makeWorld()
 		local tn = ml.turnNumber
 		ml:turn("look")
 		assert.are.equals(tn+1, ml.turnNumber)
 	end)
 
-	pending("does not add to the turn number on invalid commands", function()
+	it("does not add to the turn number on invalid commands", function()
 		ml.world = makeWorld()
 		local tn = ml.turnNumber
 		ml:turn("snafu foobar")
 		assert.are.equals(tn, ml.turnNumber)
 	end)
 
-	pending("examines the room", function()
+	it("examines the room", function()
 		ml.world = makeWorld()
 		ml:turn("look")
 		local expected = "You are in the hotel lobby. There is a podium here."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("examines containers", function()
+	it("examines containers", function()
 		ml.world = makeWorld()
 		ml:turn("look in the bowl")
 		local expected = "An opaque blue bowl. Inside it is a mint."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("examine supporters", function()
+	it("examine supporters", function()
 		ml.world = makeWorld()
 		ml:turn("x podium")
 		local expected = "A short podium supporting a bowl. On it is a bowl."
@@ -80,7 +80,7 @@ describe("simulation", function()
 
 	end)
 
-	pending("take something moves it into inventory", function()
+	it("take something moves it into inventory", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		local expected = "You take the mint."
@@ -93,7 +93,7 @@ describe("simulation", function()
 		assert.are.equals("mint", inventory[1].name)
 	end)
 
-	pending("take something removes it from position", function()
+	it("take something removes it from position", function()
 		ml.world = makeWorld()
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
@@ -105,15 +105,15 @@ describe("simulation", function()
 
 	it("cannot take the same thing twice", function()
 		ml.world = makeWorld()
-		print("\tFIRST TAKE")
+		--print("\tFIRST TAKE")
 		ml:turn("get mint")
 		local expected = "You take the mint."
 		assert.are.equals(expected, ml.responses[1])
 
-		print("\tSECOND TAKE")
+		--print("\tSECOND TAKE")
 		ml:turn("get mint")
 
-		print("\t* player has " .. tostring(ml.player.contains[1].name))
+		--print("\t* player has " .. tostring(ml.player.contains[1].name))
 		local expected = "You already have it."
 		assert.are.equals(expected, ml.responses[1])
 	end)

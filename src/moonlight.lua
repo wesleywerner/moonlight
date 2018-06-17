@@ -190,21 +190,28 @@ local function findItem(self, searchname, parent, stack)
 
 	-- init searched table stack
 	stack = stack or { }
+	local container = nil
 
-	if type(parent.contains) == "table" then
+	if type(parent.contains) == "table" and not stack[parent.contains] then
+		--print(tostring(parent.name) .. " is a container")
+		container = parent.contains
+	elseif type(parent.supports) == "table" and not stack[parent.supports] then
+		--print(tostring(parent.name) .. " is a supporter")
+		container = parent.supports
+	end
 
-		print(tostring(parent.name) .. " is a container")
+	if container then
 
-		for i, v in ipairs(parent.contains) do
+		for i, v in ipairs(container) do
 			if v.name == searchname then
-				print("found " .. tostring(searchname) .. " in " .. tostring(parent.name) .. "!")
+				--print("found " .. tostring(searchname) .. " in " .. tostring(parent.name) .. "!")
 				return v, parent, i
 			end
 		end
 
-		for k, v in ipairs(parent.contains) do
-			if not stack[v] and type(v.contains) == "table" then
-				print("looking inside " .. tostring(v.name))
+		for k, v in ipairs(container) do
+			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
+				--print("looking inside " .. tostring(v.name))
 				stack[v] = true
 				local resv, resp = findItem(self, searchname, v, stack)
 				if resv then
@@ -254,7 +261,14 @@ end
 
 
 --- Describes the given noun.
-local function describe(self, noun, isRoom)
+local function describe(self, name, isRoom)
+
+	local noun, parent = findItem(self, name, self.room)
+
+	-- no noun will default to the current room
+	if not name then
+		noun = self.room
+	end
 
 	-- default item description if none is specified
 	local desc = noun.description or string.format("It is a %s.", noun.name)
@@ -376,7 +390,6 @@ local function apply (self, command)
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then
-		noun = self.room
 		nounIsRoom = true
 	end
 

@@ -185,8 +185,8 @@ local function findPlayer(self)
 end
 
 
---- Find an item, by name or by reference, in a parent and it's children.
-local function findItem(self, searchname, parent, stack)
+--- Find an item by name in a parent.
+local function search(self, searchname, parent, stack)
 
 	-- init searched table stack
 	stack = stack or { }
@@ -210,10 +210,12 @@ local function findItem(self, searchname, parent, stack)
 		end
 
 		for k, v in ipairs(container) do
+			-- TODO this might cause bugs if the item is both a supporter and a container.
+			-- stack only tracks the searched space for one of those cases.
 			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
 				--print("looking inside " .. tostring(v.name))
 				stack[v] = true
-				local resv, resp = findItem(self, searchname, v, stack)
+				local resv, resp = search(self, searchname, v, stack)
 				if resv then
 					return resv, resp
 				end
@@ -263,7 +265,7 @@ end
 --- Describes the given noun.
 local function describe(self, name, isRoom)
 
-	local noun, parent = findItem(self, name, self.room)
+	local noun, parent = search(self, name, self.room)
 
 	-- no noun will default to the current room
 	if not name then
@@ -316,7 +318,7 @@ end
 --- Moves an item to another item.
 local function move(self, name, parent)
 
-	local item, oldparent, idx = findItem(self, name, self.room)
+	local item, oldparent, idx = search(self, name, self.room)
 
 	if item and parent and oldparent then
 		table.remove(oldparent.contains, idx)
@@ -329,7 +331,7 @@ end
 
 local function playerHas(self, noun)
 
-	return findItem(self, noun, self.player) ~= nil
+	return search(self, noun, self.player) ~= nil
 
 end
 
@@ -337,7 +339,7 @@ end
 --- Try to take the given noun.
 local function tryTake(self, name, nounIsRoom)
 
-	local noun, parent = findItem(self, name, self.room)
+	local noun, parent = search(self, name, self.room)
 
 	-- TODO move to reusable function
 	if noun == nil then
@@ -489,6 +491,6 @@ return {
 	hook=hook,
 	responses={}, turnNumber=1,
 	api={
-		findItem=findItem,
+		search=search,
 	}
 }

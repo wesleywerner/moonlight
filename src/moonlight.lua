@@ -302,6 +302,9 @@ local function describe (self, name, isRoom)
 		end
 	end
 
+	-- clear items list for supporter listing
+	items = { }
+
 	-- list things on top of the noun
 	if type(noun.supports) == "table" then
 		for k, v in pairs(noun.supports) do

@@ -28,10 +28,21 @@ describe("simulation", function()
 		-- item is a supporter
 		podium.supports = { bowl }
 
+		local envelope = { }
+		envelope.name = "envelope"
+
+		local key = { }
+		key.name = "key"
+
+		local bookcase = { }
+		bookcase.name = "bookcase"
+		bookcase.contains = { envelope }
+		bookcase.supports = { key }
+
 		local lobby = { }
 		lobby.name = "Lobby"
 		lobby.description = "You are in the hotel lobby."
-		lobby.contains = { podium, ego }
+		lobby.contains = { bookcase, podium, ego }
 
 		return {
 			["lobby"] = lobby
@@ -58,7 +69,7 @@ describe("simulation", function()
 	it("examines the room", function()
 		ml.world = makeWorld()
 		ml:turn("look")
-		local expected = "You are in the hotel lobby. There is a podium here."
+		local expected = "You are in the hotel lobby. There is a bookcase and a podium here."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
@@ -76,8 +87,11 @@ describe("simulation", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("examine supporting containers", function()
-
+	it("examine supporting containers", function()
+		ml.world = makeWorld()
+		ml:turn("examine bookcase")
+		local expected = "It is a bookcase. Inside it is an envelope. On it is a key."
+		assert.are.equals(expected, ml.responses[1])
 	end)
 
 	it("take something moves it into inventory", function()

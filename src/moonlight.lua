@@ -71,9 +71,6 @@ end
 
 
 local function contains (t, cmp)
-	if t == nil then
-		print("this one is nil", cmp)
-	end
 	return indexOf(t, cmp) > 0
 end
 
@@ -382,12 +379,7 @@ local function tryTake (self, name, nounIsRoom)
 
 	-- success
 	table.insert(self.responses, string.format("You take the %s.", noun.name))
-
-	--parent[noun.name] = nil
-	--self.player.contains[noun.name] = noun
-
 	move(self, name, self.player)
-
 	return true
 
 end

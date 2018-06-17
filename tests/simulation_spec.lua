@@ -119,15 +119,10 @@ describe("simulation", function()
 
 	it("cannot take the same thing twice", function()
 		ml.world = makeWorld()
-		--print("\tFIRST TAKE")
 		ml:turn("get mint")
 		local expected = "You take the mint."
 		assert.are.equals(expected, ml.responses[1])
-
-		--print("\tSECOND TAKE")
 		ml:turn("get mint")
-
-		--print("\t* player has " .. tostring(ml.player.contains[1].name))
 		local expected = "You already have it."
 		assert.are.equals(expected, ml.responses[1])
 	end)

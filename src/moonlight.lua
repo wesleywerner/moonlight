@@ -186,50 +186,33 @@ end
 
 
 --- Find an item, by name or by reference, in a parent and it's children.
-local function findItem(self, noun, parent)
+local function findItem(self, searchname, parent, stack)
 
-	-- search inside the parent
+	-- init searched table stack
+	stack = stack or { }
+
 	if type(parent.contains) == "table" then
-		for k, v in pairs(parent.contains) do
 
-			if v == noun or v.name == noun then
-				return v, parent
-			end
+		print(tostring(parent.name) .. " is a container")
 
-			if type(v.contains) == "table" then
-				for a, b in pairs(v.contains) do
-					return findItem(self, noun, v)
-				end
+		for i, v in ipairs(parent.contains) do
+			if v.name == searchname then
+				print("found " .. tostring(searchname) .. " in " .. tostring(parent.name) .. "!")
+				return v, parent, i
 			end
-			if type(v.supports) == "table" then
-				for a, b in pairs(v.supports) do
-					return findItem(self, noun, v)
-				end
-			end
-
 		end
-	end
 
-	-- search on top of the parent
-	if type(parent.supports) == "table" then
-		for k, v in pairs(parent.supports) do
-
-			if v == noun or v.name == noun then
-				return v, parent
-			end
-
-			if type(v.contains) == "table" then
-				for a, b in pairs(v.contains) do
-					return findItem(self, noun, v)
+		for k, v in ipairs(parent.contains) do
+			if not stack[v] and type(v.contains) == "table" then
+				print("looking inside " .. tostring(v.name))
+				stack[v] = true
+				local resv, resp = findItem(self, searchname, v, stack)
+				if resv then
+					return resv, resp
 				end
 			end
-			if type(v.supports) == "table" then
-				for a, b in pairs(v.supports) do
-					return findItem(self, noun, v)
-				end
-			end
-
 		end
+
 	end
 
 end
@@ -316,41 +299,17 @@ local function describe(self, noun, isRoom)
 end
 
 
---- Removes an item from it's parent.
-local function removeFromParent(self, noun, parent)
+--- Moves an item to another item.
+local function move(self, name, parent)
 
-	parent = parent or self.room
+	local item, oldparent, idx = findItem(self, name, self.room)
 
-	local match, parent = findItem(self, noun, parent)
-
-	if match and parent then
-		if type(parent.contains) == "table" then
-			for i, v in ipairs(parent.contains) do
-				if v == noun then
-					table.remove(parent.contains, i)
-					return
-				end
-			end
-		end
-		if type(parent.supports) == "table" then
-			for i, v in ipairs(parent.supports) do
-				if v == noun then
-					table.remove(parent.supports, i)
-					return
-				end
-			end
-		end
+	if item and parent and oldparent then
+		table.remove(oldparent.contains, idx)
+		table.insert(parent.contains, item)
+		return true
 	end
 
-end
-
-
---- Moves an item to another item.
-local function move(self, what, where)
-	where.contains = where.contains or { }
-	table.insert(where.contains, what)
-	removeFromParent(self, what)
-	return true
 end
 
 
@@ -362,7 +321,15 @@ end
 
 
 --- Try to take the given noun.
-local function tryTake(self, noun, nounIsRoom)
+local function tryTake(self, name, nounIsRoom)
+
+	local noun, parent = findItem(self, name, self.room)
+
+	-- TODO move to reusable function
+	if noun == nil then
+		table.insert(self.responses, string.format("I don't see the %s.", command.nouns[1]))
+		return false
+	end
 
 	if nounIsRoom then
 		table.insert(self.responses, "Be a little more specific what you want to take.")
@@ -379,7 +346,7 @@ local function tryTake(self, noun, nounIsRoom)
 		return false
 	end
 
-	if playerHas(self, noun) then
+	if playerHas(self, name) then
 		table.insert(self.responses, "You already have it.")
 		return false
 	end
@@ -388,7 +355,12 @@ local function tryTake(self, noun, nounIsRoom)
 
 	-- success
 	table.insert(self.responses, string.format("You take the %s.", noun.name))
-	move(self, noun, self.player)
+
+	--parent[noun.name] = nil
+	--self.player.contains[noun.name] = noun
+
+	move(self, name, self.player)
+
 	return true
 
 end
@@ -400,17 +372,12 @@ end
 local function apply (self, command)
 
 	local nounIsRoom = false
-	local noun, parent = findItem(self, command.nouns[1], self.room)
+	local noun = command.nouns[1]
 
 	-- apply the verb to the room if no nouns are given
 	if #command.nouns == 0 then
 		noun = self.room
 		nounIsRoom = true
-	end
-
-	if noun == nil then
-		table.insert(self.responses, string.format("I don't see the %s.", command.nouns[1]))
-		return false
 	end
 
 	if command.verb == "examine" then

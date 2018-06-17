@@ -30,7 +30,7 @@ local options = {
 local hooks = { }
 
 --- Split a string.
-local function split(s, delimiter)
+local function split (s, delimiter)
     result = {};
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
         table.insert(result, match);
@@ -85,18 +85,24 @@ local function parse (self, sentence, known_nouns)
 	local parts = split(sentence:lower(), " ")
 
 	-- Extract the direction.
-	local direction = find(parts, function(k, v)
+	local function findDirectionFilter(k, v)
 		return contains(self.options.directions, v)
-	end)
+	end
+
+	local direction = find(parts, findDirectionFilter)
 
 	-- Remove ignored words and directions from further processing.
-	parts = filter(parts, function(k, v)
+	local function removeDirectionsFilter(k, v)
 		return not contains(self.options.directions, v)
-	end)
+	end
 
-	parts = filter(parts, function(k, v)
+	parts = filter(parts, removeDirectionsFilter)
+
+	local function removeIgnoresFilter(k, v)
 		return not contains(self.options.ignores, v)
-	end)
+	end
+
+	parts = filter(parts, removeIgnoresFilter)
 
 	-- Replace any partial nouns with the known nouns.
 	-- If a partial matches multiple known nouns, it will match the last one.
@@ -113,9 +119,11 @@ local function parse (self, sentence, known_nouns)
 	end
 
 	-- Remove duplicates which can occur from the above step.
-	parts = filter(parts, function(k, v)
+	local function removeDuplicatesFilter(k, v)
 		return indexOf(parts, v) == k
-	end)
+	end
+
+	parts = filter(parts, removeDuplicatesFilter)
 
 	-- Extract the verb
 	local verb = #parts > 0 and parts[1]
@@ -143,7 +151,7 @@ end
 
 
 --- Finds the player in the world model.
-local function findPlayer(self)
+local function findPlayer (self)
 
 	if not self.world then
 		error("The world is empty, you must set the world value first.")
@@ -186,7 +194,7 @@ end
 
 
 --- Find an item by name in a parent.
-local function search(self, searchname, parent, stack)
+local function search (self, searchname, parent, stack)
 
 	-- init searched table stack
 	stack = stack or { }
@@ -228,7 +236,7 @@ end
 
 
 --- Returns the given name with the article prefixed.
-local function withArticle(self, noun)
+local function withArticle (self, noun)
 
 	if noun.person == true then
 		return noun.name
@@ -263,7 +271,7 @@ end
 
 
 --- Describes the given noun.
-local function describe(self, name, isRoom)
+local function describe (self, name, isRoom)
 
 	local noun, parent = search(self, name, self.room)
 
@@ -316,7 +324,7 @@ end
 
 
 --- Moves an item to another item.
-local function move(self, name, parent)
+local function move (self, name, parent)
 
 	local item, oldparent, idx = search(self, name, self.room)
 
@@ -329,7 +337,7 @@ local function move(self, name, parent)
 end
 
 
-local function playerHas(self, noun)
+local function playerHas (self, noun)
 
 	return search(self, noun, self.player) ~= nil
 
@@ -337,7 +345,7 @@ end
 
 
 --- Try to take the given noun.
-local function tryTake(self, name, nounIsRoom)
+local function tryTake (self, name, nounIsRoom)
 
 	local noun, parent = search(self, name, self.room)
 
@@ -406,7 +414,7 @@ end
 
 
 --- Calls a verb/noun hook if it exists.
-local function callHook(self, command)
+local function callHook (self, command)
 
 	-- Call any hooks for the verb and noun
 	if type(hooks[command.verb]) == "table" then

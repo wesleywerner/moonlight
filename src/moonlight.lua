@@ -23,7 +23,10 @@ local options = {
 		},
 	roomLead = "There is %s here.",
 	containerLead = "Inside it is %s.",
-	supporterLead = "On it is %s."
+	supporterLead = "On it is %s.",
+	defaultResponses = {
+		fixedInPlace = "The %s is fixed in place."
+	}
 }
 
 --- API callbacks for [verb][noun] combinations
@@ -366,7 +369,7 @@ local function tryTake (self, name, nounIsRoom)
 	end
 
 	if noun.fixed then
-		table.insert(self.responses, string.format("The %s is fixed in place.", noun.name))
+		table.insert(self.responses, string.format(self.options.defaultResponses.fixedInPlace, noun.name))
 		return false
 	end
 

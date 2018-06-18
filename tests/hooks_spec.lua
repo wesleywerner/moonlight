@@ -57,4 +57,12 @@ describe("hook", function()
 		assert.are.equal(expected, obj)
 	end)
 
+	pending("failed action with custom response", function()
+
+	end)
+
+	pending("successful action with custom response", function()
+
+	end)
+
 end)

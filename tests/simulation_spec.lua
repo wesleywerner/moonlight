@@ -25,6 +25,7 @@ describe("simulation", function()
 		local podium = { }
 		podium.name = "podium"
 		podium.description = "A short podium supporting a bowl."
+		podium.fixed = true
 		-- item is a supporter
 		podium.supports = { bowl }
 
@@ -125,6 +126,21 @@ describe("simulation", function()
 		ml:turn("get mint")
 		local expected = "You already have it."
 		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	it("cannot take something fixed in place", function()
+		ml.world = makeWorld()
+		ml:turn("take the podium")
+		local expected = "The podium is fixed in place."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	pending("successful actions flag", function()
+
+	end)
+
+	pending("failed actions flag", function()
+
 	end)
 
 	pending("", function()

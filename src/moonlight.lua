@@ -26,7 +26,11 @@ local options = {
 	supporterLead = "On it is %s.",
 	defaultResponses = {
 		fixedInPlace = "The %s is fixed in place.",
-		thingNotSeen = "I don't see the %s."
+		thingNotSeen = "I don't see the %s.",
+		takeUnspecified = "Be a little more specific what you want to take.",
+		takePerson = "%s wouldn't like that.",
+		taken = "You take the %s.",
+		alreadyHaveIt = "You already have it."
 	}
 }
 
@@ -212,7 +216,7 @@ local function search (self, searchname, parent, stack)
 	if container then
 
 		for i, v in ipairs(container) do
-			if v.name == searchname then
+			if string.lower(tostring(v.name)) == searchname then
 				--print("found " .. tostring(searchname) .. " in " .. tostring(parent.name) .. "!")
 				return v, parent, i
 			end
@@ -354,18 +358,18 @@ local function tryTake (self, name, nounIsRoom)
 	local noun, parent = search(self, name, self.room)
 
 	-- TODO move to reusable function
-	if noun == nil then
+	if noun == nil and name ~= nil then
 		table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, name))
 		return false
 	end
 
-	if nounIsRoom then
-		table.insert(self.responses, "Be a little more specific what you want to take.")
+	if noun == nil and name == nil then
+		table.insert(self.responses, self.options.defaultResponses.takeUnspecified)
 		return false
 	end
 
 	if noun.person then
-		table.insert(self.responses, string.format("%s wouldn't like that.", noun.name))
+		table.insert(self.responses, string.format(self.options.defaultResponses.takePerson, noun.name))
 		return false
 	end
 
@@ -375,14 +379,14 @@ local function tryTake (self, name, nounIsRoom)
 	end
 
 	if playerHas(self, name) then
-		table.insert(self.responses, "You already have it.")
+		table.insert(self.responses, self.options.defaultResponses.alreadyHaveIt)
 		return false
 	end
 
 	-- TODO space check
 
 	-- success
-	table.insert(self.responses, string.format("You take the %s.", noun.name))
+	table.insert(self.responses, string.format(self.options.defaultResponses.taken, noun.name))
 	move(self, name, self.player)
 	return true
 

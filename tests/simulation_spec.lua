@@ -8,6 +8,12 @@ describe("simulation", function()
 		ego.contains = { }
 		ego.player = true
 
+		local mary = { }
+		mary.name = "Mary"
+		mary.description = "As good looking as ever."
+		mary.contains = { }
+		mary.person = true
+
 		local mint = { }
 		mint.name = "mint"
 		mint.description = "A small round, white peppermint."
@@ -43,7 +49,7 @@ describe("simulation", function()
 		local lobby = { }
 		lobby.name = "Lobby"
 		lobby.description = "You are in the hotel lobby."
-		lobby.contains = { bookcase, podium, ego }
+		lobby.contains = { bookcase, podium, ego, mary }
 
 		return {
 			["lobby"] = lobby
@@ -70,7 +76,7 @@ describe("simulation", function()
 	it("examines the room", function()
 		ml.world = makeWorld()
 		ml:turn("look")
-		local expected = "You are in the hotel lobby. There is a bookcase and a podium here."
+		local expected = "You are in the hotel lobby. There is a bookcase, a podium and Mary here."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
@@ -139,6 +145,20 @@ describe("simulation", function()
 		ml.world = makeWorld()
 		ml:turn("take the headlamp")
 		local expected = "I don't see the headlamp."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	it("cannot take unspecified thing", function()
+		ml.world = makeWorld()
+		ml:turn("take")
+		local expected = "Be a little more specific what you want to take."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	it("cannot take a person", function()
+		ml.world = makeWorld()
+		ml:turn("take mary")
+		local expected = "Mary wouldn't like that."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 

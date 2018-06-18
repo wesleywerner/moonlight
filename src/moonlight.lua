@@ -25,7 +25,8 @@ local options = {
 	containerLead = "Inside it is %s.",
 	supporterLead = "On it is %s.",
 	defaultResponses = {
-		fixedInPlace = "The %s is fixed in place."
+		fixedInPlace = "The %s is fixed in place.",
+		thingNotSeen = "I don't see the %s."
 	}
 }
 
@@ -354,7 +355,7 @@ local function tryTake (self, name, nounIsRoom)
 
 	-- TODO move to reusable function
 	if noun == nil then
-		table.insert(self.responses, string.format("I don't see the %s.", command.nouns[1]))
+		table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, name))
 		return false
 	end
 

@@ -135,6 +135,13 @@ describe("simulation", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
+	it("cannot take what you cannot see", function()
+		ml.world = makeWorld()
+		ml:turn("take the headlamp")
+		local expected = "I don't see the headlamp."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
 	pending("successful actions flag", function()
 
 	end)

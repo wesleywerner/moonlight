@@ -426,11 +426,7 @@ local function callHook (self, command)
 		local hook = hooks[command.verb][noun]
 
 		if type(hook) == "function" then
-			local hookResult = hook(self, command.verb, noun, command)
-			-- Stop further processing
-			if hookResult == false then
-				return
-			end
+			return hook(self, command)
 		end
 
 	end
@@ -458,6 +454,7 @@ local function turn (self, sentence)
 	-- TODO: get list of known nouns from the current room
 	local command = parse (self, sentence)
 
+	-- stop further processing will stop if the hook returns false
 	if callHook(self, command) == false then
 		return false
 	end
@@ -494,14 +491,19 @@ local function hook (self, verb, noun, callback)
 
 end
 
+local function respond (self, text)
+	table.insert(self.responses, text)
+end
+
 -- return the lantern object
 return {
 	options=options,
-	parse=parse,
 	turn=turn,
 	hook=hook,
+	respond=respond,
 	responses={}, turnNumber=1,
 	api={
 		search=search,
+		parse=parse,
 	}
 }

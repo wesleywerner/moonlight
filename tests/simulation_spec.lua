@@ -170,7 +170,11 @@ describe("simulation", function()
 
 	end)
 
-	pending("", function()
+	pending("match partial noun names", function()
+
+	end)
+
+	pending("prompt for \"which noun\" on multiple partial noun matches", function()
 
 	end)
 

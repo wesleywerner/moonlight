@@ -1,63 +1,82 @@
 describe("hook", function()
 
 	local ml = require("src/moonlight")
-	ml.world = {
-		["lobby"] = {
-			["contains"] = {
-				{ player=true },
-				{ name="mailbox"},
-				{ name="letter"},
+
+	local function makeWorld()
+		return {
+			["lobby"] = {
+				["contains"] = {
+					{ player=true },
+					{ name="mailbox"},
+					{ name="letter"},
+				}
 			}
 		}
-	}
-
-	local local_bool = false
-
-	local examine_callback = function(ml, verb, noun, command)
-		if verb == "examine" and noun == "mailbox" then
-			local_bool = true
-		end
 	end
-
-	ml:hook("examine", "mailbox", examine_callback)
-
-	local go_callback = function(ml, command)
-		if command.direction == "n" then
-			return false
-		end
-	end
-
-	ml:hook("go", nil, go_callback)
 
 	it("triggers a specific verb/noun combination", function()
-		local_bool = false
+
+		local local_bool = false
+		local examine_callback = function(ml, command)
+			if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				local_bool = true
+			end
+		end
+		ml:hook("examine", "mailbox", examine_callback)
+
+		ml.world = makeWorld()
 		ml:turn("examine the mailbox")
 		assert.is_true(local_bool)
+
 	end)
 
 	it("does not trigger an unrelated noun", function()
-		local_bool = false
+
+		local local_bool = false
+		local examine_callback = function(ml, command)
+			if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				local_bool = true
+			end
+		end
+		ml:hook("examine", "mailbox", examine_callback)
+
+		ml.world = makeWorld()
 		ml:turn("examine the letter")
 		assert.is_false(local_bool)
+
 	end)
 
 	it("does not trigger an unrelated verb", function()
-		local_bool = false
+
+		local local_bool = false
+		local examine_callback = function(ml, command)
+			if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				local_bool = true
+			end
+		end
+		ml:hook("examine", "mailbox", examine_callback)
+
+		ml.world = makeWorld()
 		ml:turn("open the mailbox")
 		assert.is_false(local_bool)
+
 	end)
 
-	pending("stops further processing", function()
-		ml:turn("go n")
-		assert.are.equal(expected, obj)
-	end)
+	it("failed action with custom response", function()
 
-	pending("stops further processing", function()
-		ml:turn("go n")
-		assert.are.equal(expected, obj)
-	end)
+		local expected = "A magical force prevents you from examining the mailbox"
+		local examine_callback = function(ml, command)
+			if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				ml:respond (expected)
+				return false
+			end
+		end
+		ml:hook("examine", "mailbox", examine_callback)
 
-	pending("failed action with custom response", function()
+		ml.world = makeWorld()
+		ml:turn("examine the mailbox")
+		assert.are.equals(expected, ml.responses[1])
+		assert.are.same({ expected }, ml.responses)
 
 	end)
 

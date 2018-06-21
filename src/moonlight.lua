@@ -406,6 +406,12 @@ local function apply (self, command)
 		nounIsRoom = true
 	end
 
+	-- set the item counts table
+	if command.item1 then
+		command.item1.count = command.item1.count or { }
+		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
+	end
+
 	if command.verb == "examine" then
 		table.insert(self.responses, describe(self, noun, nounIsRoom))
 		return true

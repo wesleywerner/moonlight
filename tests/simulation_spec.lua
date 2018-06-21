@@ -170,13 +170,13 @@ describe("simulation", function()
 		assert.are.same({expected}, ml.responses)
 	end)
 
-	pending("counts the times a thing is verbed", function()
+	it("counts the times a thing is verbed", function()
 		ml.world = makeWorld()
 		local command = ml:turn("examine the podium")
-		assert.are.equal(1, command.item1.counts["examine"])
+		assert.are.equal(1, command.item1.count["examine"])
 		ml:turn("examine the podium")
 		command = ml:turn("examine the podium")
-		assert.are.equal(3, command.item1.counts["examine"])
+		assert.are.equal(3, command.item1.count["examine"])
 	end)
 
 

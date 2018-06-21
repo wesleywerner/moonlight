@@ -179,5 +179,10 @@ describe("simulation", function()
 		assert.are.equal(3, command.item1.count["examine"])
 	end)
 
+	it("does not understand unknown verbs", function()
+		local result = ml:turn("snafu the lantern")
+		assert.are.same({"I don't know what \"snafu\" means."}, ml.responses)
+	end)
+
 
 end)

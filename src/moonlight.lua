@@ -1,6 +1,7 @@
 
 
 local options = {
+	verbs = { "examine", "take", "attack", "inventory", "insert" },
 	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on", "and"},
 	synonymns = {
 		{"attack", "hit", "smash", "kick", "cut", "kill"},
@@ -466,6 +467,12 @@ local function turn (self, sentence)
 
 	-- Parse the sentence
 	local command = parse (self, sentence)
+
+	-- Do we understand the verb?
+	if not contains (self.options.verbs, command.verb) then
+		table.insert(self.responses, string.format("I don't know what %q means.", command.verb))
+		return false
+	end
 
 	-- look up each noun item
 	command.item1, _ = search(self, command.nouns[1], self.room)

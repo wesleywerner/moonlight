@@ -481,14 +481,16 @@ local function turn (self, sentence)
 	-- Apply the command to the model
 	local commandResult = apply (self, command)
 
-	-- add a custom response if there is one
-	if hookResponse then
-		table.insert(self.responses, hookResponse)
-	end
-
-	-- Increase the turn
 	if commandResult == true then
+
+		-- add a custom response if there is one
+		if hookResponse then
+			table.insert(self.responses, hookResponse)
+		end
+
+		-- Increase the turn
 		self.turnNumber = self.turnNumber + 1
+
 	end
 
 	return command

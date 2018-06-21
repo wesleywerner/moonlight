@@ -454,13 +454,26 @@ local function turn (self, sentence)
 	-- TODO: get list of known nouns from the current room
 	local command = parse (self, sentence)
 
-	-- stop further processing will stop if the hook returns false
-	if callHook(self, command) == false then
+	-- call any hooks for this command
+	local hookSet, hookResponse = callHook(self, command)
+
+	-- the hook has handled the request
+	if hookSet then
+		-- add a custom response if there is one
+		if hookResponse then
+			table.insert(self.responses, hookResponse)
+		end
+		-- stop further processing
 		return false
 	end
 
 	-- Apply the command to the model
 	local commandResult = apply (self, command)
+
+	-- add a custom response if there is one
+	if hookResponse then
+		table.insert(self.responses, hookResponse)
+	end
 
 	-- Increase the turn
 	if commandResult == true then
@@ -491,19 +504,14 @@ local function hook (self, verb, noun, callback)
 
 end
 
-local function respond (self, text)
-	table.insert(self.responses, text)
-end
-
 -- return the lantern object
 return {
-	options=options,
-	turn=turn,
-	hook=hook,
-	respond=respond,
-	responses={}, turnNumber=1,
-	api={
-		search=search,
-		parse=parse,
+	options = options,
+	turn = turn,
+	hook = hook,
+	responses = { }, turnNumber=1,
+	api = {
+		search = search,
+		parse = parse,
 	}
 }

@@ -43,6 +43,7 @@ describe("simulation", function()
 
 		local bookcase = { }
 		bookcase.name = "bookcase"
+		bookcase.description = "It is just wooden box without the books."
 		bookcase.contains = { envelope }
 		bookcase.supports = { key }
 
@@ -97,7 +98,7 @@ describe("simulation", function()
 	it("examine supporting containers", function()
 		ml.world = makeWorld()
 		ml:turn("examine bookcase")
-		local expected = "It is a bookcase. Inside it is an envelope. On it is a key."
+		local expected = "It is just wooden box without the books. Inside it is an envelope. On it is a key."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
@@ -162,20 +163,20 @@ describe("simulation", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("successful actions flag", function()
-
+	pending("match partial known noun", function()
+		ml.world = makeWorld()
+		ml:turn("examine book")
+		local expected = "It is just wooden box without the books."
+		assert.are.same({expected}, ml.responses)
 	end)
 
-	pending("failed actions flag", function()
-
-	end)
-
-	pending("match partial noun names", function()
-
-	end)
-
-	pending("prompt for \"which noun\" on multiple partial noun matches", function()
-
+	pending("counts the times a thing is verbed", function()
+		ml.world = makeWorld()
+		local command = ml:turn("examine the podium")
+		assert.are.equal(1, command.item1.counts["examine"])
+		ml:turn("examine the podium")
+		command = ml:turn("examine the podium")
+		assert.are.equal(3, command.item1.counts["examine"])
 	end)
 
 

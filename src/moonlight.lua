@@ -1,7 +1,7 @@
 
 
 local options = {
-	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on"},
+	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on", "and"},
 	synonymns = {
 		{"attack", "hit", "smash", "kick", "cut", "kill"},
 		{"insert", "put"},
@@ -434,6 +434,12 @@ local function callHook (self, command)
 end
 
 
+local function countVerbUsedOnNoun (self, verb, item)
+
+
+end
+
+
 --- The main turn step.
 -- The given sentence is parsed, applied to the world model
 -- and a response is generated.
@@ -450,9 +456,14 @@ local function turn (self, sentence)
 		error("I could not find a player in the world. They should have the \"player\" value of true.")
 	end
 
-	-- Parse the sentence
 	-- TODO: get list of known nouns from the current room
+
+	-- Parse the sentence
 	local command = parse (self, sentence)
+
+	-- look up each noun item
+	command.item1, _ = search(self, command.nouns[1], self.room)
+	command.item2, _ = search(self, command.nouns[2], self.room)
 
 	-- call any hooks for this command
 	local hookSet, hookResponse = callHook(self, command)
@@ -479,6 +490,8 @@ local function turn (self, sentence)
 	if commandResult == true then
 		self.turnNumber = self.turnNumber + 1
 	end
+
+	return command
 
 end
 

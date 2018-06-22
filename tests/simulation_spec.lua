@@ -166,7 +166,7 @@ describe("simulation", function()
 	it("match partial known noun", function()
 		ml.world = makeWorld()
 		ml:turn("examine book")
-		local expected = "It is just wooden box without the books."
+		local expected = "It is just wooden box without the books. Inside it is an envelope. On it is a key."
 		assert.are.same({expected}, ml.responses)
 	end)
 

@@ -450,6 +450,38 @@ local function callHook (self, command)
 end
 
 
+local function listNouns (self)
+
+	local checklist = { }
+	local nounlist = { }
+
+	for k, r in pairs(self.room.contains) do
+		table.insert(checklist, r)
+	end
+
+	while #checklist > 0 do
+
+		local v = table.remove(checklist)
+		table.insert(nounlist, v.name)
+
+		if type(v.contains) == "table" then
+			for a, b in pairs(v.contains) do
+				table.insert(checklist, b)
+			end
+		end
+		if type(v.supports) == "table" then
+			for a, b in pairs(v.supports) do
+				table.insert(checklist, b)
+			end
+		end
+
+	end
+
+	return nounlist
+
+end
+
+
 --- The main turn step.
 -- The given sentence is parsed, applied to the world model
 -- and a response is generated.
@@ -460,16 +492,17 @@ local function turn (self, sentence)
 
 	self.player, self.room = findPlayer(self)
 
-	-- TODO: boil the room down
+	-- TODO: boil the room down (copy the room object but only inlcude items visible. do not mutate the original room contents.)
 
 	if self.player == nil then
 		error("I could not find a player in the world. They should have the \"player\" value of true.")
 	end
 
-	-- TODO: get list of known nouns from the current room
+	-- list of known nouns from the current room
+	local known_nouns = listNouns(self)
 
 	-- Parse the sentence
-	local command = parse (self, sentence)
+	local command = parse (self, sentence, known_nouns)
 
 	-- Do we understand the verb?
 	if not contains (self.options.verbs, command.verb) then

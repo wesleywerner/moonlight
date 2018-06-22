@@ -163,7 +163,7 @@ describe("simulation", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("match partial known noun", function()
+	it("match partial known noun", function()
 		ml.world = makeWorld()
 		ml:turn("examine book")
 		local expected = "It is just wooden box without the books."

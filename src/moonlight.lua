@@ -28,7 +28,6 @@ local options = {
 	defaultResponses = {
 		fixedInPlace = "The %s is fixed in place.",
 		thingNotSeen = "I don't see the %s.",
-		takeUnspecified = "Be a little more specific what you want to take.",
 		takePerson = "%s wouldn't like that.",
 		taken = "You take the %s.",
 		alreadyHaveIt = "You already have it.",
@@ -201,7 +200,10 @@ end
 
 
 --- Find an item by name in a parent.
-local function search (self, searchname, parent, stack)
+local function search (self, term, parent, stack)
+
+	-- can search by name or by item
+	local isItemSearch = type(term) == "table"
 
 	-- init searched table stack
 	stack = stack or { }
@@ -218,9 +220,15 @@ local function search (self, searchname, parent, stack)
 	if container then
 
 		for i, v in ipairs(container) do
-			if string.lower(tostring(v.name)) == searchname then
-				--print("found " .. tostring(searchname) .. " in " .. tostring(parent.name) .. "!")
-				return v, parent, i
+			if isItemSearch then
+				if v == term then
+					return v, parent, i
+				end
+			else
+				if string.lower(tostring(v.name)) == term then
+					--print("found " .. tostring(term) .. " in " .. tostring(parent.name) .. "!")
+					return v, parent, i
+				end
 			end
 		end
 
@@ -230,7 +238,7 @@ local function search (self, searchname, parent, stack)
 			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
 				--print("looking inside " .. tostring(v.name))
 				stack[v] = true
-				local resv, resp = search(self, searchname, v, stack)
+				local resv, resp = search(self, term, v, stack)
 				if resv then
 					return resv, resp
 				end
@@ -243,20 +251,20 @@ end
 
 
 --- Returns the given name with the article prefixed.
-local function withArticle (self, noun)
+local function withArticle (self, item)
 
-	if noun.person == true then
-		return noun.name
+	if item.person == true then
+		return item.name
 	end
 
-	if noun.article then
-		return string.format("%s %s", noun.article, noun.name)
+	if item.article then
+		return string.format("%s %s", item.article, item.name)
 	end
 
-	if indexOf(self.options.vowels, string.sub(noun.name, 1, 1)) == 0 then
-		return string.format("a %s", noun.name)
+	if indexOf(self.options.vowels, string.sub(item.name, 1, 1)) == 0 then
+		return string.format("a %s", item.name)
 	else
-		return string.format("an %s", noun.name)
+		return string.format("an %s", item.name)
 	end
 
 end
@@ -277,44 +285,32 @@ local function joinNames(self, names)
 end
 
 
---- Describes the given noun.
-local function describe (self, name, isRoom)
-
-	local noun, parent = search(self, name, self.room)
-
-	-- no noun will default to the current room
-	if not name then
-		noun = self.room
-	end
+--- Describes the given item.
+local function describe (self, item, leadFormat)
 
 	-- default item description if none is specified
-	local desc = noun.description or string.format("It is a %s.", noun.name)
+	local desc = item.description or string.format("It is a %s.", item.name)
 
-	-- list all the items contained in the noun, or on top of the noun.
+	-- list all the items contained in the item, or on top of the item.
 	local items = { }
 	local containerText = nil
 	local supporterText = nil
 
-	if type(noun.contains) == "table" then
-		for k, v in pairs(noun.contains) do
+	if type(item.contains) == "table" then
+		for k, v in pairs(item.contains) do
 			if not v.player then
 				table.insert(items, withArticle(self, v))
 			end
 		end
-		-- switch to room lead text
-		if isRoom then
-			containerText = string.format(self.options.roomLead, joinNames(self, items))
-		else
-			containerText = string.format(self.options.containerLead, joinNames(self, items))
-		end
+		containerText = string.format(leadFormat or self.options.containerLead, joinNames(self, items))
 	end
 
 	-- clear items list for supporter listing
 	items = { }
 
-	-- list things on top of the noun
-	if type(noun.supports) == "table" then
-		for k, v in pairs(noun.supports) do
+	-- list things on top of the item
+	if type(item.supports) == "table" then
+		for k, v in pairs(item.supports) do
 			table.insert(items, withArticle(self, v))
 		end
 		supporterText = string.format(self.options.supporterLead, joinNames(self, items))
@@ -334,9 +330,9 @@ end
 
 
 --- Moves an item to another item.
-local function move (self, name, parent)
+local function move (self, item, parent)
 
-	local item, oldparent, idx = search(self, name, self.room)
+	local item, oldparent, idx = search(self, item.name, self.room)
 
 	if item and parent and oldparent then
 		table.remove(oldparent.contains, idx)
@@ -347,40 +343,32 @@ local function move (self, name, parent)
 end
 
 
-local function playerHas (self, noun)
+local function playerHas (self, item)
 
-	return search(self, noun, self.player) ~= nil
+	return search(self, item, self.player) ~= nil
 
 end
 
 
---- Try to take the given noun.
-local function tryTake (self, name, nounIsRoom)
+--- Try to take the given item.
+local function tryTake (self, item)
 
-	local noun, parent = search(self, name, self.room)
-
-	-- TODO move to reusable function
-	if noun == nil and name ~= nil then
-		table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, name))
+	if not item then
+		table.insert(self.responses, "What do you want to take?")
 		return false
 	end
 
-	if noun == nil and name == nil then
-		table.insert(self.responses, self.options.defaultResponses.takeUnspecified)
+	if item.person then
+		table.insert(self.responses, string.format(self.options.defaultResponses.takePerson, item.name))
 		return false
 	end
 
-	if noun.person then
-		table.insert(self.responses, string.format(self.options.defaultResponses.takePerson, noun.name))
+	if item.fixed then
+		table.insert(self.responses, string.format(self.options.defaultResponses.fixedInPlace, item.name))
 		return false
 	end
 
-	if noun.fixed then
-		table.insert(self.responses, string.format(self.options.defaultResponses.fixedInPlace, noun.name))
-		return false
-	end
-
-	if playerHas(self, name) then
+	if playerHas(self, item) then
 		table.insert(self.responses, self.options.defaultResponses.alreadyHaveIt)
 		return false
 	end
@@ -388,37 +376,57 @@ local function tryTake (self, name, nounIsRoom)
 	-- TODO space check
 
 	-- success
-	table.insert(self.responses, string.format(self.options.defaultResponses.taken, noun.name))
-	move(self, name, self.player)
+	table.insert(self.responses, string.format(self.options.defaultResponses.taken, item.name))
+	move(self, item, self.player)
 	return true
 
 end
 
+
+local function commandMissingNouns (self, command)
+	return #command.nouns == 0
+end
+
+--- Counts the number of times a verb is used on each item
+local function countVerbUsedOnNoun (self, command)
+	if command.item1 then
+		command.item1.count = command.item1.count or { }
+		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
+	end
+end
 
 --- Apply a parsed command to a world model.
 -- The model can be a partial view of the world, usually the room
 -- that the player is in.
 local function apply (self, command)
 
-	local nounIsRoom = false
-	local noun = command.nouns[1]
-
-	-- apply the verb to the room if no nouns are given
-	if #command.nouns == 0 then
-		nounIsRoom = true
-	end
-
-	-- set the item counts table
-	if command.item1 then
-		command.item1.count = command.item1.count or { }
-		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
-	end
+	countVerbUsedOnNoun (self, command)
 
 	if command.verb == "examine" then
-		table.insert(self.responses, describe(self, noun, nounIsRoom))
+
+		-- default to examining the room
+		if commandMissingNouns(self, command) then
+			table.insert(self.responses, describe(self, self.room, self.options.roomLead))
+		elseif command.item1 then
+			table.insert(self.responses, describe(self, command.item1))
+		end
+
 		return true
+
 	elseif command.verb == "take" then
-		return tryTake(self, noun, nounIsRoom)
+
+		if not command.item1 then
+			if commandMissingNouns(self, command) then
+				table.insert(self.responses, "Be a little more specific what you want to take.")
+				return false
+			else
+				table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, command.nouns[1]))
+				return false
+			end
+		end
+
+		return tryTake(self, command.item1)
+
 	end
 
 end
@@ -438,12 +446,6 @@ local function callHook (self, command)
 		end
 
 	end
-
-end
-
-
-local function countVerbUsedOnNoun (self, verb, item)
-
 
 end
 
@@ -476,8 +478,8 @@ local function turn (self, sentence)
 	end
 
 	-- look up each noun item
-	command.item1, _ = search(self, command.nouns[1], self.room)
-	command.item2, _ = search(self, command.nouns[2], self.room)
+	command.item1, command.item1Parent = search(self, command.nouns[1], self.room)
+	command.item2, command.item2Parent = search(self, command.nouns[2], self.room)
 
 	-- call any hooks for this command
 	local hookSet, hookResponse = callHook(self, command)

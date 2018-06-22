@@ -31,7 +31,8 @@ local options = {
 		takeUnspecified = "Be a little more specific what you want to take.",
 		takePerson = "%s wouldn't like that.",
 		taken = "You take the %s.",
-		alreadyHaveIt = "You already have it."
+		alreadyHaveIt = "You already have it.",
+		unknownVerb = "I don't know what %q means."
 	}
 }
 
@@ -470,7 +471,7 @@ local function turn (self, sentence)
 
 	-- Do we understand the verb?
 	if not contains (self.options.verbs, command.verb) then
-		table.insert(self.responses, string.format("I don't know what %q means.", command.verb))
+		table.insert(self.responses, string.format(self.options.defaultResponses.unknownVerb, command.verb))
 		return false
 	end
 

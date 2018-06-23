@@ -34,7 +34,8 @@ local options = {
 		unknownVerb = "I don't know what %q means.",
 		notContainer = "The %s cannot contain things.",
 		dropped = "You drop the %s.",
-		dontHaveIt = "You don't have the %s."
+		dontHaveIt = "You don't have the %s.",
+		pocketsEmpty = "You are carrying nothing."
 	}
 }
 
@@ -332,6 +333,23 @@ local function describe (self, item, leadFormat)
 end
 
 
+local function listInventory (self)
+
+	if #self.player.contains == 0 then
+		return self.options.defaultResponses.pocketsEmpty
+	end
+
+	local items = { }
+
+	for _, v in pairs(self.player.contains) do
+		table.insert (items, withArticle (self, v))
+	end
+
+	return string.format ("You are carrying %s.", joinNames (self, items))
+
+end
+
+
 --- Moves an item to another item.
 local function moveItem (self, item, parent)
 
@@ -460,6 +478,10 @@ local function apply (self, command)
 		if commandHasItem (self, command) then
 			return tryDrop (self, command.item1)
 		end
+
+	elseif command.verb == "inventory" then
+		table.insert(self.responses, listInventory(self))
+		return true
 	end
 
 end
@@ -606,6 +628,7 @@ return {
 	options = options,
 	turn = turn,
 	hook = hook,
+	-- TODO set player method
 	responses = { }, turnNumber=1,
 	api = {
 		search = search,

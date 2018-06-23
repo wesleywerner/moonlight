@@ -1,7 +1,7 @@
 
 
 local options = {
-	verbs = { "examine", "take", "attack", "inventory", "insert" },
+	verbs = { "examine", "take", "drop", "attack", "inventory", "insert" },
 	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on", "and"},
 	synonymns = {
 		{"attack", "hit", "smash", "kick", "cut", "kill"},
@@ -31,7 +31,10 @@ local options = {
 		takePerson = "%s wouldn't like that.",
 		taken = "You take the %s.",
 		alreadyHaveIt = "You already have it.",
-		unknownVerb = "I don't know what %q means."
+		unknownVerb = "I don't know what %q means.",
+		notContainer = "The %s cannot contain things.",
+		dropped = "You drop the %s.",
+		dontHaveIt = "You don't have the %s."
 	}
 }
 
@@ -330,7 +333,16 @@ end
 
 
 --- Moves an item to another item.
-local function move (self, item, parent)
+local function moveItem (self, item, parent)
+
+	if not type(parent) == "table" then
+		error ("no parent specified to move item")
+	end
+
+	if type(parent.contains) ~= "table" then
+		table.insert(self.responses, string.format(self.options.defaultResponses.notContainer, parent.name))
+		return false
+	end
 
 	local item, oldparent, idx = search(self, item.name, self.room)
 
@@ -353,11 +365,6 @@ end
 --- Try to take the given item.
 local function tryTake (self, item)
 
-	if not item then
-		table.insert(self.responses, "What do you want to take?")
-		return false
-	end
-
 	if item.person then
 		table.insert(self.responses, string.format(self.options.defaultResponses.takePerson, item.name))
 		return false
@@ -375,17 +382,48 @@ local function tryTake (self, item)
 
 	-- TODO space check
 
-	-- success
-	table.insert(self.responses, string.format(self.options.defaultResponses.taken, item.name))
-	move(self, item, self.player)
-	return true
+	if moveItem(self, item, self.player) == true then
+		table.insert(self.responses, string.format(self.options.defaultResponses.taken, item.name))
+		return true
+	else
+		return false
+	end
 
 end
 
+local function tryDrop (self, item)
+
+	if not playerHas(self, item) then
+		table.insert(self.responses, string.format(self.options.defaultResponses.dontHaveIt, item.name))
+		return false
+	end
+
+	if moveItem(self, item, self.room) == true then
+		table.insert(self.responses, string.format(self.options.defaultResponses.dropped, item.name))
+		return true
+	else
+		return false
+	end
+
+end
 
 local function commandMissingNouns (self, command)
 	return #command.nouns == 0
 end
+
+local function commandHasItem (self, command)
+	if not command.item1 then
+		if commandMissingNouns(self, command) then
+			table.insert(self.responses, string.format("Be a little more specific what you want to %s.", command.verb))
+			return false
+		else
+			table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, command.nouns[1]))
+			return false
+		end
+	end
+	return true
+end
+
 
 --- Counts the number of times a verb is used on each item
 local function countVerbUsedOnNoun (self, command)
@@ -414,19 +452,14 @@ local function apply (self, command)
 		return true
 
 	elseif command.verb == "take" then
-
-		if not command.item1 then
-			if commandMissingNouns(self, command) then
-				table.insert(self.responses, "Be a little more specific what you want to take.")
-				return false
-			else
-				table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, command.nouns[1]))
-				return false
-			end
+		if commandHasItem (self, command) then
+			return tryTake (self, command.item1)
 		end
 
-		return tryTake(self, command.item1)
-
+	elseif command.verb == "drop" then
+		if commandHasItem (self, command) then
+			return tryDrop (self, command.item1)
+		end
 	end
 
 end
@@ -577,5 +610,6 @@ return {
 	api = {
 		search = search,
 		parse = parse,
+		playerHas = playerHas
 	}
 }

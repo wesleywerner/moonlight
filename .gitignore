@@ -1,2 +1,11 @@
+# generated docs
+doc/
+
+# code coverage reports
 luacov.stats.out
-build/
+luacov.report.out
+lint.sh
+
+# mergetool backups
+src/*.orig
+tests/*.orig

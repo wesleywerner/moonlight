@@ -41,6 +41,43 @@
 
 ------------------------------------------------------------------------
 
+--- A thing that exists in the simulated world.
+-- @table thing
+--
+-- @field name
+-- The name of the thing
+--
+-- @field description
+-- The detailed description of the thing when it is examined.
+-- If not set a generic description is generated.
+--
+-- @field person
+-- A boolean indicating the thing is a person.
+-- The default article rule is ignored when the person is listed.
+--
+-- @field article
+-- Optional article used to prefix the thing's description.
+-- If not given the article will default to "a" or "an" depending
+-- on vowel rules. To list the thing as plural set the article to
+-- "some" or any similar text.
+--
+-- @field fixed
+-- The thing is fixed in place, meaning the player cannot take it.
+--
+-- @field contains
+-- Index table of other things that is carried. If not specified then
+-- this thing cannot carry anything.
+--
+-- @field supports
+-- Index table of other things supported (i.e. on top of) this thing.
+-- If not specified then this thing cannot support other things.
+--
+-- @field edible
+-- A boolean indicating the thing is edible by the player.
+
+------------------------------------------------------------------------
+
+
 --- A table of options that define parser and response behavior.
 -- @table options
 --
@@ -254,7 +291,7 @@ end
 -- Ignore this parameter, it is used to track the search progress
 -- internally, and only given a value as part of the recursive function.
 --
--- @return item, parent, index
+-- @return item @{thing}, parent @{thing}, index
 local function search (self, term, parent, stack)
 
 	-- can search by name or by item
@@ -336,6 +373,11 @@ end
 -- The name of the player character.
 local function setPlayer (self, name)
 
+	-- unassign the current player
+	if self.player then
+		self.player.isPlayer = nil
+	end
+
 	self.player, self.room = searchGlobal (self, string.lower(tostring(name)))
 
 	if not self.player then
@@ -345,6 +387,8 @@ local function setPlayer (self, name)
 	-- ensure the player can carry things
 	self.player.contains = self.player.contains or { }
 
+	self.player.isPlayer = true
+
 end
 
 
@@ -352,6 +396,7 @@ end
 local function withArticle (self, item)
 
 	if item.person == true then
+		-- TODO include article with the person
 		return item.name
 	end
 
@@ -409,7 +454,7 @@ local function describe (self, item, leadFormat)
 
 	if type(item.contains) == "table" then
 		for k, v in pairs(item.contains) do
-			if not v.player then
+			if not v.isPlayer then
 				table.insert(items, withArticle(self, v))
 			end
 		end
@@ -783,6 +828,7 @@ end
 --- The moonlight instance.
 -- @table instance
 -- @field options The simulator @{options}
+-- @field world A table of @{thing}s that make up the simulated world.
 -- @field turn The @{turn} function.
 -- @field hook The @{hook} function.
 -- @field setPlayer The @{setPlayer} function.

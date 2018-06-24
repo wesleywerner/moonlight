@@ -5,7 +5,7 @@ describe("take", function()
 		local ego = { }
 		ego.name = "You"
 		ego.description = "As good looking as ever."
-		ego.player = true
+		ego.person = true
 
 		local mary = { }
 		mary.name = "Mary"

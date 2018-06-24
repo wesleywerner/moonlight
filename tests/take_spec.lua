@@ -108,7 +108,22 @@ describe("take", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("all things", function()
+	it("all the things in the room", function()
+		local expected = {"Mary wouldn't like that.","The podium is fixed in place."}
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		ml:turn("take all")
+		assert.are.same(expected, ml.responses)
+	end)
+
+	it("all the things from something", function()
+		local expected = {"You take the mint."}
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		local cmd = ml:turn("take all from the bowl")
+		assert.is.equals("all", cmd.nouns[1])
+		assert.is.equals("bowl", cmd.nouns[2])
+		assert.are.same(expected, ml.responses)
 	end)
 
 end)

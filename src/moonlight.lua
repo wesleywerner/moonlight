@@ -105,7 +105,8 @@
 -- TODO rest of the fields.
 local options = {
 	verbs = { "examine", "take", "drop", "attack", "inventory", "insert" },
-	ignores = {"an", "a", "the", "for", "to", "at", "of", "with", "about", "on", "and"},
+	ignores = {"an", "a", "the", "for", "to", "at", "of",
+		"with", "about", "on", "and", "from"},
 	synonyms = {
 		{"attack", "hit", "smash", "kick", "cut", "kill"},
 		{"insert", "put"},
@@ -130,11 +131,11 @@ local options = {
 	supporterLead = "On it is %s.",
 	defaultResponses = {
 		fixedInPlace = "The %s is fixed in place.",
-		thingNotSeen = "I don't see the %s.",
 		takePerson = "%s wouldn't like that.",
 		taken = "You take the %s.",
 		alreadyHaveIt = "You already have it.",
 		unknownVerb = "I don't know what %q means.",
+		unknownNoun = "I don't see the %s.",
 		notContainer = "The %s cannot contain things.",
 		dropped = "You drop the %s.",
 		dontHaveIt = "You don't have the %s.",
@@ -537,6 +538,28 @@ local function playerHas (self, item)
 end
 
 
+--- Get a list of children, contained or supported, by an item.
+local function listChildrenOf (self, item)
+
+	local list = { }
+
+	if type(item.contains) == "table" then
+		for _, v in pairs(item.contains) do
+			table.insert(list, v)
+		end
+	end
+
+	if type(item.supports) == "table" then
+		for _, v in pairs(item.supports) do
+			table.insert(list, v)
+		end
+	end
+
+	return list
+
+end
+
+
 --- Take an item into the player's inventory.
 -- Generates responses.
 -- @return boolean
@@ -590,6 +613,14 @@ local function tryDrop (self, item)
 end
 
 
+--- Perform an action on every visible item.
+local function tryAll (self, command, func)
+	local children = listChildrenOf (self, command.item2 or self.room)
+	for k, v in pairs (children) do
+		func (self, v)
+	end
+end
+
 --- Test if the command has no nouns.
 -- @return boolean
 local function commandMissingNouns (self, command)
@@ -605,11 +636,18 @@ local function commandHasItem (self, command)
 			table.insert(self.responses, string.format("Be a little more specific what you want to %s.", command.verb))
 			return false
 		else
-			table.insert(self.responses, string.format(self.options.defaultResponses.thingNotSeen, command.nouns[1]))
+			table.insert(self.responses, string.format(self.options.defaultResponses.unknownNoun, command.nouns[1]))
 			return false
 		end
 	end
 	return true
+end
+
+
+--- Test if the command object refers to all things.
+-- @return boolean
+local function commandRefersAll (self, command)
+	return (not command.item1) and (command.nouns[1] == "all")
 end
 
 
@@ -632,18 +670,20 @@ local function apply (self, command)
 	countVerbUsedOnNoun (self, command)
 
 	if command.verb == "examine" then
-
 		-- default to examining the room
-		if commandMissingNouns(self, command) then
-			table.insert(self.responses, describe(self, self.room, self.options.roomLead))
+		if commandMissingNouns (self, command) then
+			table.insert (self.responses, describe (self, self.room, self.options.roomLead))
 		elseif command.item1 then
-			table.insert(self.responses, describe(self, command.item1))
+			table.insert (self.responses, describe (self, command.item1))
 		end
 
 		return true
 
 	elseif command.verb == "take" then
-		if commandHasItem (self, command) then
+		if commandRefersAll (self, command) then
+			tryAll (self, command, tryTake)
+			return true
+		elseif commandHasItem (self, command) then
 			return tryTake (self, command.item1)
 		end
 
@@ -653,7 +693,7 @@ local function apply (self, command)
 		end
 
 	elseif command.verb == "inventory" then
-		table.insert(self.responses, listInventory(self))
+		table.insert (self.responses, listInventory(self))
 		return true
 	end
 

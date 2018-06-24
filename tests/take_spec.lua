@@ -1,43 +1,41 @@
 describe("take", function()
 
 	local function makeWorld()
-
-		local ego = { }
-		ego.name = "You"
-		ego.description = "As good looking as ever."
-		ego.person = true
-
-		local mary = { }
-		mary.name = "Mary"
-		mary.description = "As good looking as ever."
-		mary.contains = { }
-		mary.person = true
-
-		local mint = { }
-		mint.name = "mint"
-		mint.description = "A small round, white peppermint."
-		mint.edible = true
-
-		local bowl = { }
-		bowl.name = "bowl"
-		bowl.description = "An opaque blue bowl."
-		bowl.contains = { mint }
-
-		local podium = { }
-		podium.name = "podium"
-		podium.description = "A short podium supporting a bowl."
-		podium.fixed = true
-		podium.supports = { bowl }
-
-		local lobby = { }
-		lobby.name = "Lobby"
-		lobby.description = "You are in the hotel lobby."
-		lobby.contains = { podium, ego, mary }
-
 		return {
-			["lobby"] = lobby
+			{
+				name = "Lobby",
+				description = "You are in the hotel lobby.",
+				contains = {
+					{ name = "You" },
+					{ name = "Mary", person = true },
+					{
+						name = "podium",
+						fixed = true,
+						description = "A short podium supporting a bowl.",
+						supports = {
+							{
+								name = "bowl",
+								description = "An opaque blue bowl.",
+								contains = {
+									{
+										name = "mint"
+									}
+								}
+							}
+						}
+					},
+				}
+			},
+			{
+				name = "A forest path",
+				description = "A bright and lively path.",
+				contains = {
+					{ name = "Bob" },
+					{ name = "hummingbird" },
+					{ name = "daisies", article="some" },
+				}
+			}
 		}
-
 	end
 
 	local ml = require("src/moonlight")
@@ -47,7 +45,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.same({expected}, ml.responses)
 
 		-- check the mint is in inventory
 		local inventory = ml.player.contains
@@ -61,7 +59,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
-		local bowl = ml.api.search(ml, "bowl", ml.world["lobby"])
+		local bowl = ml.api.searchGlobal(ml, "bowl")
 		assert.is.truthy(bowl)
 		local mint = bowl.contains[1]
 		assert.is.falsy(mint)

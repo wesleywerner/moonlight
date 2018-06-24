@@ -368,6 +368,7 @@ end
 
 
 --- Set the player character in the world simulation.
+-- @function setPlayer
 -- @param self
 -- @param name
 -- The name of the player character.
@@ -849,6 +850,7 @@ return {
 	-- @table api
 	api = {
 		search = search, -- @{search}
+		searchGlobal  = searchGlobal , -- @{searchGlobal}
 		parse = parse, -- @{parse}
 		playerHas = playerHas, -- @{playerHas}
 		hooks = { }, -- The hooks as defined by @{hook}

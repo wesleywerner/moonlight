@@ -801,9 +801,9 @@ return {
 	-- the simulator logic.
 	-- @table api
 	api = {
-		search = search, -- The @{search} function
-		parse = parse, -- The @{parse} function
-		playerHas = playerHas, -- The @{playerHas} function
-		hooks = { }, -- The hooks as defined by the @{hook} function
+		search = search, -- @{search}
+		parse = parse, -- @{parse}
+		playerHas = playerHas, -- @{playerHas}
+		hooks = { }, -- The hooks as defined by @{hook}
 	}
 }

@@ -104,7 +104,7 @@
 --
 -- TODO rest of the fields.
 local options = {
-	verbs = { "examine", "take", "drop", "attack", "inventory", "insert" },
+	verbs = { "examine", "take", "drop", "attack", "inventory", "insert", "go" },
 	ignores = { "an", "a", "the", "for", "to", "at", "of",
 		"with", "about", "on", "and", "from" },
 	synonyms = {
@@ -152,7 +152,10 @@ local options = {
 		notContainer = "The %s cannot contain things.",
 		dropped = "You drop the %s.",
 		dontHaveIt = "You don't have the %s.",
-		pocketsEmpty = "You are carrying nothing."
+		pocketsEmpty = "You are carrying nothing.",
+		whichDirection = "I can't tell which direction you want to go, N, S, E or W?",
+		noExits = "The room %q does not have exits defined, you can never leave!",
+		noExitThatWay = "You cannot go that way."
 	}
 }
 
@@ -401,7 +404,11 @@ local function setPlayer (self, name)
 	self.player, self.room = searchGlobal (self, string.lower(tostring(name)))
 
 	if not self.player then
-		error(string.format("I could not find a player named %q", name))
+		error(string.format("I could not find a thing named %q.", name))
+	end
+
+	if not self.room then
+		error(string.format("The thing named %q is not a child of a room.", name))
 	end
 
 	-- ensure the player can carry things
@@ -537,7 +544,7 @@ local function moveItem (self, item, parent)
 		return false
 	end
 
-	local match, oldparent, idx = search(self, item.name, self.room)
+	local match, oldparent, idx = search(self, item, self.room)
 
 	if match and parent and oldparent then
 		table.remove(oldparent.contains, idx)
@@ -631,11 +638,44 @@ local function tryDrop (self, item)
 end
 
 
+--- Go in a direction.
+local function tryGo (self, command)
+
+	if type(self.room.exits) ~= "table" then
+		error(string.format(self.options.defaultResponses.noExits, tostring(self.room.name)))
+	end
+
+	local way = self.room.exits[command.direction]
+
+	local room = nil
+
+	if type(way) == "string" and way ~= "" then
+		for _, r in pairs(self.world) do
+			if string.lower(r.name) == string.lower(way) then
+				room = r
+			end
+		end
+	else
+		table.insert(self.responses, self.options.defaultResponses.noExitThatWay)
+		return false
+	end
+
+	--print("\t going " .. command.direction .. " to " .. room.name)
+
+	moveItem (self, self.player, room)
+	self.room = room
+	table.insert (self.responses, describe (self, self.room, self.options.roomLead))
+
+end
+
+
 --- Perform an action on every visible item.
 local function tryAll (self, command, func)
 	local children = listChildrenOf (self, command.item2 or self.room)
 	for k, v in pairs (children) do
-		func (self, v)
+		if not v.isPlayer then
+			func (self, v)
+		end
 	end
 end
 
@@ -666,6 +706,12 @@ end
 -- @return boolean
 local function commandRefersAll (self, command)
 	return (not command.item1) and (command.nouns[1] == "all")
+end
+
+
+--- Test if the command has a direction value.
+local function commandHasDirection (self, command)
+	return contains(self.options.directions, command.direction)
 end
 
 
@@ -713,6 +759,13 @@ local function apply (self, command)
 	elseif command.verb == "inventory" then
 		table.insert (self.responses, listInventory(self))
 		return true
+
+	elseif command.verb == "go" then
+		if commandHasDirection (self, command) then
+			tryGo (self, command)
+		else
+			table.insert(self.responses, self.options.defaultResponses.whichDirection)
+		end
 	end
 
 end

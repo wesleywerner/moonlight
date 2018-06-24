@@ -6,7 +6,7 @@ describe("take", function()
 				name = "Lobby",
 				description = "You are in the hotel lobby.",
 				contains = {
-					{ name = "You" },
+					{ name = "You", person = true },
 					{ name = "Mary", person = true },
 					{
 						name = "podium",

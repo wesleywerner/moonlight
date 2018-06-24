@@ -27,6 +27,7 @@ describe ("inventory", function ()
 
 	it("listing when empty", function()
 		ml.world = makeWorld()
+		ml:setPlayer("You")
 		ml:turn("inventory")
 		local expected = "You are carrying nothing."
 		assert.are.same({expected}, ml.responses)
@@ -34,6 +35,7 @@ describe ("inventory", function ()
 
 	it("listing when holding one thing", function()
 		ml.world = makeWorld()
+		ml:setPlayer("You")
 		ml:turn("take the coin")
 		ml:turn("inventory")
 		local expected = "You are carrying a coin."
@@ -42,6 +44,7 @@ describe ("inventory", function ()
 
 	it("listing when holding more things", function()
 		ml.world = makeWorld()
+		ml:setPlayer("You")
 		ml:turn("take the coin")
 		ml:turn("take the shovel")
 		ml:turn("inventory")

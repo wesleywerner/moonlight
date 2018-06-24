@@ -28,6 +28,7 @@ describe ("drop", function ()
 
 	it("when holding the item", function()
 		ml.world = makeWorld()
+		ml:setPlayer("You")
 		ml:turn("drop the coin")
 		local expected = "You drop the coin."
 		assert.are.same({expected}, ml.responses)
@@ -37,6 +38,7 @@ describe ("drop", function ()
 
 	it("when not holding the item", function()
 		ml.world = makeWorld()
+		ml:setPlayer("You")
 		ml:turn("drop the coin")
 		ml:turn("drop the coin")
 		local expected = "You don't have the coin."

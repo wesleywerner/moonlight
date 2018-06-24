@@ -238,50 +238,7 @@ local function parse (self, sentence, known_nouns)
 end
 
 
---- Finds the player in the world model.
-local function findPlayer (self)
-
-	if not self.world then
-		error("The world is empty, you must set the world value first.")
-	end
-
-	for k, r in pairs(self.world) do
-
-		local checklist = { }
-
-		if type(r.contains) == "table" then
-			for a, b in pairs(r.contains) do
-				table.insert(checklist, b)
-			end
-		end
-
-		while #checklist > 0 do
-
-			local v = table.remove(checklist)
-
-			if v.player == true then
-				return v, r
-			end
-
-			if type(v.contains) == "table" then
-				for a, b in pairs(v.contains) do
-					table.insert(checklist, b)
-				end
-			end
-			if type(v.supports) == "table" then
-				for a, b in pairs(v.supports) do
-					table.insert(checklist, b)
-				end
-			end
-
-		end
-
-	end
-
-end
-
-
---- Search the world model for a thing.
+--- Search for an item in a specific parent item.
 -- @param self
 --
 -- @param term
@@ -296,6 +253,8 @@ end
 -- @param stack
 -- Ignore this parameter, it is used to track the search progress
 -- internally, and only given a value as part of the recursive function.
+--
+-- @return item, parent, index
 local function search (self, term, parent, stack)
 
 	-- can search by name or by item
@@ -342,6 +301,49 @@ local function search (self, term, parent, stack)
 		end
 
 	end
+
+end
+
+
+
+--- Search the world for a thing.
+-- @param self
+--
+-- @param term
+-- The thing to search for, either by the name or by an instance of the
+-- thing itself.
+--
+-- @return @{search} results.
+local function searchGlobal (self, term)
+
+	if type(self.world) ~= "table" then
+		error ("The world is empty")
+	end
+
+	for _, v in pairs(self.world) do
+		local item, parent, i = search (self, term, v)
+		if item then
+			return item, parent, i
+		end
+	end
+
+end
+
+
+--- Set the player character in the world simulation.
+-- @param self
+-- @param name
+-- The name of the player character.
+local function setPlayer (self, name)
+
+	self.player, self.room = searchGlobal (self, string.lower(tostring(name)))
+
+	if not self.player then
+		error(string.format("I could not find a player named %q", name))
+	end
+
+	-- ensure the player can carry things
+	self.player.contains = self.player.contains or { }
 
 end
 
@@ -685,14 +687,12 @@ local function turn (self, sentence)
 	-- Clear the previous turn responses
 	self.responses = { }
 
-	self.player, self.room = findPlayer(self)
-
 	-- TODO: boil the room down
 	-- copy the room object but only include items visible.
 	-- do not mutate the original room contents.
 
 	if self.player == nil then
-		error("I could not find a player in the world. They should have the \"player\" value of true.")
+		error("No player character has been set.")
 	end
 
 	-- list of known nouns from the current room
@@ -785,6 +785,7 @@ end
 -- @field options The simulator @{options}
 -- @field turn The @{turn} function.
 -- @field hook The @{hook} function.
+-- @field setPlayer The @{setPlayer} function.
 -- @field responses The @{responses} table from the last @{turn}.
 -- @field turnNumber The simulation turn number.
 -- @field api The @{api} table.
@@ -792,7 +793,7 @@ return {
 	options = options,
 	turn = turn,
 	hook = hook,
-	-- TODO set player method
+	setPlayer = setPlayer,
 	responses = { },
 	turnNumber=1,
 	--- Used internally.

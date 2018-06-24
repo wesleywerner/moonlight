@@ -105,26 +105,39 @@
 -- TODO rest of the fields.
 local options = {
 	verbs = { "examine", "take", "drop", "attack", "inventory", "insert" },
-	ignores = {"an", "a", "the", "for", "to", "at", "of",
-		"with", "about", "on", "and", "from"},
+	ignores = { "an", "a", "the", "for", "to", "at", "of",
+		"with", "about", "on", "and", "from" },
 	synonyms = {
-		{"attack", "hit", "smash", "kick", "cut", "kill"},
-		{"insert", "put"},
-		{"take", "get", "pick"},
-		{"inventory", "i"},
-		{"examine", "x", "l", "look"},
+		{ "attack", "hit", "smash", "kick", "cut", "kill" },
+		{ "insert", "put" },
+		{ "take", "get", "pick" },
+		{ "inventory", "i" },
+		{ "examine", "x", "l", "look" },
+		{ "n","north" },
+		{ "s","south" },
+		{ "e","east" },
+		{ "w","west" },
+		{ "ne", "northeast" },
+		{ "se", "southeast" },
+		{ "nw", "northwest" },
+		{ "sw", "southwest" },
+		{ "in", "inside" },
+		{ "out", "outside" }
 	},
 	vowels = {"a", "e", "i", "o", "u"},
 	directions = {
-		"north", "n",
-		"south", "s",
-		"east", "e",
-		"west", "w",
-		"northeast", "ne",
-		"southeast", "se",
-		"northwest", "nw",
-		"southwest", "sw",
-		"up", "down", "in", "out"
+		"n","north",
+		"s","south",
+		"e","east",
+		"w","west",
+		"ne", "northeast",
+		"se", "southeast",
+		"nw", "northwest",
+		"sw", "southwest",
+		"up",
+		"down",
+		"in", "inside",
+		"out", "outside"
 		},
 	roomLead = "There is %s here.",
 	containerLead = "Inside it is %s.",
@@ -269,7 +282,12 @@ local function parse (self, sentence, known_nouns)
 		end
 	end
 
-	-- TODO perform synonym check on direction
+	-- Change direction to the root synonym.
+	for i, wl in ipairs(self.options.synonyms) do
+		if contains(wl, direction) then
+			direction = wl[1]
+		end
+	end
 
 	return { verb=verb, nouns=nouns, direction=direction }
 

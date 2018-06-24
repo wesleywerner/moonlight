@@ -150,7 +150,7 @@ describe ("parser", function()
 		local result = ml.api.parse(ml, "go northwest")
 		local expected = {
 			verb="go",
-			direction="northwest",
+			direction="nw",
 			nouns={ }
 			}
 		assert.are.same(expected, result)

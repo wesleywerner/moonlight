@@ -20,7 +20,9 @@ describe ("going", function()
 					{ name = "daisies", article="some" },
 				},
 				exits = {
-					n = "The Cave"
+					n = "The Cave",
+					w = "Nowhere",
+					e = "Nowhere"
 				}
 			}
 		}
@@ -36,7 +38,7 @@ describe ("going", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	it("bad direction", function()
+	it("invalid direction", function()
 		ml.world = makeWorld()
 		ml:setPlayer ("Bob")
 		ml:turn("go south")
@@ -44,5 +46,21 @@ describe ("going", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
+	it("bad direction", function()
+		ml.world = makeWorld()
+		ml:setPlayer ("Bob")
+		ml:turn("go west")
+		local expected = {"You cannot go that way."}
+		assert.are.same(expected, ml.responses)
+	end)
+
+	it("auto describe exits", function()
+		ml.world = makeWorld()
+		ml.options.autoDescribeExits = true
+		ml:setPlayer ("Bob")
+		ml:turn("look")
+		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go e, n and w."}
+		assert.are.same(expected, ml.responses)
+	end)
 
 end)

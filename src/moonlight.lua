@@ -139,6 +139,7 @@ local options = {
 		"in", "inside",
 		"out", "outside"
 		},
+	autoDescribeExits = false,
 	roomLead = "There is %s here.",
 	containerLead = "Inside it is %s.",
 	supporterLead = "On it is %s.",
@@ -512,6 +513,26 @@ local function describe (self, item, leadFormat)
 end
 
 
+local function describeRoom (self)
+
+	local description = describe (self, self.room, self.options.roomLead)
+	if self.options.autoDescribeExits then
+		if type(self.room.exits) == "table" then
+			local possibleWays = { }
+			for k, v in pairs(self.room.exits) do
+				table.insert(possibleWays, k)
+			end
+			if #possibleWays > 0 then
+				table.sort(possibleWays)
+				description = description .. " You can go " .. joinNames(self, possibleWays) .. "."
+			end
+		end
+	end
+	table.insert (self.responses, description)
+
+end
+
+
 --- Lists items carried by the player.
 -- @return string
 local function listInventory (self)
@@ -655,7 +676,9 @@ local function tryGo (self, command)
 				room = r
 			end
 		end
-	else
+	end
+
+	if not room then
 		table.insert(self.responses, self.options.defaultResponses.noExitThatWay)
 		return false
 	end
@@ -664,7 +687,7 @@ local function tryGo (self, command)
 
 	moveItem (self, self.player, room)
 	self.room = room
-	table.insert (self.responses, describe (self, self.room, self.options.roomLead))
+	describeRoom (self)
 
 end
 
@@ -736,7 +759,7 @@ local function apply (self, command)
 	if command.verb == "examine" then
 		-- default to examining the room
 		if commandMissingNouns (self, command) then
-			table.insert (self.responses, describe (self, self.room, self.options.roomLead))
+			describeRoom (self)
 		elseif command.item1 then
 			table.insert (self.responses, describe (self, command.item1))
 		end

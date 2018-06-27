@@ -2,8 +2,15 @@ describe ("parser", function()
 
 	local ml = require("src/moonlight")
 
+	local options = {
+		directions = ml.options.directions,
+		ignores = ml.options.ignores,
+		synonyms = ml.options.synonyms
+		}
+
 	it ("verb noun", function()
-		local result = ml.api.parse(ml, "open door")
+		options.known_nouns = nil
+		local result = ml.api.parse("open door", options)
 		local expected = {
 			verb="open",
 			nouns={"door"}
@@ -12,7 +19,8 @@ describe ("parser", function()
 	end)
 
 	it ("ignored words", function()
-		local result = ml.api.parse(ml, "open the door")
+		options.known_nouns = nil
+		local result = ml.api.parse("open the door", options)
 		local expected = {
 			verb="open",
 			nouns={"door"}
@@ -21,7 +29,8 @@ describe ("parser", function()
 	end)
 
 	it ("listing nouns: the gargoyle", function()
-		local result = ml.api.parse(ml, "give sword to gargoyle")
+		options.known_nouns = nil
+		local result = ml.api.parse("give sword to gargoyle", options)
 		local expected = {
 			verb="give",
 			nouns={"sword","gargoyle"}
@@ -30,7 +39,8 @@ describe ("parser", function()
 	end)
 
 	it ("listing nouns: the gate and the skeleton key", function()
-		local result = ml.api.parse(ml, "unlock the gate with the skeleton key", {"gate", "skeleton key"})
+		options.known_nouns = {"gate", "skeleton key"}
+		local result = ml.api.parse("unlock the gate with the skeleton key", options)
 		local expected = {
 			verb="unlock",
 			nouns={"gate","skeleton key"}
@@ -39,7 +49,8 @@ describe ("parser", function()
 	end)
 
 	it ("listing nouns: the gate and the skeleton key (lazy)", function()
-		local result = ml.api.parse(ml, "unlock gate skel", {"gate", "skeleton key"})
+		options.known_nouns = {"gate", "skeleton key"}
+		local result = ml.api.parse("unlock gate skel", options)
 		local expected = {
 			verb="unlock",
 			nouns={"gate","skeleton key"}
@@ -48,7 +59,8 @@ describe ("parser", function()
 	end)
 
 	it ("listing nouns: the unseen tablet", function()
-		local result = ml.api.parse(ml, "ask the wise guy about an unseen tablet", {"wise guy", "computer"})
+		options.known_nouns = {"wise guy", "computer"}
+		local result = ml.api.parse("ask the wise guy about an unseen tablet", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "unseen", "tablet"}
@@ -57,7 +69,8 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: look/examine", function()
-		local result = ml.api.parse(ml, "look at the gate")
+		options.known_nouns = nil
+		local result = ml.api.parse("look at the gate", options)
 		local expected = {
 			verb="examine",
 			nouns={"gate"}
@@ -66,7 +79,8 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: get/take", function()
-		local result = ml.api.parse(ml, "get an apple")
+		options.known_nouns = nil
+		local result = ml.api.parse("get an apple", options)
 		local expected = {
 			verb="take",
 			nouns={"apple"}
@@ -75,7 +89,8 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: put/insert", function()
-		local result = ml.api.parse(ml, "put the box on the table")
+		options.known_nouns = nil
+		local result = ml.api.parse("put the box on the table", options)
 		local expected = {
 			verb="insert",
 			nouns={"box","table"}
@@ -84,7 +99,8 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: x/examine", function()
-		local result = ml.api.parse(ml, "x red apple", {"red apple"})
+		options.known_nouns = {"red apple"}
+		local result = ml.api.parse("x red apple", options)
 		local expected = {
 			verb="examine",
 			nouns={"red apple"}
@@ -93,7 +109,8 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: i/inventory", function()
-		local result = ml.api.parse(ml, "i")
+		options.known_nouns = nil
+		local result = ml.api.parse("i", options)
 		local expected = {
 			verb="inventory",
 			nouns={ }
@@ -102,7 +119,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing known nouns: the old man", function()
-		local result = ml.api.parse(ml, "talk to the old man", {"old man"})
+		options.known_nouns = {"old man"}
+		local result = ml.api.parse("talk to the old man", options)
 		local expected = {
 			verb="talk",
 			nouns={"old man"}
@@ -111,7 +129,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing known nouns: the red stone", function()
-		local result = ml.api.parse(ml, "take red", {"red stone", "blue stone"})
+		options.known_nouns = {"red stone", "blue stone"}
+		local result = ml.api.parse("take red", options)
 		local expected = {
 			verb="take",
 			nouns={"red stone"}
@@ -120,7 +139,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing known nouns: the wise guy", function()
-		local result = ml.api.parse(ml, "ask the wise guy about the computer", {"wise guy", "computer"})
+		options.known_nouns = {"wise guy", "computer"}
+		local result = ml.api.parse("ask the wise guy about the computer", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "computer"}
@@ -129,7 +149,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing known nouns: the wise guy (lazy)", function()
-		local result = ml.api.parse(ml, "ask guy the comp", {"wise guy", "computer"})
+		options.known_nouns = {"wise guy", "computer"}
+		local result = ml.api.parse("ask guy the comp", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "computer"}
@@ -138,7 +159,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing known nouns: the wormwood herb", function()
-		local result = ml.api.parse(ml, "eat herb", {"wormwood herb"})
+		options.known_nouns = {"wormwood herb"}
+		local result = ml.api.parse("eat herb", options)
 		local expected = {
 			verb="eat",
 			nouns={"wormwood herb"}
@@ -147,7 +169,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing directions: going northwest", function()
-		local result = ml.api.parse(ml, "go northwest")
+		options.known_nouns = nil
+		local result = ml.api.parse("go northwest", options)
 		local expected = {
 			verb="go",
 			direction="northwest",
@@ -157,7 +180,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing directions: looking east", function()
-		local result = ml.api.parse(ml, "look e")
+		options.known_nouns = nil
+		local result = ml.api.parse("look e", options)
 		local expected = {
 			verb="examine",
 			direction="east",
@@ -167,7 +191,8 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing directions: in", function()
-		local result = ml.api.parse(ml, "look in mirror")
+		options.known_nouns = nil
+		local result = ml.api.parse("look in mirror", options)
 		local expected = {
 			verb="examine",
 			nouns={"mirror"},

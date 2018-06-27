@@ -198,6 +198,7 @@ local templateResponses = {
 }
 
 local utils = require("utils")
+local parse = require("parser")
 
 --- Test if the command object refers to all things.
 -- @return boolean
@@ -306,98 +307,6 @@ local function referRulebook (self, book, command)
 	end
 
 	return true
-
-end
-
-
---- Parse a sentence into a command object.
--- It extracts the verb and nouns from the sentence, and partially
--- input noun names are replaced by their full equivalent.
---
--- @param self
---
--- @param sentence
--- The sentence to parse.
---
--- @param known_nouns
--- Table of noun names to match partial noun names in the sentence.
---
--- @return @{command}
-local function parse (self, sentence, known_nouns)
-
-	-- Split the sentence into parts. Always work in lowercase.
-	local parts = utils.split(sentence:lower(), " ")
-
-	-- Extract the direction.
-	local function findDirectionFilter(k, v)
-		return utils.contains(self.options.directions, v)
-	end
-
-	local direction = utils.find(parts, findDirectionFilter)
-
-	-- Remove directions
-	local function removeDirectionsFilter(k, v)
-		return not utils.contains(self.options.directions, v)
-	end
-
-	parts = utils.filter(parts, removeDirectionsFilter)
-
-	-- Remove ignored words
-	local function removeIgnoresFilter(k, v)
-		return not utils.contains(self.options.ignores, v)
-	end
-
-	parts = utils.filter(parts, removeIgnoresFilter)
-
-	-- Replace any partial nouns with the known nouns.
-	-- If a partial matches multiple known nouns, it will match the last one.
-	if known_nouns then
-		for partno, part in ipairs(parts) do
-			for nounno, noun in ipairs(known_nouns) do
-				-- if the part matches a known noun
-				if string.match(noun, part) then
-					-- replace the part with the match
-					parts[partno] = noun
-				end
-			end
-		end
-	end
-
-	-- Remove duplicates which can occur from the above step.
-	local function removeDuplicatesFilter(k, v)
-		return utils.indexOf(parts, v) == k
-	end
-
-	parts = utils.filter(parts, removeDuplicatesFilter)
-
-	-- Extract the verb
-	local verb = #parts > 0 and parts[1]
-
-	-- Extract the nouns.
-	local nouns = parts
-	if #parts > 1 then
-		-- remove the verb
-		table.remove(nouns, 1)
-	else
-		nouns = { }
-	end
-
-	-- Change verbs to their root synonym.
-	-- The first entry is the synonym list is the root word.
-	for i, wl in ipairs(self.options.synonyms) do
-		if utils.contains(wl, verb) then
-			verb = wl[1]
-		end
-	end
-
-	-- Change direction to the root synonym.
-	for i, wl in ipairs(self.options.synonyms) do
-		if utils.contains(wl, direction) then
-			direction = wl[1]
-		end
-	end
-
-	return { verb=verb, nouns=nouns, direction=direction }
 
 end
 
@@ -929,7 +838,12 @@ local function turn (self, sentence)
 	local known_nouns = listNouns(self)
 
 	-- Parse the sentence
-	local command = parse (self, sentence, known_nouns)
+	local command = parse (sentence, {
+		known_nouns = known_nouns,
+		directions = self.options.directions,
+		ignores = self.options.ignores,
+		synonyms = self.options.synonyms
+		})
 
 	-- Do we understand the verb?
 	if not utils.contains (self.options.verbs, command.verb) then

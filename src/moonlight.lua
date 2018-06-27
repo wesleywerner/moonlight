@@ -77,6 +77,21 @@
 
 ------------------------------------------------------------------------
 
+--- Defines behavior for performing actions during simulation.
+-- @table rule
+--
+-- @field name
+-- The name of the rule.
+--
+-- @field action
+-- A function defining the rule logic. It receives (@{instance}, @{command})
+-- as parameters.
+-- The action can return up to 2 values.
+-- The first return value is the response text.
+-- The second return value is a boolean false indicating failure.
+-- Further rulebook processing stops if the rule fails.
+
+------------------------------------------------------------------------
 
 --- A table of options that define parser and response behavior.
 -- @table options
@@ -104,23 +119,24 @@
 --
 -- TODO rest of the fields.
 local options = {
-	verbs = { "examine", "take", "drop", "attack", "inventory", "insert", "go" },
+	verbs = { "examine", "take", "drop", "attack",
+		"inventory", "insert", "go", "open", "close" },
 	ignores = { "an", "a", "the", "for", "to", "at", "of",
-		"with", "about", "on", "and", "from" },
+		"with", "about", "on", "and", "from", "into" },
 	synonyms = {
 		{ "attack", "hit", "smash", "kick", "cut", "kill" },
 		{ "insert", "put" },
 		{ "take", "get", "pick" },
 		{ "inventory", "i" },
 		{ "examine", "x", "l", "look" },
-		{ "n","north" },
-		{ "s","south" },
-		{ "e","east" },
-		{ "w","west" },
-		{ "ne", "northeast" },
-		{ "se", "southeast" },
-		{ "nw", "northwest" },
-		{ "sw", "southwest" },
+		{ "north", "n" },
+		{ "south", "s" },
+		{ "east", "e" },
+		{ "west", "w" },
+		{ "northeast", "ne" },
+		{ "southeast", "se" },
+		{ "northwest", "nw" },
+		{ "southwest", "sw" },
 		{ "in", "inside" },
 		{ "out", "outside" }
 	},
@@ -140,69 +156,157 @@ local options = {
 		"out", "outside"
 		},
 	autoDescribeExits = false,
-	roomLead = "There is %s here.",
-	containerLead = "Inside it is %s.",
-	supporterLead = "On it is %s.",
-	defaultResponses = {
-		fixedInPlace = "The %s is fixed in place.",
-		takePerson = "%s wouldn't like that.",
-		taken = "You take the %s.",
-		alreadyHaveIt = "You already have it.",
-		unknownVerb = "I don't know what %q means.",
-		unknownNoun = "I don't see the %s.",
-		notContainer = "The %s cannot contain things.",
-		dropped = "You drop the %s.",
-		dontHaveIt = "You don't have the %s.",
-		pocketsEmpty = "You are carrying nothing.",
-		whichDirection = "I can't tell which direction you want to go, N, S, E or W?",
-		noExits = "The room %q does not have exits defined, you can never leave!",
-		noExitThatWay = "You cannot go that way."
+	verbose = {
+		rulebooks = true
 	}
 }
 
---- Split a string.
-local function split (s, delimiter)
-    local result = { };
-    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match);
-    end
-    return result;
+--- List of standard responses.
+-- See the link to the source for the template wording.
+-- @table template
+local templateResponses = {
+	alreadyClosed = "The %s is already closed.",
+	alreadyHaveIt = "You already have it.",
+	alreadyOpen = "The %s is already open.",
+	closed = "You close the %s.",
+	containerLead = "Inside it is %s.",
+	darkroomDescription = "You are in the dark.",
+	dontHaveIt = "You don't have the %s.",
+	dropped = "You drop the %s.",
+	fixedInPlace = "The %s is fixed in place.",
+	insertIn = "You put the %s in the %s.",
+	insertOn = "You put the %s on the %s.",
+	missingFirstNoun = "You need to tell me what you want to %s",
+	missingSecondNoun = "You need to tell me where you want to %s the %s.",
+	noExits = "The room %q does not have exits defined, you can never leave!",
+	noExitThatWay = "You cannot go that way.",
+	notCloseable = "The %s cannot closed.",
+	notContainer = "You can't put things in %s.",
+	notOpenable = "The %s cannot be opened.",
+	notSupporter = "You can't put things on %s.",
+	opened = "You open the %s.",
+	pocketsEmpty = "You are carrying nothing.",
+	roomLead = "There is %s here.",
+	supporterLead = "On it is %s.",
+	taken = "You take the %s.",
+	takePerson = "%s wouldn't like that.",
+	tooDarkForThat = "It is too dark to do that.",
+	unknownNoun = "I don't see the %s.",
+	unknownVerb = "I don't know what %q means.",
+	verbMissingNouns = "Be a little more specific what you want to %s.",
+	whichDirection = "I can't tell which direction you want to go, N, S, E or W?",
+}
+
+local utils = require("utils")
+
+--- Test if the command object refers to all things.
+-- @return boolean
+local function commandRefersAll (self, command)
+	return (not command.item1) and (command.nouns[1] == "all")
 end
 
---- Find a value in a table via a predicate function.
-local function find (t, f)
-	for k, v in pairs(t) do
-		if f(k, v) then
-			return v
-		end
+
+--- Increment the number of times a noun has been verbed.
+local function countVerbUsedOnNoun (self, command)
+	if command.item1 then
+		command.item1.count = command.item1.count or { }
+		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
 	end
-	return nil
 end
 
---- Filter a table by a predicate function.
-local function filter (t, f)
-	local matches = {}
-	for k, v in pairs(t) do
-		if f(k, v) then
-			table.insert(matches, v)
-		end
+
+--- Builds the standard set of rulebooks.
+local function standardRulebooks ()
+
+	local rulebooks = {
+		["before"] = { }, -- before action rules
+		["on"] = { }, -- action rules
+		["after"] = { }, -- after action rules
+		["turn"] = { }, -- rules for before and after turns
+	}
+
+	require("take_rules")(rulebooks)
+	require("drop_rules")(rulebooks)
+	require("examine_rules")(rulebooks)
+	require("going_rules")(rulebooks)
+	require("inventory_rules")(rulebooks)
+	require("insert_rules")(rulebooks)
+	require("open_rules")(rulebooks)
+	require("close_rules")(rulebooks)
+	require("turn_rules")(rulebooks)
+
+	return rulebooks
+
+end
+
+
+local function reset (self)
+	self.rulebooks = standardRulebooks()
+	self.player = nil
+	self.room = nil
+end
+
+
+--- Test if the command passes checks in rulebook.
+--
+-- @param self
+-- @{instance}
+--
+-- @param book
+-- The rulebook to test against.
+--
+-- @param command
+-- The @{command} to validate.
+--
+-- @return boolean
+local function referRulebook (self, book, command)
+
+	if not book then
+		return true
 	end
-	return matches
-end
 
---- Get the index of a value in a table.
-local function indexOf (t, cmp)
-	for k, v in ipairs(t) do
-		if v == cmp then
-			return k
-		end
+	local rules
+
+	if type(command) == "string" then
+		-- if this is a non-action rulebook
+		rules = book[command]
+		command = { verb = command }
+	else
+		-- this is an action rulebook
+		rules = book[command.verb]
 	end
-	return 0
-end
 
---- Test if a table contains a value.
-local function contains (t, cmp)
-	return indexOf(t, cmp) > 0
+	if not rules then
+		return true
+	end
+
+	for _, rule in ipairs(rules) do
+
+		if type(rule.action) == "function" then
+
+			local message, result = rule.action(self, command)
+
+			if self.options.verbose.rulebooks then
+				table.insert (self.log,
+				string.format("Consulted the %q rulebook on the %q topic: %s",
+					rule.name, command.verb, result and "pass" or "fail"))
+			end
+
+			if message then
+				table.insert (self.responses, message)
+			end
+
+			-- a failed rule stops immediately
+			if result == false then
+				return false
+			end
+
+		end
+
+	end
+
+	return true
+
 end
 
 
@@ -222,28 +326,28 @@ end
 local function parse (self, sentence, known_nouns)
 
 	-- Split the sentence into parts. Always work in lowercase.
-	local parts = split(sentence:lower(), " ")
+	local parts = utils.split(sentence:lower(), " ")
 
 	-- Extract the direction.
 	local function findDirectionFilter(k, v)
-		return contains(self.options.directions, v)
+		return utils.contains(self.options.directions, v)
 	end
 
-	local direction = find(parts, findDirectionFilter)
+	local direction = utils.find(parts, findDirectionFilter)
 
 	-- Remove directions
 	local function removeDirectionsFilter(k, v)
-		return not contains(self.options.directions, v)
+		return not utils.contains(self.options.directions, v)
 	end
 
-	parts = filter(parts, removeDirectionsFilter)
+	parts = utils.filter(parts, removeDirectionsFilter)
 
 	-- Remove ignored words
 	local function removeIgnoresFilter(k, v)
-		return not contains(self.options.ignores, v)
+		return not utils.contains(self.options.ignores, v)
 	end
 
-	parts = filter(parts, removeIgnoresFilter)
+	parts = utils.filter(parts, removeIgnoresFilter)
 
 	-- Replace any partial nouns with the known nouns.
 	-- If a partial matches multiple known nouns, it will match the last one.
@@ -261,10 +365,10 @@ local function parse (self, sentence, known_nouns)
 
 	-- Remove duplicates which can occur from the above step.
 	local function removeDuplicatesFilter(k, v)
-		return indexOf(parts, v) == k
+		return utils.indexOf(parts, v) == k
 	end
 
-	parts = filter(parts, removeDuplicatesFilter)
+	parts = utils.filter(parts, removeDuplicatesFilter)
 
 	-- Extract the verb
 	local verb = #parts > 0 and parts[1]
@@ -281,14 +385,14 @@ local function parse (self, sentence, known_nouns)
 	-- Change verbs to their root synonym.
 	-- The first entry is the synonym list is the root word.
 	for i, wl in ipairs(self.options.synonyms) do
-		if contains(wl, verb) then
+		if utils.contains(wl, verb) then
 			verb = wl[1]
 		end
 	end
 
 	-- Change direction to the root synonym.
 	for i, wl in ipairs(self.options.synonyms) do
-		if contains(wl, direction) then
+		if utils.contains(wl, direction) then
 			direction = wl[1]
 		end
 	end
@@ -322,40 +426,46 @@ local function search (self, term, parent, stack)
 
 	-- init searched table stack
 	stack = stack or { }
-	local container = nil
+	local vessel = nil
+	local vesselType = nil
 
 	if type(parent.contains) == "table" and not stack[parent.contains] then
 		--print(tostring(parent.name) .. " is a container")
-		container = parent.contains
+		vessel = parent.contains
+		vesselType = "container"
 	elseif type(parent.supports) == "table" and not stack[parent.supports] then
 		--print(tostring(parent.name) .. " is a supporter")
-		container = parent.supports
+		vessel = parent.supports
+		vesselType = "supporter"
 	end
 
-	if container then
+	if vessel then
 
-		for i, v in ipairs(container) do
+		-- search in teh current vessel
+		for i, v in ipairs(vessel) do
 			if isItemSearch then
 				if v == term then
-					return v, parent, i
+					return v, parent, i, vesselType
 				end
 			else
 				if string.lower(tostring(v.name)) == term then
 					--print("found " .. tostring(term) .. " in " .. tostring(parent.name) .. "!")
-					return v, parent, i
+					return v, parent, i, vesselType
 				end
 			end
 		end
 
-		for k, v in ipairs(container) do
+		-- push new vessels (children of the current) on the search stack
+		for k, v in ipairs(vessel) do
 			-- TODO this might cause bugs if the item is both a supporter and a container.
 			-- stack only tracks the searched space for one of those cases.
+			-- Possibly fix by concating both sets into the vessel table?
 			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
 				--print("looking inside " .. tostring(v.name))
 				stack[v] = true
-				local resv, resp = search(self, term, v, stack)
+				local resv, resp, resi, rest = search(self, term, v, stack)
 				if resv then
-					return resv, resp
+					return resv, resp, resi, rest
 				end
 			end
 		end
@@ -432,7 +542,7 @@ local function withArticle (self, item)
 		return string.format("%s %s", item.article, item.name)
 	end
 
-	if indexOf(self.options.vowels, string.sub(item.name, 1, 1)) == 0 then
+	if utils.indexOf(self.options.vowels, string.sub(item.name, 1, 1)) == 0 then
 		return string.format("a %s", item.name)
 	else
 		return string.format("an %s", item.name)
@@ -467,7 +577,7 @@ end
 -- The item that will be described
 --
 -- @param leadFormat
--- The description format which can vary for rooms, supporters and containers.
+-- The description format which can vary for rooms vs containers.
 --
 -- @return string
 local function describe (self, item, leadFormat)
@@ -480,13 +590,16 @@ local function describe (self, item, leadFormat)
 	local containerText = nil
 	local supporterText = nil
 
-	if type(item.contains) == "table" then
+	-- TODO refer rulebook on listing things
+	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
+
+	if type(item.contains) == "table" and not item.closed then
 		for k, v in pairs(item.contains) do
 			if not v.isPlayer then
 				table.insert(items, withArticle(self, v))
 			end
 		end
-		containerText = string.format(leadFormat or self.options.containerLead, joinNames(self, items))
+		containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
 	end
 
 	-- clear items list for supporter listing
@@ -497,26 +610,40 @@ local function describe (self, item, leadFormat)
 		for k, v in pairs(item.supports) do
 			table.insert(items, withArticle(self, v))
 		end
-		supporterText = string.format(self.options.supporterLead, joinNames(self, items))
+		supporterText = string.format(self.template.supporterLead, joinNames(self, items))
 	end
 
 	if containerText and supporterText then
-		return string.format("%s %s %s", desc, containerText, supporterText)
+		desc = string.format("%s %s %s", desc, containerText, supporterText)
 	elseif containerText then
-		return string.format("%s %s", desc, containerText)
+		desc = string.format("%s %s", desc, containerText)
 	elseif supporterText then
-		return string.format("%s %s", desc, supporterText)
-	else
-		return desc
+		desc = string.format("%s %s", desc, supporterText)
 	end
+
+	if item.closed == true then
+		desc = string.format("%s %s", desc, "It is closed.")
+	end
+
+	return desc
+
+end
+
+--- Describe room.
+local function describeRoom (self)
+
+	return describe (self, self.room, self.template.roomLead) .. self:listRoomExits()
 
 end
 
 
-local function describeRoom (self)
+--- List exits in a room.
+local function listRoomExits (self)
 
-	local description = describe (self, self.room, self.options.roomLead)
-	if self.options.autoDescribeExits then
+	-- always list exits in a dark room
+	local darkroom = self.room.dark and not self.room.lit
+
+	if self.options.autoDescribeExits or darkroom then
 		if type(self.room.exits) == "table" then
 			local possibleWays = { }
 			for k, v in pairs(self.room.exits) do
@@ -524,11 +651,12 @@ local function describeRoom (self)
 			end
 			if #possibleWays > 0 then
 				table.sort(possibleWays)
-				description = description .. " You can go " .. joinNames(self, possibleWays) .. "."
+				return " You can go " .. joinNames(self, possibleWays) .. "."
 			end
 		end
 	end
-	table.insert (self.responses, description)
+
+	return ""
 
 end
 
@@ -538,7 +666,7 @@ end
 local function listInventory (self)
 
 	if #self.player.contains == 0 then
-		return self.options.defaultResponses.pocketsEmpty
+		return self.template.pocketsEmpty
 	end
 
 	local items = { }
@@ -552,26 +680,90 @@ local function listInventory (self)
 end
 
 
---- Move an item to another container.
--- TODO rename to insertItem and create a putItem for supporters.
-local function moveItem (self, item, parent)
+--- Move an item into a container.
+--
+-- @param self
+-- @{instance}
+--
+-- @param item
+-- The @{thing} to move.
+--
+-- @param target
+-- The new parent, the @{thing} to move item to.
+local function moveItemInto (self, item, target)
 
-	if not type(parent) == "table" then
-		error ("no parent specified to move item")
+	if not type(item) == "table" then
+		error ("no item specified to move")
 	end
 
-	if type(parent.contains) ~= "table" then
-		table.insert(self.responses, string.format(self.options.defaultResponses.notContainer, parent.name))
+	if not type(target) == "table" then
+		error ("no target specified to move the item to")
+	end
+
+	local isContainer = type(target.contains) == "table"
+
+	if not isContainer then
+		table.insert(self.responses, string.format(self.template.notContainer, target.name))
 		return false
 	end
 
-	local match, oldparent, idx = search(self, item, self.room)
+	-- find the current parent of the item
+	local match, parent, idx, vesselType = search(self, item, self.room)
 
-	if match and parent and oldparent then
-		table.remove(oldparent.contains, idx)
-		table.insert(parent.contains, match)
-		return true
+	if match and target and parent then
+		if vesselType == "container" then
+			table.remove(parent.contains, idx)
+		elseif vesselType == "supporter" then
+			table.remove(parent.supports, idx)
+		end
+		table.insert(target.contains, match)
 	end
+
+	return true
+
+end
+
+
+--- Move an item on top of a supporter.
+--
+-- @param self
+-- @{instance}
+--
+-- @param item
+-- The @{thing} to move.
+--
+-- @param target
+-- The new parent, the @{thing} to move item to.
+local function moveItemOnto (self, item, target)
+
+	if not type(item) == "table" then
+		error ("no item specified to move")
+	end
+
+	if not type(target) == "table" then
+		error ("no target specified to move the item to")
+	end
+
+	local isSupporter = type(target.supports) == "table"
+
+	if not isSupporter  then
+		table.insert(self.responses, string.format(self.template.notSupporter, target.name))
+		return false
+	end
+
+	-- find the current parent of the item
+	local match, parent, idx, vesselType = search(self, item, self.room)
+
+	if match and target and parent then
+		if vesselType == "container" then
+			table.remove(parent.contains, idx)
+		elseif vesselType == "supporter" then
+			table.remove(parent.supports, idx)
+		end
+		table.insert(target.supports, match)
+	end
+
+	return true
 
 end
 
@@ -606,145 +798,26 @@ local function listChildrenOf (self, item)
 end
 
 
---- Take an item into the player's inventory.
--- Generates responses.
--- @return boolean
--- If the action succeeded.
-local function tryTake (self, item)
-
-	if item.person then
-		table.insert(self.responses, string.format(self.options.defaultResponses.takePerson, item.name))
-		return false
-	end
-
-	if item.fixed then
-		table.insert(self.responses, string.format(self.options.defaultResponses.fixedInPlace, item.name))
-		return false
-	end
-
-	if playerHas(self, item) then
-		table.insert(self.responses, self.options.defaultResponses.alreadyHaveIt)
-		return false
-	end
-
-	-- TODO space check
-
-	if moveItem(self, item, self.player) == true then
-		table.insert(self.responses, string.format(self.options.defaultResponses.taken, item.name))
-		return true
-	else
-		return false
-	end
-
-end
-
-
---- Drop an item from the player's inventory.
--- @return boolean
--- If the action succeeded.
-local function tryDrop (self, item)
-
-	if not playerHas(self, item) then
-		table.insert(self.responses, string.format(self.options.defaultResponses.dontHaveIt, item.name))
-		return false
-	end
-
-	if moveItem(self, item, self.room) == true then
-		table.insert(self.responses, string.format(self.options.defaultResponses.dropped, item.name))
-		return true
-	else
-		return false
-	end
-
-end
-
-
---- Go in a direction.
-local function tryGo (self, command)
-
-	if type(self.room.exits) ~= "table" then
-		error(string.format(self.options.defaultResponses.noExits, tostring(self.room.name)))
-	end
-
-	local way = self.room.exits[command.direction]
-
-	local room = nil
-
-	if type(way) == "string" and way ~= "" then
-		for _, r in pairs(self.world) do
-			if string.lower(r.name) == string.lower(way) then
-				room = r
-			end
-		end
-	end
-
-	if not room then
-		table.insert(self.responses, self.options.defaultResponses.noExitThatWay)
-		return false
-	end
-
-	--print("\t going " .. command.direction .. " to " .. room.name)
-
-	moveItem (self, self.player, room)
-	self.room = room
-	describeRoom (self)
-
-end
-
-
---- Perform an action on every visible item.
-local function tryAll (self, command, func)
-	local children = listChildrenOf (self, command.item2 or self.room)
-	for k, v in pairs (children) do
-		if not v.isPlayer then
-			func (self, v)
+--- Get a room by name.
+local function roomByName (self, name)
+	name = string.lower(name)
+	for _, r in pairs(self.world) do
+		if string.lower(r.name) == name then
+			return r
 		end
 	end
 end
 
---- Test if the command has no nouns.
--- @return boolean
-local function commandMissingNouns (self, command)
-	return #command.nouns == 0
-end
 
-
---- Test if the command object has a noun-matched world item.
--- @return boolean
-local function commandHasItem (self, command)
-	if not command.item1 then
-		if commandMissingNouns(self, command) then
-			table.insert(self.responses, string.format("Be a little more specific what you want to %s.", command.verb))
-			return false
-		else
-			table.insert(self.responses, string.format(self.options.defaultResponses.unknownNoun, command.nouns[1]))
-			return false
-		end
+--- Get the room adjoining the current by direction
+local function roomByDirection (self, direction)
+	local way = self.room.exits[direction]
+	if not way then
+		return
 	end
-	return true
+	return roomByName (self, way)
 end
 
-
---- Test if the command object refers to all things.
--- @return boolean
-local function commandRefersAll (self, command)
-	return (not command.item1) and (command.nouns[1] == "all")
-end
-
-
---- Test if the command has a direction value.
-local function commandHasDirection (self, command)
-	return contains(self.options.directions, command.direction)
-end
-
-
---- Increment the number of times a noun has been verbed.
-local function countVerbUsedOnNoun (self, command)
-	if command.item1 then
-		command.item1.count = command.item1.count or { }
-		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
-	end
-end
 
 --- Apply a command to a world model.
 -- This forwards the simulation by performing the command action against
@@ -754,42 +827,19 @@ end
 -- If the action succeeded.
 local function apply (self, command)
 
-	countVerbUsedOnNoun (self, command)
-
-	if command.verb == "examine" then
-		-- default to examining the room
-		if commandMissingNouns (self, command) then
-			describeRoom (self)
-		elseif command.item1 then
-			table.insert (self.responses, describe (self, command.item1))
-		end
-
-		return true
-
-	elseif command.verb == "take" then
-		if commandRefersAll (self, command) then
-			tryAll (self, command, tryTake)
-			return true
-		elseif commandHasItem (self, command) then
-			return tryTake (self, command.item1)
-		end
-
-	elseif command.verb == "drop" then
-		if commandHasItem (self, command) then
-			return tryDrop (self, command.item1)
-		end
-
-	elseif command.verb == "inventory" then
-		table.insert (self.responses, listInventory(self))
-		return true
-
-	elseif command.verb == "go" then
-		if commandHasDirection (self, command) then
-			tryGo (self, command)
-		else
-			table.insert(self.responses, self.options.defaultResponses.whichDirection)
-		end
+	-- call "before" rules
+	-- explicit false results stops further processing
+	if referRulebook (self, self.rulebooks["before"], command) == false then
+		return false
 	end
+
+	-- call "on" rules
+	referRulebook (self, self.rulebooks["on"], command)
+
+	-- call "after" rules
+	referRulebook (self, self.rulebooks["after"], command)
+
+	countVerbUsedOnNoun (self, command)
 
 end
 
@@ -871,8 +921,8 @@ local function turn (self, sentence)
 	-- copy the room object but only include items visible.
 	-- do not mutate the original room contents.
 
-	if self.player == nil then
-		error("No player character has been set.")
+	if referRulebook (self, self.rulebooks["turn"], "before") == false then
+		return
 	end
 
 	-- list of known nouns from the current room
@@ -882,9 +932,9 @@ local function turn (self, sentence)
 	local command = parse (self, sentence, known_nouns)
 
 	-- Do we understand the verb?
-	if not contains (self.options.verbs, command.verb) then
-		table.insert(self.responses, string.format(self.options.defaultResponses.unknownVerb, command.verb))
-		return false
+	if not utils.contains (self.options.verbs, command.verb) then
+		table.insert(self.responses, string.format(self.template.unknownVerb, command.verb))
+		return command
 	end
 
 	-- look up each noun item
@@ -901,23 +951,33 @@ local function turn (self, sentence)
 			table.insert(self.responses, hookResponse)
 		end
 		-- stop further processing
-		return false
+		return command
 	end
 
-	-- Apply the command to the model
-	local commandResult = apply (self, command)
-
-	if commandResult == true then
-
+	-- include all items
+	if commandRefersAll (self, command) then
+		-- get list of children for item2, fall-back to the room.
+		local children = listChildrenOf (self, command.item2 or self.room)
+		for k, v in pairs (children) do
+			if not v.isPlayer then
+				-- "all" actions promotes the child of item2 to item1
+				command.item1 = v
+				apply (self, command)
+			end
+		end
+	else
+		apply (self, command)
 		-- add a custom response if there is one
+		-- TODO hooks obsoleted by rulebooks
 		if hookResponse then
 			table.insert(self.responses, hookResponse)
 		end
-
-		-- Increase the turn
-		self.turnNumber = self.turnNumber + 1
-
 	end
+
+	referRulebook (self, self.rulebooks["after"], "turn")
+
+	-- Increase the turn
+	self.turnNumber = self.turnNumber + 1
 
 	-- TODO return self.responses, command
 	return command
@@ -960,6 +1020,20 @@ local function hook (self, verb, noun, callback)
 
 end
 
+
+--- Lists all the rulebooks and rules.
+local function listRulebooks (self)
+	for timing, collection in pairs(self.rulebooks) do
+		for action, rules in pairs(collection) do
+			print(string.format("The %s.%s book contains:", timing, action))
+			for _, rule in ipairs(rules) do
+				print(string.format("\tThe %s rule", rule.name))
+			end
+		end
+	end
+end
+
+
 --- The moonlight instance.
 -- @table instance
 -- @field options The simulator @{options}
@@ -972,11 +1046,34 @@ end
 -- @field api The @{api} table.
 return {
 	options = options,
+	template = templateResponses,
 	turn = turn,
 	hook = hook,
 	setPlayer = setPlayer,
 	responses = { },
-	turnNumber=1,
+	log = { },
+	utils = utils,
+	turnNumber = 1,
+	rulebooks = standardRulebooks (),
+	reset = reset,
+
+	isCarrying = playerHas,
+	moveItemInto = moveItemInto,
+	moveItemOnto  = moveItemOnto,
+	describe = describe,
+	describeRoom = describeRoom,
+	listRoomExits = listRoomExits,
+	roomByName = roomByName,
+	roomByDirection = roomByDirection,
+	listInventory = listInventory,
+	withArticle = withArticle,
+	listRulebooks = listRulebooks,
+
+	-- TODO world() method that validates the model
+	-- * all rooms have exits
+	-- * all exits point to valid rooms
+	-- * exits use the full direction name
+
 	--- Used internally.
 	-- This table contains functions and other tables used by the
 	-- simulator. It is exposed to provide access to unit testing of

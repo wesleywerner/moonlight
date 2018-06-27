@@ -47,4 +47,20 @@ describe ("drop", function ()
 		assert.is_false(playerHas)
 	end)
 
+	it("unspecified thing", function()
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		ml:turn("drop the lamp")
+		local expected = "I don't see the lamp."
+		assert.are.same({expected}, ml.responses)
+	end)
+
+	it("missing noun", function()
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		ml:turn("drop")
+		local expected = "Be a little more specific what you want to drop."
+		assert.are.same({expected}, ml.responses)
+	end)
+
 end)

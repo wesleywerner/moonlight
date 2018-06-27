@@ -100,6 +100,14 @@ describe("take", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
+	it("missing noun", function()
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		ml:turn("take the grue")
+		local expected = "I don't see the grue."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
 	it("a person", function()
 		ml.world = makeWorld()
 		ml:setPlayer("You")

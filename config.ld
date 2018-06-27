@@ -1,4 +1,4 @@
-file = "src"
+file = "src/moonlight.lua"
 title = "moonlight documentation"
 description = ""
 all = true

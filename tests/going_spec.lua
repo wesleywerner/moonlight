@@ -20,9 +20,9 @@ describe ("going", function()
 					{ name = "daisies", article="some" },
 				},
 				exits = {
-					n = "The Cave",
-					w = "Nowhere",
-					e = "Nowhere"
+					north = "The Cave",
+					west = "Nowhere",
+					east = "Nowhere"
 				}
 			}
 		}
@@ -59,8 +59,17 @@ describe ("going", function()
 		ml.options.autoDescribeExits = true
 		ml:setPlayer ("Bob")
 		ml:turn("look")
-		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go e, n and w."}
+		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
 		assert.are.same(expected, ml.responses)
 	end)
+
+	it("room without exits", function()
+		ml.world = makeWorld()
+		ml:setPlayer ("Alice")
+		ml:turn("go north")
+		local expected = {"The room \"The Cave\" does not have exits defined, you can never leave!"}
+		assert.are.same(expected, ml.responses)
+	end)
+
 
 end)

@@ -69,7 +69,7 @@ describe ("darkness", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("in dark rooms")
+	pending("dark rooms lit when carrying a lit item")
 
 
 end)

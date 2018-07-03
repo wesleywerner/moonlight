@@ -1,4 +1,5 @@
 local utils = require("utils")
+local soundexlib = require("soundex")
 
 --- Parse a sentence into a command object.
 -- It extracts the verb and nouns from the sentence, and partially
@@ -28,9 +29,35 @@ return function (sentence, options)
 	options.directions = options.directions or { }
 	options.ignores = options.ignores or { }
 	options.synonyms = options.synonyms or { }
+	options.known_nouns = options.known_nouns or { }
+
+	-- precalculate the sounds of known words
+	if options.soundex == true then
+		for _, word in ipairs(options.known_nouns) do
+			soundexlib:set (word)
+		end
+		--for _, word in ipairs(options.ignores) do
+		--	soundexlib:set (word)
+		--end
+		--for _, wordlist in ipairs(options.synonyms) do
+		--	for _, word in ipairs(wordlist) do
+		--		soundexlib:set (word)
+		--	end
+		--end
+	end
 
 	-- Split the sentence into parts. Always work in lowercase.
 	local parts = utils.split(sentence:lower(), " ")
+
+	-- use soundex matching
+	if options.soundex then
+		for i, v in ipairs(parts) do
+			local match = soundexlib:get (v)
+			if match then
+				parts[i] = match
+			end
+		end
+	end
 
 	-- Extract the direction.
 	local function findDirectionFilter(k, v)

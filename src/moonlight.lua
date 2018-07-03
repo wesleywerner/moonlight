@@ -117,7 +117,13 @@
 -- @field directions
 -- Indexed table of known directions.
 --
--- TODO rest of the fields.
+-- @field autoDescribeExits
+-- A boolean to enable listing of possible exits in the room description.
+-- Exits are always listed in dark, unlit rooms.
+--
+-- @field soundex
+-- A boolean to enable soundex matching of known nouns to the player's
+-- input during sentence parsing.
 local options = {
 	verbs = { "examine", "take", "drop", "attack",
 		"inventory", "insert", "go", "open", "close" },
@@ -842,7 +848,8 @@ local function turn (self, sentence)
 		known_nouns = known_nouns,
 		directions = self.options.directions,
 		ignores = self.options.ignores,
-		synonyms = self.options.synonyms
+		synonyms = self.options.synonyms,
+		soundex = self.options.soundex
 		})
 
 	-- Do we understand the verb?

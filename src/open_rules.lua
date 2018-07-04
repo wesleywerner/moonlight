@@ -36,6 +36,15 @@ return function (rulebooks)
 				command.item1.closed = false
 				return string.format(self.template.opened, command.item1.name)
 			end
+		},
+		{
+			name = "auto listing opened contents",
+			action = function (self, command)
+				if self.options.autoListContentsOfOpened == true then
+					local contents = self:listContents (command.item1)
+					return contents
+				end
+			end
 		}
 	}
 

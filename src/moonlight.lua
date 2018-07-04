@@ -165,6 +165,7 @@ local options = {
 		"out", "outside"
 		},
 	autoDescribeExits = false,
+	autoListContentsOfOpened = false,
 	verbose = {
 		rulebooks = true
 	}
@@ -487,6 +488,59 @@ local function joinNames(self, names)
 end
 
 
+--- Lists the contents of a container or supporter.
+--
+-- @param self
+--
+-- @param item
+-- The item that will be described
+--
+-- @param leadFormat
+-- The description format which can vary for rooms vs containers.
+--
+-- @return string
+local function listContents (self, item, leadFormat)
+
+	-- list all the items contained in the item, or on top of the item.
+	local items = { }
+	local containerText = nil
+	local supporterText = nil
+
+	-- TODO refer rulebook on listing things
+	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
+
+	if type(item.contains) == "table" and not item.closed then
+		for k, v in pairs(item.contains) do
+			if not v.isPlayer then
+				table.insert(items, withArticle(self, v))
+			end
+		end
+		-- TODO test if item.isRoom and use the room lead instead of taking this parameter
+		containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
+	end
+
+	-- clear items list for supporter listing
+	items = { }
+
+	-- list things on top of the item
+	if type(item.supports) == "table" then
+		for k, v in pairs(item.supports) do
+			table.insert(items, withArticle(self, v))
+		end
+		supporterText = string.format(self.template.supporterLead, joinNames(self, items))
+	end
+
+	if containerText and supporterText then
+		return string.format("%s %s", containerText, supporterText)
+	elseif containerText then
+		return containerText
+	elseif supporterText then
+		return supporterText
+	end
+
+end
+
+
 --- Describe the given item in detail.
 -- The item's description is generated if it has none defined.
 --
@@ -504,47 +558,18 @@ local function describe (self, item, leadFormat)
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
 
-	-- list all the items contained in the item, or on top of the item.
-	local items = { }
-	local containerText = nil
-	local supporterText = nil
-
-	-- TODO refer rulebook on listing things
-	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
-
-	if type(item.contains) == "table" and not item.closed then
-		for k, v in pairs(item.contains) do
-			if not v.isPlayer then
-				table.insert(items, withArticle(self, v))
-			end
-		end
-		containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
-	end
-
-	-- clear items list for supporter listing
-	items = { }
-
-	-- list things on top of the item
-	if type(item.supports) == "table" then
-		for k, v in pairs(item.supports) do
-			table.insert(items, withArticle(self, v))
-		end
-		supporterText = string.format(self.template.supporterLead, joinNames(self, items))
-	end
-
-	if containerText and supporterText then
-		desc = string.format("%s %s %s", desc, containerText, supporterText)
-	elseif containerText then
-		desc = string.format("%s %s", desc, containerText)
-	elseif supporterText then
-		desc = string.format("%s %s", desc, supporterText)
-	end
+	-- TODO test if item.isRoom and use the room lead instead of taking this parameter
+	local contents = listContents (self, item, leadFormat)
 
 	if item.closed == true then
 		desc = string.format("%s %s", desc, "It is closed.")
 	end
 
-	return desc
+	if contents then
+		return string.format("%s %s", desc, contents)
+	else
+		return desc
+	end
 
 end
 
@@ -993,6 +1018,7 @@ return {
 	listInventory = listInventory,
 	withArticle = withArticle,
 	listRulebooks = listRulebooks,
+	listContents = listContents,
 
 	-- TODO world() method that validates the model
 	-- * all rooms have exits

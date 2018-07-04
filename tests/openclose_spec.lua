@@ -1,4 +1,4 @@
-describe ("closed containers", function()
+describe ("container", function()
 
 	local function makeWorld ()
 		return {
@@ -32,6 +32,16 @@ describe ("closed containers", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet."}
+		assert.are.same(expected, ml.responses)
+		assert.is.falsy(cmd.item1.closed)
+	end)
+
+	it("open it (with auto listing of contents)", function()
+		ml.world = makeWorld()
+		ml.options.autoListContentsOfOpened = true
+		ml:setPlayer ("Alice")
+		local cmd = ml:turn("open the toilet")
+		local expected = {"You open the toilet.", "Inside it is a gold coin."}
 		assert.are.same(expected, ml.responses)
 		assert.is.falsy(cmd.item1.closed)
 	end)

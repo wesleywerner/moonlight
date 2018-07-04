@@ -52,6 +52,9 @@ return function (sentence, options)
 	-- Split the sentence into parts. Always work in lowercase.
 	local parts = utils.split(sentence:lower(), " ")
 
+	-- Extract the verb
+	local verb = table.remove(parts, 1)
+
 	-- use soundex matching
 	if options.soundex then
 		for i, v in ipairs(parts) do
@@ -104,18 +107,6 @@ return function (sentence, options)
 
 	parts = utils.filter(parts, removeDuplicatesFilter)
 
-	-- Extract the verb
-	local verb = #parts > 0 and parts[1]
-
-	-- Extract the nouns.
-	local nouns = parts
-	if #parts > 1 then
-		-- remove the verb
-		table.remove(nouns, 1)
-	else
-		nouns = { }
-	end
-
 	-- Change verbs to their root synonym.
 	-- The first entry is the synonym list is the root word.
 	for i, wl in ipairs(options.synonyms) do
@@ -131,7 +122,7 @@ return function (sentence, options)
 		end
 	end
 
-	return { verb=verb, nouns=nouns, direction=direction }
+	return { verb=verb, nouns=parts, direction=direction }
 
 end
 

@@ -201,5 +201,15 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
+	it ("does not confuse verbs for nouns", function()
+		options.known_nouns = {"small mailbox"}
+		local result = ml.api.parse("x", options)
+		local expected = {
+			verb="examine",
+			nouns = { }
+		}
+		assert.are.same(expected, result)
+	end)
+
 
 end)

@@ -1,3 +1,5 @@
+--- The standard opening things rulebook.
+-- @module open_rules
 return function (rulebooks)
 
 	rulebooks.before.open = {

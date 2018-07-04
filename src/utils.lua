@@ -1,3 +1,6 @@
+--- Helper utilities
+-- @module utils
+
 --- Split a string.
 local function split (s, delimiter)
     local result = { };

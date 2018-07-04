@@ -9,3 +9,6 @@ lint.sh
 # mergetool backups
 src/*.orig
 tests/*.orig
+
+# symlinks into examples
+examples/src

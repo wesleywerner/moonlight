@@ -1,3 +1,5 @@
+--- Provides phonetic sound matching
+-- @module soundex
 
 -- Code taken from https://www.rosettacode.org/wiki/Soundex#Lua
 

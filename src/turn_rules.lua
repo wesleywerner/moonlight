@@ -1,3 +1,5 @@
+--- The standard turn rulebook.
+-- @module turn_rules
 return function (rulebooks)
 
 	rulebooks.turn.before = {

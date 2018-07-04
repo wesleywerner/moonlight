@@ -1,3 +1,5 @@
+--- The standard inserting things into other things rulebook.
+-- @module insert_rules
 return function (rulebooks)
 
 	-- Note: the command direction will be "in" for containers

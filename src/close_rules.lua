@@ -1,3 +1,5 @@
+--- The standard closing things rulebook.
+-- @module close_rules
 return function (rulebooks)
 
 	rulebooks.before.close = {

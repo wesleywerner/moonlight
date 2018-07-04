@@ -1,6 +1,9 @@
-file = "src/moonlight.lua"
+file = "src"
 title = "moonlight documentation"
-description = ""
+description = "Moonlight interactive fiction world simulator."
 all = true
 sort = true
 prettify_files = "show"
+examples = { "examples", exclude = {"examples/moonlight"} }
+readme = "README.md"
+format = "markdown"

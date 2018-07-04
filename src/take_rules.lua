@@ -1,3 +1,5 @@
+--- The standard taking things rulebook.
+-- @module take_rules
 return function (rulebooks)
 
 	rulebooks.before.take = {

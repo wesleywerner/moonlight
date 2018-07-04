@@ -1,3 +1,5 @@
+--- The standard examining things rulebook.
+-- @module examine_rules
 return function (rulebooks)
 
 	rulebooks.before.examine = {

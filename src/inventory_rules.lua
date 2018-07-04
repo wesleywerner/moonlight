@@ -1,3 +1,5 @@
+--- The standard inventory listing rulebook.
+-- @module inventory_rules
 return function (rulebooks)
 
 	rulebooks.before.inventory = {

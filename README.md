@@ -1,8 +1,18 @@
 # moonlight
 
-An Interactive Fiction engine written in Lua.
+Moonlight is an interactive fiction world simulator.
 
-# requirements for development
+It takes care of parsing player sentences, matching the known nouns
+in the current room, and simulates world interactions.
+
+Moonlight uses a rule based system to define when and what actions do.
+
+This documentation contains everything you need to learn how to use
+Moonlight, including a bunch of working examples.
+
+See @{getting_started.lua} for a quick introduction.
+
+# development
 
 Moonlight development, unit testing and document generation requirements:
 
@@ -13,65 +23,65 @@ Moonlight development, unit testing and document generation requirements:
 
 Build luarocks from source is advised, you need the lua headers for this:
 
-> sudo apt-get install liblua5.2-dev
+	sudo apt-get install liblua5.2-dev
 
 Then from the luarocks source directory:
 
-> ./configure
-> make build
-> make install
+	./configure
+	make build
+	make install
 
 ## set your lua path
 
 To ensure lua looks for these modules in your local rocks, set your `LUA_PATH` environment variable (in .bash_profile for example):
 
-> # local luarocks bin
-> export PATH=~/.luarocks/bin:$PATH
->
-> # set LUA_PATH
-> eval "$(luarocks path)"
+	# local luarocks bin
+	export PATH=~/.luarocks/bin:$PATH
+
+	# set LUA_PATH
+	eval "$(luarocks path)"
 
 ## required rocks
 
-> luarocks install luacheck --local && \
-> luarocks install busted --local && \
-> luarocks install penlight --local && \
-> luarocks install luacov --local
+	luarocks install luacheck --local && \
+	luarocks install busted --local && \
+	luarocks install penlight --local && \
+	luarocks install luacov --local
 
 The `--local` option bypasses requiring super user privileges, you must add the output of `luarocks path` to your environment so that the rocks can be found by Lua.
 
-# linting
+## linting
 
 Check the code syntax:
 
-> luacheck --no-unused-args src/*.lua
+	luacheck --no-unused-args src/*.lua
 
 Check the syntax of the tests by ignoring the busted global:
 
-> luacheck --no-unused-args --std max+busted tests/*.lua
+	luacheck --no-unused-args --std max+busted tests/*.lua
 
-# running unit tests
+## running unit tests
 
 Unit testing is done with busted, the `.busted` config already defines everything, so simply run:
 
-> busted
+	busted
 
 Check code coverage:
 
 Coverage is performed every time `busted` is run. Generate the report with `luacov`:
 
-> busted && luacov
->
-> # check the tail for the summary
-> less luacov.report.out
+	busted && luacov
 
-# document generation
+	# check the tail for the summary
+	less luacov.report.out
+
+## document generation
 
 LDoc is used to generate documentation for the source code, it is included as a git submodule. It requires the penlight rock, which may already be installed as a dependency if you installed `busted` earlier.
 
-> # pull the LDoc submodule
-> git submodule init && git submodule update
+	# pull the LDoc submodule
+	git submodule init && git submodule update
 
 Run generation:
 
-> lua LDoc/ldoc.lua .
+	lua LDoc/ldoc.lua .

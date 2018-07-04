@@ -1,3 +1,5 @@
+--- The standard going in directions rulebook.
+-- @module going_rules
 return function (rulebooks)
 
 	--- Test if the command has a direction value.

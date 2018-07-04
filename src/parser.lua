@@ -1,3 +1,6 @@
+--- The parser
+-- @module parser
+
 local utils = require("utils")
 local soundexlib = require("soundex")
 
@@ -21,7 +24,7 @@ local soundexlib = require("soundex")
 -- synonyms
 -- (a list of tables of synonymous words, the first word being the root)
 --
--- @return @{command}
+-- @return @{moonlight:command}
 return function (sentence, options)
 
 	-- assume safe defaults

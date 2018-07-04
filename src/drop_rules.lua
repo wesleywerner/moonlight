@@ -1,3 +1,5 @@
+--- The standard dropping things rulebook.
+-- @module drop_rules
 return function (rulebooks)
 	rulebooks.before.drop =	{
 		{

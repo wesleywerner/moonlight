@@ -1,9 +1,12 @@
 
 
---- The moonlight interactive fiction simulator.
--- All functions are exported onto the module instance.
+--- Moonlight interactive fiction world simulator.
+--
 -- Local functions are used internally by the simulator and not meant
--- to be called directly, as such these are separated into a namespace.
+-- to be called directly.
+--
+-- See @{getting_started.lua} for a quick introduction.
+--
 -- @module moonlight
 
 ------------------------------------------------------------------------
@@ -84,7 +87,7 @@
 -- The name of the rule.
 --
 -- @field action
--- A function defining the rule logic. It receives (@{instance}, @{command})
+-- A function defining the rule logic. It receives (@{moonlight:instance}, @{moonlight:command})
 -- as parameters.
 -- The action can return up to 2 values.
 -- The first return value is the response text.
@@ -247,6 +250,7 @@ local function standardRulebooks ()
 end
 
 
+--- TODO
 local function reset (self)
 	self.rulebooks = standardRulebooks()
 	self.player = nil
@@ -1003,7 +1007,7 @@ return {
 	api = {
 		search = search, -- @{search}
 		searchGlobal  = searchGlobal , -- @{searchGlobal}
-		parse = parse, -- @{parse}
+		parse = parse, -- @{parser.parse}
 		playerHas = playerHas, -- @{playerHas}
 		hooks = { }, -- The hooks as defined by @{hook}
 	}

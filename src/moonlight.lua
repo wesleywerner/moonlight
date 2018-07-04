@@ -176,7 +176,8 @@ local options = {
 		["list contents of opened"] = false
 	},
 	verbose = {
-		rulebooks = true
+		rulebooks = true,
+		parser = true
 	}
 }
 
@@ -310,7 +311,7 @@ local function referRulebook (self, book, command)
 			if self.options.verbose.rulebooks then
 				table.insert (self.log,
 				string.format("Consulted the %q rulebook on the %q topic: %s",
-					rule.name, command.verb, result and "fail" or "pass"))
+					rule.name, command.verb, (result == false) and "fail" or "pass"))
 			end
 
 			if message then
@@ -869,6 +870,7 @@ local function turn (self, sentence)
 
 	-- Clear the previous turn responses
 	self.responses = { }
+	self.log = { }
 
 	-- TODO: boil the room down
 	-- copy the room object but only include items visible.
@@ -889,6 +891,12 @@ local function turn (self, sentence)
 		synonyms = self.options.synonyms,
 		soundex = self.options.soundex
 		})
+
+	if self.options.verbose.parser then
+		table.insert(self.log, string.format("Parsed verb as %s", tostring(command.verb)))
+		table.insert(self.log, string.format("Parsed noun as %s", tostring(command.nouns[1])))
+		table.insert(self.log, string.format("Parsed noun as %s", tostring(command.nouns[2])))
+	end
 
 	-- Do we understand the verb?
 	if not utils.contains (self.options.verbs, command.verb) then

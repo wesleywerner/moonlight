@@ -310,7 +310,7 @@ local function referRulebook (self, book, command)
 			if self.options.verbose.rulebooks then
 				table.insert (self.log,
 				string.format("Consulted the %q rulebook on the %q topic: %s",
-					rule.name, command.verb, result and "pass" or "fail"))
+					rule.name, command.verb, result and "fail" or "pass"))
 			end
 
 			if message then

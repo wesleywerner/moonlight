@@ -41,9 +41,10 @@ return function (rulebooks)
 			action = function (self, command)
 				local room = self:roomByDirection (command.direction)
 				if room then
-					self:moveItemInto (self.player, room)
-					self.room = room
-					return self:describeRoom ()
+					if self:moveItemInto (self.player, room) == true then
+						self.room = room
+						return self:describeRoom ()
+					end
 				end
 			end
 		}

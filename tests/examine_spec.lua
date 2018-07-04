@@ -53,7 +53,14 @@ describe("examine", function()
 		lobby.contains = { bookcase, podium, ego, mary }
 
 		return {
-			["lobby"] = lobby
+			lobby,
+			{
+				name = "Empty Space",
+				description = "It seems empty.",
+				contains = {
+					{ name = "Bob", person = true }
+				}
+			}
 		}
 
 	end
@@ -65,6 +72,14 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("look")
 		local expected = "You are in the hotel lobby. There is a bookcase, a podium and Mary here."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	it("an empty room", function()
+		ml.world = makeWorld()
+		ml:setPlayer("Bob")
+		ml:turn("look")
+		local expected = "It seems empty."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
@@ -89,6 +104,14 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("examine bookcase")
 		local expected = "It is just wooden box without the books. Inside it is an envelope. On it is a key."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
+	it("an unknown thing", function()
+		ml.world = makeWorld()
+		ml:setPlayer("You")
+		ml:turn("examine the snargle")
+		local expected = "I don't see the snargle."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 

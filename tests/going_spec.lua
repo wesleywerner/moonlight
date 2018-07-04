@@ -56,7 +56,7 @@ describe ("going", function()
 
 	it("auto describe exits", function()
 		ml.world = makeWorld()
-		ml.options.autoDescribeExits = true
+		ml.options.auto["describe exits"] = true
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}

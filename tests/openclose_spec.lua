@@ -38,7 +38,7 @@ describe ("container", function()
 
 	it("open it (with auto listing of contents)", function()
 		ml.world = makeWorld()
-		ml.options.autoListContentsOfOpened = true
+		ml.options.auto["list contents of opened"] = true
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet.", "Inside it is a gold coin."}

@@ -45,6 +45,10 @@ ml.world = {
 	}
 }
 
+-- set simulator options:
+-- list contents of containers when opened.
+ml.options.autoListContentsOfOpened = true
+
 -- set the player
 ml:setPlayer ("You")
 

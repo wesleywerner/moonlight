@@ -40,7 +40,7 @@ return function (rulebooks)
 		{
 			name = "auto listing opened contents",
 			action = function (self, command)
-				if self.options.autoListContentsOfOpened == true then
+				if self.options.auto["list contents of opened"] == true then
 					local contents = self:listContents (command.item1)
 					return contents
 				end

@@ -120,9 +120,8 @@
 -- @field directions
 -- Indexed table of known directions.
 --
--- @field autoDescribeExits
--- A boolean to enable listing of possible exits in the room description.
--- Exits are always listed in dark, unlit rooms.
+-- @field auto
+-- @{moonlight.auto} options that set automatic responses to certain actions.
 --
 -- @field soundex
 -- A boolean to enable soundex matching of known nouns to the player's
@@ -164,8 +163,18 @@ local options = {
 		"in", "inside",
 		"out", "outside"
 		},
-	autoDescribeExits = false,
-	autoListContentsOfOpened = false,
+
+	--- A table of boolean options that set automatic responses to certain actions.
+	-- See the link to the source for all the available options.
+	-- @table auto
+	-- @field key true/false
+	-- @usage auto["describe exits"] = true
+	auto = {
+		-- list all exits after the room description
+		["describe exits"] = false,
+		-- list the contents of a container when opening it
+		["list contents of opened"] = false
+	},
 	verbose = {
 		rulebooks = true
 	}
@@ -587,7 +596,7 @@ local function listRoomExits (self)
 	-- always list exits in a dark room
 	local darkroom = self.room.dark and not self.room.lit
 
-	if self.options.autoDescribeExits or darkroom then
+	if self.options.auto["describe exits"] or darkroom then
 		if type(self.room.exits) == "table" then
 			local possibleWays = { }
 			for k, v in pairs(self.room.exits) do

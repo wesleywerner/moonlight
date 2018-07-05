@@ -17,7 +17,7 @@ ml.world = {
 		description = "You are standing in an open field west of a white house, with a boarded front door.",
 		-- possible exits from this room
 		exits = {
-
+			south = "South of the House"
 		},
 		-- this room contains...
 		contains = {
@@ -42,36 +42,66 @@ ml.world = {
 				},
 			}
 		}
+	},
+	-- our second room in the game
+	{
+		name = "South of the House",
+		description = "You are facing the south side of a white house. There is no door here, and all the windows are boarded.",
+		exits = {
+			north = "West of House",
+			east = "Behind House"
+		},
+		-- TODO if our room does not have a contains table we error.
+		-- Validate rooms on turns.
+		contains = {}
+	},
+	-- our third room
+	{
+		name = "Behind House",
+		description = "You are behind the white house. A path leads into the forest to the east. In one corner of the house there is a small window which is slightly ajar.",
+		exits = {
+			west = "South of the House"
+		},
+		-- TODO if our room does not have a contains table we error.
+		-- Validate rooms on turns.
+		contains = {}
 	}
 }
 
 -- set simulator options:
+
 -- list contents of containers when opened.
-ml.options.autoListContentsOfOpened = true
+ml.options.auto["list contents of opened"] = true
+
+-- always print the exits of a room.
+ml.options.auto["describe exits"] = true
 
 -- set the player
 ml:setPlayer ("You")
 
 -- print a welcome message
-io.write("Welcome to your world. Enter 'q' or 'quit' when done exploring.\n\n")
-
--- let the first turn be a look around the room
---ml:turn("look")
+io.write("\nWelcome! Enter 'bye' or 'quit' when done exploring.\n\n")
 
 -- begin the game
 while true do
 
-	io.write("> ")
+	io.write(ml.room.name .. " > ")
 	local input = io.read()
 
-	if input == "q" or input == "quit" then
+	if input == "q" or input == "quit" or input == "bye" or input == "exit" then
 		break
 	end
+
+	--io.write(string.format("(turn number %d)\n", ml.turnNumber))
 
 	-- simulate the world
 	ml:turn (input)
 
 	-- print all the responses
+	--for _, message in ipairs(ml.log) do
+	--	io.write(message, "\n")
+	--end
+
 	for _, message in ipairs(ml.responses) do
 		io.write(message, "\n")
 	end

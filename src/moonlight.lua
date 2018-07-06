@@ -539,7 +539,9 @@ local function listContents (self, item, leadFormat)
 			end
 		end
 		-- TODO test if item.isRoom and use the room lead instead of taking this parameter
-		containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
+		if #items > 0 then
+			containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
+		end
 	end
 
 	-- clear items list for supporter listing
@@ -550,7 +552,9 @@ local function listContents (self, item, leadFormat)
 		for k, v in pairs(item.supports) do
 			table.insert(items, withArticle(self, v))
 		end
-		supporterText = string.format(self.template.supporterLead, joinNames(self, items))
+		if #items > 0 then
+			supporterText = string.format(self.template.supporterLead, joinNames(self, items))
+		end
 	end
 
 	if containerText and supporterText then
@@ -921,6 +925,15 @@ local function turn (self, sentence)
 	command.item1, command.item1Parent = search(self, command.nouns[1], self.room)
 	command.item2, command.item2Parent = search(self, command.nouns[2], self.room)
 
+	-- Exits could point to things too, like doors.
+	-- If there is no command item, attempt to find it using the
+	-- direction value. The item will remain nil if it is not a thing.
+	if command.verb == "go" and command.direction then
+		if not command.item1 and self.room.exits then
+			command.item1 = search(self, self.room.exits[command.direction], self.room)
+		end
+	end
+
 	-- call any hooks for this command
 	local hookSet, hookResponse = callHook(self, command)
 
@@ -1050,6 +1063,7 @@ return {
 	withArticle = withArticle,
 	listRulebooks = listRulebooks,
 	listContents = listContents,
+	search = search,
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the
@@ -1057,7 +1071,6 @@ return {
 	-- the simulator logic.
 	-- @table api
 	api = {
-		search = search, -- @{search}
 		searchGlobal  = searchGlobal , -- @{searchGlobal}
 		parse = parse, -- @{parser.parse}
 		playerHas = playerHas, -- @{playerHas}

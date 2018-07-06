@@ -12,7 +12,10 @@ return function (rulebooks)
 			name = "unspecified direction",
 			action = function (self, command)
 				if not commandHasDirection (self, command) then
-					return self.template.whichDirection, false
+					-- allow going into things (like doors)
+					if not command.item1 then
+						return self.template.whichDirection, false
+					end
 				end
 			end
 		},
@@ -27,9 +30,18 @@ return function (rulebooks)
 		{
 			name = "exit is a valid room",
 			action = function (self, command)
-				local room = self:roomByDirection (command.direction)
-				if not room then
-					return self.template.noExitThatWay, false
+				if command.item1 then
+					-- enter a door
+					local room = self:roomByName (command.item1.destination or "")
+					if not room then
+						return self.template.noExitThatWay, false
+					end
+				else
+					-- find the room in the direction
+					local room = self:roomByDirection (command.direction)
+					if not room then
+						return self.template.noExitThatWay, false
+					end
 				end
 			end
 		}
@@ -39,7 +51,15 @@ return function (rulebooks)
 		{
 			name = "direction",
 			action = function (self, command)
-				local room = self:roomByDirection (command.direction)
+				local room
+				if command.item1 then
+					-- enter a door
+					room = self:roomByName (command.item1.destination)
+				else
+					-- go by direction
+					room = self:roomByDirection (command.direction)
+				end
+
 				if room then
 					if self:moveItemInto (self.player, room) == true then
 						self.room = room

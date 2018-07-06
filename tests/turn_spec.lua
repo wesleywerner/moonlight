@@ -26,7 +26,7 @@ describe("turn", function()
 	local ml = require("src/moonlight")
 
 	it("increments the turn number on valid commands", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		local tn = ml.turnNumber
 		ml:turn("look")
@@ -34,7 +34,7 @@ describe("turn", function()
 	end)
 
 	it("does not increment the turn number on invalid commands", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		local tn = ml.turnNumber
 		ml:turn("snafu foobar")
@@ -42,7 +42,7 @@ describe("turn", function()
 	end)
 
 	it("match partial nouns", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine book")
 		local expected = "It is just wooden box without the books."
@@ -50,7 +50,7 @@ describe("turn", function()
 	end)
 
 	it("counts the times a thing is verbed", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		local command = ml:turn("examine the bookcase")
 		assert.are.equal(1, command.item1.count["examine"])

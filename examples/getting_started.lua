@@ -8,7 +8,7 @@ package.path = package.path .. ";./moonlight/?.lua"
 local ml = require("moonlight")
 
 -- build the world as nested tables
-ml.world = {
+ml:setWorld ({
 	-- our first room. all rooms must live on the root of the world table.
 	{
 		-- the room name is also used to reference in the room exits
@@ -66,7 +66,7 @@ ml.world = {
 		-- Validate rooms on turns.
 		contains = {}
 	}
-}
+})
 
 -- set simulator options:
 

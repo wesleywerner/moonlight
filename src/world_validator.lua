@@ -7,11 +7,11 @@ return function (self, world)
 	end
 
 	if type(world) ~= "table" then
-		error ("The world must be table.")
+		logerr ("The world must be table.")
 	end
 
 	if #world == 0 then
-		error ("The world table must contain at least one room.")
+		logerr ("The world table must contain at least one room.")
 	end
 
 	-- helper to test exits in rooms
@@ -36,7 +36,7 @@ return function (self, world)
 				if not self:roomByName (v) then
 					-- perhaps the exit points to a door
 					local item = self:search (v, room)
-					if not self:roomByName (item.destination or "") then
+					if not item or not self:roomByName (item.destination or "") then
 						logerr ("Exit %q in room %q is invalid", v, room.name)
 					end
 				end

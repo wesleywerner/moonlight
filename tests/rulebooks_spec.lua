@@ -30,7 +30,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.on.examine, examine_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.is_true(local_bool)
@@ -53,7 +53,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.on.examine, examine_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("open the mailbox")
 		assert.is_false(local_bool)
@@ -76,7 +76,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.before.examine, examine_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({expected}, ml.responses)
@@ -99,7 +99,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.before.examine, examine_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({expected, "It is a mailbox."}, ml.responses)
@@ -123,7 +123,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.turn.before, turn_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		ml:turn("look")
@@ -148,7 +148,7 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.after.turn, turn_rule)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		ml:turn("look")
@@ -159,7 +159,7 @@ describe("rulebook", function()
 
 	it("standard player not set", function()
 		ml:reset()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:turn("examine the mailbox")
 		local expected = {"No player character has been set."}
 		assert.are.same(expected, ml.responses)

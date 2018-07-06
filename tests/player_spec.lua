@@ -26,7 +26,7 @@ describe ("player", function()
 	local ml = require("src/moonlight")
 
 	it("is alice", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}
@@ -34,7 +34,7 @@ describe ("player", function()
 	end)
 
 	it("is bob", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = { "A bright and lively path. There is a hummingbird and some daisies here."}
@@ -42,7 +42,7 @@ describe ("player", function()
 	end)
 
 	it("switches players", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}

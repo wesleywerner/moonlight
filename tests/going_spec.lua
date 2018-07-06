@@ -31,7 +31,7 @@ describe ("going", function()
 	local ml = require("src/moonlight")
 
 	it("specific direction", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("go north")
 		local expected = {"A dank and musty old place. There is Alice, a glowing rock and a stalagtite here."}
@@ -39,7 +39,7 @@ describe ("going", function()
 	end)
 
 	it("invalid direction", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("go south")
 		local expected = {"You cannot go that way."}
@@ -47,7 +47,7 @@ describe ("going", function()
 	end)
 
 	it("bad direction", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("go west")
 		local expected = {"You cannot go that way."}
@@ -55,7 +55,7 @@ describe ("going", function()
 	end)
 
 	it("auto describe exits", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml.options.auto["describe exits"] = true
 		ml:setPlayer ("Bob")
 		ml:turn("look")
@@ -64,7 +64,7 @@ describe ("going", function()
 	end)
 
 	it("room without exits", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("go north")
 		local expected = {"The room \"The Cave\" does not have exits defined, you can never leave!"}

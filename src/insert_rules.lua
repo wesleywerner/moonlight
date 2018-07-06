@@ -17,8 +17,15 @@ return function (rulebooks)
 			end
 		},
 		{
+			name = "player is carrying the thing",
+			action = function (self, command)
+				if not self:isCarrying (command.item1) then
+					return string.format(self.template.dontHaveIt, command.item1.name), false
+				end
+			end
+		},
+		{
 			name = "into a non-container",
-			--nouns = 2,
 			action = function (self, command)
 				if command.direction == "in" and type(command.item2.contains) ~= "table" then
 					return string.format(self.template.notContainer, self:withArticle (command.item2)), false
@@ -27,7 +34,6 @@ return function (rulebooks)
 		},
 		{
 			name = "onto a non-supporter",
-			--nouns = 2,
 			action = function (self, command)
 				if command.direction == nil and type(command.item2.supports) ~= "table" then
 					return string.format(self.template.notSupporter, self:withArticle (command.item2)), false

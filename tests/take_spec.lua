@@ -41,7 +41,7 @@ describe("take", function()
 	local ml = require("src/moonlight")
 
 	it("moves the item to inventory", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
@@ -55,7 +55,7 @@ describe("take", function()
 	end)
 
 	it("removes the item", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
@@ -66,7 +66,7 @@ describe("take", function()
 	end)
 
 	it("the same thing twice", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
@@ -77,7 +77,7 @@ describe("take", function()
 	end)
 
 	it("something fixed in place", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take the podium")
 		local expected = "The podium is fixed in place."
@@ -85,7 +85,7 @@ describe("take", function()
 	end)
 
 	it("what you cannot see", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take the headlamp")
 		local expected = "I don't see the headlamp."
@@ -93,7 +93,7 @@ describe("take", function()
 	end)
 
 	it("unspecified thing", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take")
 		local expected = "Be a little more specific what you want to take."
@@ -101,7 +101,7 @@ describe("take", function()
 	end)
 
 	it("missing noun", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take the grue")
 		local expected = "I don't see the grue."
@@ -109,7 +109,7 @@ describe("take", function()
 	end)
 
 	it("a person", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take mary")
 		local expected = "Mary wouldn't like that."
@@ -118,7 +118,7 @@ describe("take", function()
 
 	it("all the things in the room", function()
 		local expected = {"Mary wouldn't like that.","The podium is fixed in place."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take all")
 		assert.are.same(expected, ml.responses)
@@ -126,7 +126,7 @@ describe("take", function()
 
 	it("all the things from something", function()
 		local expected = {"You take the mint."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		local cmd = ml:turn("take all from the bowl")
 		assert.is.equals("all", cmd.nouns[1])

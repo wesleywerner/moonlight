@@ -68,7 +68,7 @@ describe("examine", function()
 	local ml = require("src/moonlight")
 
 	it("the room", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("look")
 		local expected = "You are in the hotel lobby. There is a bookcase, a podium and Mary here."
@@ -76,7 +76,7 @@ describe("examine", function()
 	end)
 
 	it("an empty room", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("Bob")
 		ml:turn("look")
 		local expected = "It seems empty."
@@ -84,7 +84,7 @@ describe("examine", function()
 	end)
 
 	it("a container", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("look in the bowl")
 		local expected = "An opaque blue bowl. Inside it is a mint."
@@ -92,7 +92,7 @@ describe("examine", function()
 	end)
 
 	it("a supporter", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("x podium")
 		local expected = "A short podium supporting a bowl. On it is a bowl."
@@ -100,7 +100,7 @@ describe("examine", function()
 	end)
 
 	it("a supporting container", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine bookcase")
 		local expected = "It is just wooden box without the books. Inside it is an envelope. On it is a key."
@@ -108,7 +108,7 @@ describe("examine", function()
 	end)
 
 	it("an unknown thing", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the snargle")
 		local expected = "I don't see the snargle."

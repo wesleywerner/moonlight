@@ -27,7 +27,7 @@ describe ("drop", function ()
 	local ml = require("src/moonlight")
 
 	it("when holding the item", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("drop the coin")
 		local expected = "You drop the coin."
@@ -37,7 +37,7 @@ describe ("drop", function ()
 	end)
 
 	it("when not holding the item", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("drop the coin")
 		ml:turn("drop the coin")
@@ -48,7 +48,7 @@ describe ("drop", function ()
 	end)
 
 	it("unspecified thing", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("drop the lamp")
 		local expected = "I don't see the lamp."
@@ -56,7 +56,7 @@ describe ("drop", function ()
 	end)
 
 	it("missing noun", function()
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("drop")
 		local expected = "Be a little more specific what you want to drop."

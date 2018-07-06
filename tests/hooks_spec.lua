@@ -24,7 +24,7 @@ describe("hook", function()
 		end
 		ml:hook("examine", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.is_true(local_bool)
@@ -41,7 +41,7 @@ describe("hook", function()
 		end
 		ml:hook("examine", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the letter")
 		assert.is_false(local_bool)
@@ -58,7 +58,7 @@ describe("hook", function()
 		end
 		ml:hook("examine", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("open the mailbox")
 		assert.is_false(local_bool)
@@ -75,7 +75,7 @@ describe("hook", function()
 		end
 		ml:hook("examine", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({ expected }, ml.responses)
@@ -92,7 +92,7 @@ describe("hook", function()
 		end
 		ml:hook("examine", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({ "It is a mailbox.", expected }, ml.responses)
@@ -107,7 +107,7 @@ describe("hook", function()
 		end
 		ml:hook("insert", "mailbox", examine_callback)
 
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("put the mailbox in the letter")
 		assert.is.not_nil(item1)

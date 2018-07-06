@@ -78,7 +78,7 @@ describe ("open doors", function()
 
 	it("with direction, via name", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Mary")
 		ml:turn ("go in the red door")
 		assert.are.same(expected, ml.responses)
@@ -86,7 +86,7 @@ describe ("open doors", function()
 
 	it("without direction, via direction", function()
 		local expected = {"You cannot go that way."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Joe")
 		ml:turn ("go east")
 		assert.are.same(expected, ml.responses)
@@ -94,7 +94,7 @@ describe ("open doors", function()
 
 	it("without direction, via name", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Joe")
 		ml:turn ("go the red door")
 		assert.are.same(expected, ml.responses)
@@ -102,7 +102,7 @@ describe ("open doors", function()
 
 	it("via the wrong thing", function()
 		local expected = {"You cannot go that way."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Joe")
 		ml:turn ("go in the fake door")
 		assert.are.same(expected, ml.responses)

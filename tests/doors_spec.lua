@@ -9,16 +9,13 @@ describe ("doors", function()
 			{
 				name = "West of House",
 				description = "You are standing in an open field west of a white house.",
-				exits = {
-					east = "Kitchen",
-				},
+				exits = { },
 				contains = {
 					{ name = "Bob", person = true },
 					{
 						name = "front door",
 						closed = true,
-						-- the door blocks the way leading to the east
-						blocks = { "east" },
+						destination = "Kitchen"
 					}
 				}
 			},
@@ -31,8 +28,7 @@ describe ("doors", function()
 					{
 						name = "small window",
 						closed = true,
-						-- the window is directionless
-						exits = "Kitchen",
+						destination = "Kitchen",
 					}
 				}
 			},
@@ -43,9 +39,9 @@ describe ("doors", function()
 		}
 	end
 
-	it("by direction", function()
+	pending("by direction", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml.world = makeWorld()
+		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn ("open the front door")
 		ml:turn ("go east")

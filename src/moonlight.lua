@@ -460,6 +460,19 @@ local function setPlayer (self, name)
 end
 
 
+--- Set the world model.
+local function setWorld (self, world)
+	-- ensure all rooms can contain things
+	for _, room in ipairs(world) do
+		room.contains = room.contains or { }
+	end
+	local validator = require("world_validator")
+	local valid, issues = validator (world)
+	self.world = world
+	return valid, issues
+end
+
+
 --- Get the name of an item with the article prefixed.
 local function withArticle (self, item)
 
@@ -1016,14 +1029,15 @@ return {
 	template = templateResponses,
 	turn = turn,
 	hook = hook,
-	setPlayer = setPlayer,
 	responses = { },
 	log = { },
 	utils = utils,
 	turnNumber = 1,
 	rulebooks = standardRulebooks (),
+	-- functions
 	reset = reset,
-
+	setWorld = setWorld,
+	setPlayer = setPlayer,
 	isCarrying = playerHas,
 	moveItemInto = moveItemInto,
 	moveItemOnto  = moveItemOnto,
@@ -1036,11 +1050,6 @@ return {
 	withArticle = withArticle,
 	listRulebooks = listRulebooks,
 	listContents = listContents,
-
-	-- TODO world() method that validates the model
-	-- * all rooms have exits
-	-- * all exits point to valid rooms
-	-- * exits use the full direction name
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the

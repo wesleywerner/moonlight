@@ -9,7 +9,7 @@ return function (rulebooks)
 					if #command.nouns == 0 then
 						return string.format(self.template.verbMissingNouns, command.verb), false
 					else
-						return string.format(self.template.unknownNoun, command.nouns[1]), false
+						return string.format(self.template.dontSeeIt, command.nouns[1]), false
 					end
 				end
 			end

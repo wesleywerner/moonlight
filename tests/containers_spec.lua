@@ -6,7 +6,11 @@ describe ("containers", function()
 				name = "Bathroom",
 				description = "You stand in a bathroom.",
 				contains = {
-					{ name = "Alice", person = true },
+					{
+						name = "Alice",
+						person = true,
+						contains = { {name = "valve"} }
+					},
 					{
 						name = "toilet",
 						closed = true,
@@ -39,8 +43,8 @@ describe ("containers", function()
 	it("insert to something not seen", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
-		local cmd = ml:turn("put coin inside the lunchbox")
-		local expected = {"You need to tell me where you want to insert the gold coin."}
+		local cmd = ml:turn("put valve inside the lunchbox")
+		local expected = {"You need to tell me where you want to insert the valve."}
 		assert.are.same(expected, ml.responses)
 	end)
 
@@ -48,17 +52,16 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("take coin")
-		local cmd = ml:turn("put coin inside the box")
+		local cmd = ml:turn("put valve inside the box")
 		assert.are.equals("in", cmd.direction)
-		local expected = {"You put the gold coin in the black box."}
+		local expected = {"You put the valve in the black box."}
 		assert.are.same(expected, ml.responses)
 	end)
 
 	it("insert into a non-container", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
-		ml:turn("take coin")
-		ml:turn("put coin inside the daisies")
+		ml:turn("put valve inside the daisies")
 		local expected = {"You can't put things in some daisies."}
 		assert.are.same(expected, ml.responses)
 	end)
@@ -117,11 +120,11 @@ describe ("containers", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("examine thing inside closed", function()
-		local expected = {""}
+	it("examine thing inside closed", function()
+		local expected = {"I don't see the gold coin."}
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
-		ml:turn("")
+		ml:turn("examine gold coin")
 		assert.are.same(expected, ml.responses)
 	end)
 

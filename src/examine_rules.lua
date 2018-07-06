@@ -18,7 +18,7 @@ return function (rulebooks)
 			name = "unspecified nouns",
 			action = function (self, command)
 				if command.nouns[1] and not command.item1 then
-					return string.format(self.template.unknownNoun, command.nouns[1]), false
+					return string.format(self.template.dontSeeIt, command.nouns[1]), false
 				end
 			end
 		},

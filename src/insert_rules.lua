@@ -9,7 +9,7 @@ return function (rulebooks)
 			name = "check items exist",
 			action = function (self, command)
 				if not command.item1 then
-					return string.format(self.template.missingFirstNoun, command.verb), false
+					return string.format(self.template.dontHaveIt, command.nouns[1]), false
 				end
 				if not command.item2 then
 					return string.format(self.template.missingSecondNoun, command.verb, command.item1.name), false

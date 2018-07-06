@@ -192,6 +192,7 @@ local templateResponses = {
 	containerLead = "Inside it is %s.",
 	darkroomDescription = "You are in the dark.",
 	dontHaveIt = "You don't have the %s.",
+	dontSeeIt = "I don't see the %s.",
 	dropped = "You drop the %s.",
 	fixedInPlace = "The %s is fixed in place.",
 	insertIn = "You put the %s in the %s.",
@@ -211,7 +212,6 @@ local templateResponses = {
 	taken = "You take the %s.",
 	takePerson = "%s wouldn't like that.",
 	tooDarkForThat = "It is too dark to do that.",
-	unknownNoun = "I don't see the %s.",
 	unknownVerb = "I don't know what %q means.",
 	verbMissingNouns = "Be a little more specific what you want to %s.",
 	whichDirection = "I can't tell which direction you want to go, N, S, E or W?",
@@ -360,9 +360,11 @@ local function search (self, term, parent, stack)
 	local vesselType = nil
 
 	if type(parent.contains) == "table" and not stack[parent.contains] then
-		--print(tostring(parent.name) .. " is a container")
-		vessel = parent.contains
-		vesselType = "container"
+		-- only see into open containers
+		if type(parent.closed) == "nil" or parent.closed == false then
+			vessel = parent.contains
+			vesselType = "container"
+		end
 	elseif type(parent.supports) == "table" and not stack[parent.supports] then
 		--print(tostring(parent.name) .. " is a supporter")
 		vessel = parent.supports

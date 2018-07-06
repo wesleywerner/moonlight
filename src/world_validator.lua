@@ -1,7 +1,4 @@
-
-local utils = require("utils")
-
-return function (world)
+return function (self, world)
 
 	local issues = { }
 
@@ -17,18 +14,8 @@ return function (world)
 		error ("The world table must contain at least one room.")
 	end
 
-	-- helper to find a room
-	local function findRoom (name)
-		for _, room in ipairs(world) do
-			if room.name == name then
-				return room
-			end
-		end
-	end
-
 	-- helper to test exits in rooms
 	local function testRoomExits (room)
-		local count = #issues
 		local hasCompassDirection = false
 		for k, v in pairs(room.exits) do
 			-- exit is named properly
@@ -46,8 +33,12 @@ return function (world)
 			}
 			if validDirections[k] then
 				hasCompassDirection = true
-				if not findRoom (v) then
-					logerr ("Exit %q in room %q is invalid", v, room.name)
+				if not self:roomByName (v) then
+					-- perhaps the exit points to a door
+					local item = self:search (v, room)
+					if not self:roomByName (item.destination or "") then
+						logerr ("Exit %q in room %q is invalid", v, room.name)
+					end
 				end
 			else
 				logerr ("The %q exit in %q has to be a fully named compass direction", k, room.name)
@@ -81,7 +72,7 @@ return function (world)
 			end
 			-- test exits
 			if type(test.destination) == "string" then
-				if findRoom (test.destination) then
+				if self:roomByName (test.destination) then
 					hasExitThing = true
 				else
 					logerr ("The %q destination for %q is invalid", test.destination, test.name)
@@ -123,10 +114,6 @@ return function (world)
 		end
 
 	end
-
-	-- * all exits point to valid rooms
-	-- * exits use the full direction name
-	error (table.concat(issues, "."))
 
 	-- return valid, issues
 	return #issues == 0, issues

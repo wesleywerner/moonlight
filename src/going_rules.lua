@@ -20,7 +20,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "room without exits",
+			name = "room has exits",
 			action = function (self, command)
 				if type(self.room.exits) ~= "table" then
 					return string.format(self.template.noExits, tostring(self.room.name)), false

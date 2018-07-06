@@ -466,9 +466,8 @@ local function setWorld (self, world)
 	for _, room in ipairs(world) do
 		room.contains = room.contains or { }
 	end
-	local validator = require("world_validator")
-	local valid, issues = validator (world)
 	self.world = world
+	local valid, issues = self:validate (world)
 	return valid, issues
 end
 
@@ -1064,6 +1063,7 @@ return {
 	listRulebooks = listRulebooks,
 	listContents = listContents,
 	search = search,
+	validate = require("world_validator"),
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the

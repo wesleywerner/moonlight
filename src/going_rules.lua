@@ -44,6 +44,14 @@ return function (rulebooks)
 					end
 				end
 			end
+		},
+		{
+			name = "cannot pass closed doors",
+			action = function (self, command)
+				if command.item1 and (command.item1.closed == true) then
+					return "The door is closed.", false
+				end
+			end
 		}
 	}
 

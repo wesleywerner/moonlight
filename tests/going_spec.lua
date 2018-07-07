@@ -24,11 +24,44 @@ describe ("going", function()
 					west = "Nowhere",
 					east = "Nowhere"
 				}
+			},
+			{
+				name = "Tower Stairwell",
+				description = "A tight winding white flaked wooden staircase.",
+				contains = {
+					{ name = "Hugo", person = true },
+					{ name = "ladder", destination = "The Bell Tower" },
+					{ name = "oak door", closed = true, destination = "The Bell Tower" }
+				},
+				exits = {
+					up = "ladder",
+					south = "oak door"
+				}
+			},
+			{
+				name = "The Bell Tower",
+				description = "High up next to the old bell."
 			}
 		}
 	end
 
 	local ml = require("src/moonlight")
+
+	it("up and down", function()
+		local expected = {"High up next to the old bell."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Hugo")
+		ml:turn ("go up")
+		assert.are.same (expected, ml.responses)
+	end)
+
+	it("not through closed", function()
+		local expected = {"The door is closed."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Hugo")
+		ml:turn ("go south")
+		assert.are.same (expected, ml.responses)
+	end)
 
 	it("specific direction", function()
 		ml:setWorld (makeWorld())

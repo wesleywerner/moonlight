@@ -28,9 +28,8 @@ return function (rulebooks)
 		{
 			name = "thing",
 			action = function (self, command)
-				if self:moveItemInto (command.item1, self.room) == true then
-					return string.format(self.template.dropped, command.item1.name)
-				end
+				self:moveItemInto (command.item1, self.room)
+				return string.format(self.template.dropped, command.item1.name)
 			end
 		}
 	}

@@ -61,10 +61,9 @@ return function (rulebooks)
 				end
 
 				if room then
-					if self:moveItemInto (self.player, room) == true then
-						self.room = room
-						return self:describeRoom ()
-					end
+					self:moveItemInto (self.player, room)
+					self.room = room
+					return self:describeRoom ()
 				end
 			end
 		}

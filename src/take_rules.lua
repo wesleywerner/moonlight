@@ -56,9 +56,8 @@ return function (rulebooks)
 		{
 			name = "thing",
 			action = function (self, command)
-				if self:moveItemInto (command.item1, self.player) == true then
-					return string.format(self.template.taken, command.item1.name)
-				end
+				self:moveItemInto (command.item1, self.player)
+				return string.format(self.template.taken, command.item1.name)
 			end
 		}
 	}

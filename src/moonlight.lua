@@ -677,6 +677,30 @@ local function listInventory (self)
 end
 
 
+--- Detach a thing from it's parent
+--
+-- @param self
+-- @{instance}
+--
+-- @thing
+-- The @{thing} to detach
+local function detach (self, thing)
+	local _, parent = self:searchFirst (thing)
+	if parent then
+		for place, cmp in ipairs(parent.contains or {}) do
+			if thing == cmp then
+				table.remove (parent.contains, place)
+			end
+		end
+		for place, cmp in ipairs(parent.supports or {}) do
+			if thing == cmp then
+				table.remove (parent.supports, place)
+			end
+		end
+	end
+end
+
+
 --- Move an item into a container.
 --
 -- @param self
@@ -688,36 +712,8 @@ end
 -- @param target
 -- The new parent, the @{thing} to move item to.
 local function moveItemInto (self, item, target)
-
-	if not type(item) == "table" then
-		error ("no item specified to move")
-	end
-
-	if not type(target) == "table" then
-		error ("no target specified to move the item to")
-	end
-
-	local isContainer = type(target.contains) == "table"
-
-	if not isContainer then
-		table.insert(self.responses, string.format(self.template.notContainer, target.name))
-		return false
-	end
-
-	-- find the current parent of the item
-	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
-
-	if match and target and parent then
-		if vesselType == "container" then
-			table.remove(parent.contains, idx)
-		elseif vesselType == "supporter" then
-			table.remove(parent.supports, idx)
-		end
-		table.insert(target.contains, match)
-	end
-
-	return true
-
+	self:detach (item)
+	table.insert(target.contains, item)
 end
 
 
@@ -732,44 +728,14 @@ end
 -- @param target
 -- The new parent, the @{thing} to move item to.
 local function moveItemOnto (self, item, target)
-
-	if not type(item) == "table" then
-		error ("no item specified to move")
-	end
-
-	if not type(target) == "table" then
-		error ("no target specified to move the item to")
-	end
-
-	local isSupporter = type(target.supports) == "table"
-
-	if not isSupporter  then
-		table.insert(self.responses, string.format(self.template.notSupporter, target.name))
-		return false
-	end
-
-	-- find the current parent of the item
-	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
-
-	if match and target and parent then
-		if vesselType == "container" then
-			table.remove(parent.contains, idx)
-		elseif vesselType == "supporter" then
-			table.remove(parent.supports, idx)
-		end
-		table.insert(target.supports, match)
-	end
-
-	return true
-
+	self:detach (item)
+	table.insert(target.supports, item)
 end
 
 
 --- Test if a persons is carrying a thing.
 local function isCarrying (self, item, owner)
-
 	return searchFirst(self, item, owner or self.player, true)
-
 end
 
 
@@ -1089,6 +1055,7 @@ return {
 	searchFirst = searchFirst,
 	validate = require("world_validator"),
 	thingClosedOrDark = thingClosedOrDark,
+	detach = detach,
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the

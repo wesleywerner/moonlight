@@ -332,82 +332,18 @@ local function referRulebook (self, book, command)
 end
 
 
---- Search for an item in a specific parent item.
+--- Get the scope of visibilty of a thing
+-- @function search
+--
 -- @param self
+-- @{instance}
 --
--- @param term
--- The thing to search for, either by the name or by an instance of the
--- thing itself.
+-- @param thing
+-- The thing to query
 --
--- @param parent
--- The parent container to search within. Usually this is the current
--- room, but can also be the player for inventory checking, or any other
--- world item.
---
--- @param stack
--- Ignore this parameter, it is used to track the search progress
--- internally, and only given a value as part of the recursive function.
---
--- @return item @{thing}, parent @{thing}, index
-local function search_v1 (self, term, parent, stack)
-
-	-- can search by name or by item
-	local isItemSearch = type(term) == "table"
-
-	-- init searched table stack
-	stack = stack or { }
-	local vessel = nil
-	local vesselType = nil
-
-	if type(parent.contains) == "table" and not stack[parent.contains] then
-		-- only see into open containers
-		if type(parent.closed) == "nil" or parent.closed == false then
-			vessel = parent.contains
-			vesselType = "container"
-		end
-	elseif type(parent.supports) == "table" and not stack[parent.supports] then
-		--print(tostring(parent.name) .. " is a supporter")
-		vessel = parent.supports
-		vesselType = "supporter"
-	end
-
-	if vessel then
-
-		-- search in teh current vessel
-		for i, v in ipairs(vessel) do
-			if isItemSearch then
-				if v == term then
-					return v, parent, i, vesselType
-				end
-			else
-				if string.lower(tostring(v.name)) == term then
-					--print("found " .. tostring(term) .. " in " .. tostring(parent.name) .. "!")
-					return v, parent, i, vesselType
-				end
-			end
-		end
-
-		-- push new vessels (children of the current) on the search stack
-		for k, v in ipairs(vessel) do
-			-- TODO this might cause bugs if the item is both a supporter and a container.
-			-- stack only tracks the searched space for one of those cases.
-			-- Possibly fix by concating both sets into the vessel table?
-			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
-				--print("looking inside " .. tostring(v.name))
-				stack[v] = true
-				local resv, resp, resi, rest = search(self, term, v, stack)
-				if resv then
-					return resv, resp, resi, rest
-				end
-			end
-		end
-
-	end
-
-end
-
-
---- helper to determine the scope of visibilty of a thing
+-- @return
+-- true if the thing is closed, or dark.
+-- true if not closed, not dark, or dark and lit.
 local function thingClosedOrDark (self, thing)
 	if (thing.closed == true) then
 		return true
@@ -416,7 +352,6 @@ local function thingClosedOrDark (self, thing)
 	end
 	return false
 end
-
 
 
 --- Search for a world thing.
@@ -437,7 +372,9 @@ end
 -- in dark unlit rooms.
 --
 -- @return
--- Table of matches, nil if no matches found.
+-- An indexed table of matches, each match a collection
+-- { item, parent }
+-- Returns nil if no matches found.
 local function search (self, term, parent, wizard)
 
 	-- helper to match a thing

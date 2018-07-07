@@ -407,6 +407,107 @@ local function search (self, term, parent, stack)
 end
 
 
+--- helper to determine the scope of visibilty of a thing
+local function thingClosedOrDark (self, thing)
+	if (thing.closed == true) then
+		return true
+	elseif ((thing.dark == true) and not (thing.lit == true)) then
+		return true
+	end
+	return false
+end
+
+
+
+--- Search for a world thing.
+-- @function search
+--
+-- @param self
+-- @{instance}
+--
+-- @param term
+-- The name of the thing to find, the thing itself (to find it's parent)
+-- or a predicate function to match items.
+--
+-- @param parent
+-- The room to search. If given as nil all rooms (inclusive) are searched.
+--
+-- @param wizard
+-- Boolean flag includes searching things inside closed containers and
+-- in dark unlit rooms.
+--
+-- @return
+-- Table of matches, nil if no matches found.
+local function search_v2 (self, term, parent, wizard)
+
+	-- helper to match a thing
+	local function match (item)
+		if type(term) == "string" then
+			return string.lower(item.name) == string.lower(term)
+		elseif type(term) == "table" then
+			return item == term
+		elseif type(term) == "function" then
+			return term (item)
+		end
+	end
+
+	-- helper to test if item contents should be queried,
+	-- based on seen things and if the item is closed or dark.
+	local function queryContents (item)
+		if wizard then
+			return true
+		else
+			return thingClosedOrDark (self, item) == false
+		end
+	end
+
+	-- stored as { matched item, parent, index, parent type }
+	local stack = { }
+
+	-- stored as { matched item, parent, index, parent type }
+	local results = { }
+
+	if parent then
+		-- include the parent in the search
+		if queryContents (parent) then
+			table.insert (stack, {parent})
+		end
+	else
+		-- search all rooms if no parent specified
+		for _, w in ipairs(self.world) do
+			table.insert (stack, {w})
+		end
+	end
+
+	-- while there are things on the stack to search
+	while #stack > 0 do
+
+		-- query the next item
+		local item, itemparent, index, ctype = unpack (table.remove(stack))
+
+		-- queue all it's children for later querying
+		if queryContents (item) then
+			for i, n in ipairs(item.contains or {}) do
+				table.insert (stack, { n, item, i, "container" })
+			end
+			for i, n in ipairs(item.supports or {}) do
+				table.insert (stack, { n, item, i, "supporter" })
+			end
+		end
+
+		-- test matching
+		if match (item) then
+			table.insert (results, { item, itemparent, index, ctype })
+		end
+
+	end
+
+	if #results > 0 then
+		return results
+	end
+
+end
+
 
 --- Search the world for a thing.
 -- @param self
@@ -423,7 +524,7 @@ local function searchGlobal (self, term)
 	end
 
 	for _, v in pairs(self.world) do
-		local item, parent, i = search (self, term, v)
+		local item, parent, i = search(self, term, v)
 		if item then
 			return item, parent, i
 		end
@@ -533,7 +634,7 @@ local function listContents (self, item, leadFormat)
 	-- TODO refer rulebook on listing things
 	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
 
-	if type(item.contains) == "table" and not item.closed then
+	if item.contains and not self:thingClosedOrDark (item) then
 		for k, v in pairs(item.contains) do
 			if not v.isPlayer then
 				table.insert(items, withArticle(self, v))
@@ -1065,7 +1166,9 @@ return {
 	listRulebooks = listRulebooks,
 	listContents = listContents,
 	search = search,
+	search_v2 = search_v2,
 	validate = require("world_validator"),
+	thingClosedOrDark = thingClosedOrDark,
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the

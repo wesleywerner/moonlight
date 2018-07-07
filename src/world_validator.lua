@@ -35,7 +35,7 @@ return function (self, world)
 				hasCompassDirection = true
 				if not self:roomByName (v) then
 					-- perhaps the exit points to a door
-					local item = self:search (v, room)
+					local item = self:search(v, room)
 					if not item or not self:roomByName (item.destination or "") then
 						logerr ("Exit %q in room %q is invalid", v, room.name)
 					end

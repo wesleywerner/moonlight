@@ -332,30 +332,7 @@ local function referRulebook (self, book, command)
 end
 
 
---- Get the scope of visibilty of a thing
--- @function search
---
--- @param self
--- @{instance}
---
--- @param thing
--- The thing to query
---
--- @return
--- true if the thing is closed, or dark.
--- true if not closed, not dark, or dark and lit.
-local function thingClosedOrDark (self, thing)
-	if (thing.closed == true) then
-		return true
-	elseif ((thing.dark == true) and not (thing.lit == true)) then
-		return true
-	end
-	return false
-end
-
-
---- Search for a world thing.
--- @function search
+--- Test if a thing is closed or dark, except when lit.
 --
 -- @param self
 -- @{instance}

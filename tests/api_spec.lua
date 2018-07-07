@@ -214,8 +214,47 @@ end)
 
 describe ("move thing", function()
 
-	pending ("move thing inside something", function()end)
+	local function makeWorld ()
+		return {
+			{
+				name = "Space Station",
+				contains = {
+					{
+						name = "Freddie",
+						person = true,
+						contains = {
+							{ name = "screwdriver" },
+							{ name = "laser gun" }
+						}
+					},
+					{
+						name = "security locker",
+						contains = { },
+						supports = { }
+					}
+				}
+			}
+		}
+	end
 
-	pending ("move thing on top something", function()end)
+	local ml = require("moonlight")
+
+	it ("inside something", function()
+		local expectedResponse = {"You put the laser gun in the security locker."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("put the gun in the locker")
+		--
+		assert.are.same (expectedResponse, ml.responses)
+	end)
+
+	it ("on top something", function()
+		local expectedResponse = {"You put the laser gun on the security locker."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("put the gun on the locker")
+		--
+		assert.are.same (expectedResponse, ml.responses)
+	end)
 
 end)

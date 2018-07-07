@@ -32,8 +32,8 @@ describe ("drop", function ()
 		ml:turn("drop the coin")
 		local expected = "You drop the coin."
 		assert.are.same({expected}, ml.responses)
-		local playerHas = ml.api.playerHas (ml, "coin")
-		assert.is_false(playerHas)
+		local playerHas = ml:isCarrying ("coin")
+		assert.is_nil(playerHas)
 	end)
 
 	it("when not holding the item", function()
@@ -43,8 +43,8 @@ describe ("drop", function ()
 		ml:turn("drop the coin")
 		local expected = "You don't have the coin."
 		assert.are.same({expected}, ml.responses)
-		local playerHas = ml.api.playerHas (ml, "coin")
-		assert.is_false(playerHas)
+		local playerHas = ml:isCarrying ("coin")
+		assert.is_nil(playerHas)
 	end)
 
 	it("unspecified thing", function()

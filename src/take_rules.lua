@@ -4,17 +4,6 @@ return function (rulebooks)
 
 	rulebooks.before.take = {
 		{
-			name = "in the dark",
-			action = function (self, command)
-				local darkroom = self.room.dark and not self.room.lit
-				if darkroom and not command.item1 then
-					return self.template.darkroomDescription .. self:listRoomExits(), false
-				elseif darkroom and command.item1 then
-					return self.template.tooDarkForThat, false
-				end
-			end
-		},
-		{
 			name = "unspecified nouns",
 			action = function (self, command)
 				if not command.item1 then
@@ -23,6 +12,17 @@ return function (rulebooks)
 					else
 						return string.format(self.template.dontSeeIt, command.nouns[1]), false
 					end
+				end
+			end
+		},
+		{
+			name = "in the dark",
+			action = function (self, command)
+				local darkroom = self.room.dark and not self.room.lit
+				if darkroom and not command.item1 then
+					return self.template.darkroomDescription .. self:listRoomExits(), false
+				elseif darkroom and command.item1 then
+					return self.template.tooDarkForThat, false
 				end
 			end
 		},

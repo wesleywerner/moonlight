@@ -1,26 +1,24 @@
 describe("turn", function()
 
 	local function makeWorld()
-
-		local ego = { }
-		ego.name = "You"
-		ego.description = "As good looking as ever."
-		ego.contains = { }
-		ego.player = true
-
-		local bookcase = { }
-		bookcase.name = "bookcase"
-		bookcase.description = "It is just wooden box without the books."
-
-		local lobby = { }
-		lobby.name = "Lobby"
-		lobby.description = "You are in the hotel lobby."
-		lobby.contains = { bookcase, ego }
-
 		return {
-			["lobby"] = lobby
+			{
+				name = "Lobby",
+				description = "You are in the hotel lobby.",
+				contains = {
+					{
+						name = "bookcase",
+						description = "It is just wooden box without the books."
+					},
+					{
+						name = "You",
+						description = "As good looking as ever.",
+						player = true,
+						contains = { }
+					}
+				}
+			}
 		}
-
 	end
 
 	local ml = require("src/moonlight")
@@ -63,6 +61,5 @@ describe("turn", function()
 		local result = ml:turn("snafu the lantern")
 		assert.are.same({"I don't know what \"snafu\" means."}, ml.responses)
 	end)
-
 
 end)

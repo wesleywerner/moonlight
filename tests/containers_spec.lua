@@ -71,7 +71,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put coin inside the box")
 		local carrying = ml:isCarrying("gold coin")
-		assert.is_false(carrying)
+		assert.is_nil(carrying)
 	end)
 
 	it("open it", function()
@@ -129,30 +129,6 @@ describe ("containers", function()
 	end)
 
 	pending("take thing inside closed", function()
-		local expected = {""}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("")
-		assert.are.same(expected, ml.responses)
-	end)
-
-	pending("", function()
-		local expected = {""}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("")
-		assert.are.same(expected, ml.responses)
-	end)
-
-	pending("", function()
-		local expected = {""}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("")
-		assert.are.same(expected, ml.responses)
-	end)
-
-	pending("", function()
 		local expected = {""}
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")

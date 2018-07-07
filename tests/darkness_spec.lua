@@ -41,7 +41,7 @@ describe ("darkness", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("examine stalagmite")
-		local expected = {"It is too dark to do that."}
+		local expected = {"I don't see the stalagmite."}
 		assert.are.same(expected, ml.responses)
 	end)
 
@@ -49,7 +49,7 @@ describe ("darkness", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")
 		ml:turn("take the stalagmite")
-		local expected = {"It is too dark to do that."}
+		local expected = {"I don't see the stalagmite."}
 		assert.are.same(expected, ml.responses)
 	end)
 
@@ -61,15 +61,21 @@ describe ("darkness", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	it("does drop things in dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
-		ml:turn("drop the gold coins")
-		local expected = {"You drop the gold coin."}
-		assert.are.same(expected, ml.responses)
+	pending("dark rooms lit by other things", function()
+
 	end)
 
-	pending("dark rooms lit when carrying a lit item")
+	pending("dark rooms lit by other things in open containers", function()
+
+	end)
+
+	pending("dark rooms lit by other things in closed containers", function()
+
+	end)
+
+	pending("dark rooms lit when carrying a lit item", function()
+
+	end)
 
 
 end)

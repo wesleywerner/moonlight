@@ -349,7 +349,7 @@ end
 -- internally, and only given a value as part of the recursive function.
 --
 -- @return item @{thing}, parent @{thing}, index
-local function search (self, term, parent, stack)
+local function search_v1 (self, term, parent, stack)
 
 	-- can search by name or by item
 	local isItemSearch = type(term) == "table"
@@ -438,7 +438,7 @@ end
 --
 -- @return
 -- Table of matches, nil if no matches found.
-local function search_v2 (self, term, parent, wizard)
+local function search (self, term, parent, wizard)
 
 	-- helper to match a thing
 	local function match (item)
@@ -509,27 +509,12 @@ local function search_v2 (self, term, parent, wizard)
 end
 
 
---- Search the world for a thing.
--- @param self
---
--- @param term
--- The thing to search for, either by the name or by an instance of the
--- thing itself.
---
--- @return @{search} results.
-local function searchGlobal (self, term)
-
-	if type(self.world) ~= "table" then
-		error ("The world is empty")
+--- Search and return the first match.
+local function searchFirst (self, term, parent, wizard)
+	local matches = search (self, term, parent, wizard)
+	if matches then
+		return unpack(matches[1])
 	end
-
-	for _, v in pairs(self.world) do
-		local item, parent, i = search(self, term, v)
-		if item then
-			return item, parent, i
-		end
-	end
-
 end
 
 
@@ -545,11 +530,13 @@ local function setPlayer (self, name)
 		self.player.isPlayer = nil
 	end
 
-	self.player, self.room = searchGlobal (self, string.lower(tostring(name)))
+	local match = search (self, name, nil, true)
 
-	if not self.player then
+	if not match then
 		error(string.format("I could not find a thing named %q.", name))
 	end
+
+	self.player, self.room = unpack (match[1])
 
 	if not self.room then
 		error(string.format("The thing named %q is not a child of a room.", name))
@@ -781,7 +768,7 @@ local function moveItemInto (self, item, target)
 	end
 
 	-- find the current parent of the item
-	local match, parent, idx, vesselType = search(self, item, self.room)
+	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
 
 	if match and target and parent then
 		if vesselType == "container" then
@@ -825,7 +812,7 @@ local function moveItemOnto (self, item, target)
 	end
 
 	-- find the current parent of the item
-	local match, parent, idx, vesselType = search(self, item, self.room)
+	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
 
 	if match and target and parent then
 		if vesselType == "container" then
@@ -841,10 +828,10 @@ local function moveItemOnto (self, item, target)
 end
 
 
---- Test if the player is carrying an item.
-local function playerHas (self, item)
+--- Test if a persons is carrying a thing.
+local function isCarrying (self, item, owner)
 
-	return search(self, item, self.player) ~= nil
+	return searchFirst(self, item, owner or self.player, true)
 
 end
 
@@ -991,10 +978,6 @@ local function turn (self, sentence)
 	self.responses = { }
 	self.log = { }
 
-	-- TODO: boil the room down
-	-- copy the room object but only include items visible.
-	-- do not mutate the original room contents.
-
 	if referRulebook (self, self.rulebooks["turn"], "before") == false then
 		return
 	end
@@ -1024,15 +1007,15 @@ local function turn (self, sentence)
 	end
 
 	-- look up each noun item
-	command.item1, command.item1Parent = search(self, command.nouns[1], self.room)
-	command.item2, command.item2Parent = search(self, command.nouns[2], self.room)
+	command.item1, command.item1Parent = searchFirst(self, command.nouns[1], self.room)
+	command.item2, command.item2Parent = searchFirst(self, command.nouns[2], self.room)
 
 	-- Exits could point to things too, like doors.
 	-- If there is no command item, attempt to find it using the
 	-- direction value. The item will remain nil if it is not a thing.
 	if command.verb == "go" and command.direction then
 		if not command.item1 and self.room.exits then
-			command.item1 = search(self, self.room.exits[command.direction], self.room)
+			command.item1 = searchFirst(self, self.room.exits[command.direction], self.room)
 		end
 	end
 
@@ -1153,7 +1136,7 @@ return {
 	reset = reset,
 	setWorld = setWorld,
 	setPlayer = setPlayer,
-	isCarrying = playerHas,
+	isCarrying = isCarrying,
 	moveItemInto = moveItemInto,
 	moveItemOnto  = moveItemOnto,
 	describe = describe,
@@ -1166,7 +1149,7 @@ return {
 	listRulebooks = listRulebooks,
 	listContents = listContents,
 	search = search,
-	search_v2 = search_v2,
+	searchFirst = searchFirst,
 	validate = require("world_validator"),
 	thingClosedOrDark = thingClosedOrDark,
 
@@ -1176,9 +1159,7 @@ return {
 	-- the simulator logic.
 	-- @table api
 	api = {
-		searchGlobal  = searchGlobal , -- @{searchGlobal}
 		parse = parse, -- @{parser.parse}
-		playerHas = playerHas, -- @{playerHas}
 		hooks = { }, -- The hooks as defined by @{hook}
 	}
 }

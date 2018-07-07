@@ -108,7 +108,7 @@ describe ("api search", function()
 	it ("by name", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
-		local output = ml:search_v2 ("stone altar", room)
+		local output = ml:search ("stone altar", room)
 
 		-- search has a result
 		assert.is.truthy (output)
@@ -124,7 +124,7 @@ describe ("api search", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
 		local thing = room.contains[1]
-		local output = ml:search_v2 (thing, room)
+		local output = ml:search (thing, room)
 
 		-- search has a result
 		assert.is.truthy (output)
@@ -142,7 +142,7 @@ describe ("api search", function()
 		local function pred (test)
 			return test.name == "wooden casket"
 		end
-		local output = ml:search_v2 (pred, room)
+		local output = ml:search (pred, room)
 
 		-- search has a result
 		assert.is.truthy (output)
@@ -157,7 +157,7 @@ describe ("api search", function()
 	it ("seen things only", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
-		local output = ml:search_v2 ("shrunken head", room)
+		local output = ml:search ("shrunken head", room)
 
 		-- search has no result
 		assert.is.falsy (output)
@@ -167,7 +167,7 @@ describe ("api search", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
 		room.dark = true
-		local output = ml:search_v2 ("stone altar", room)
+		local output = ml:search ("stone altar", room)
 
 		-- search has no result
 		assert.is.falsy (output)
@@ -176,7 +176,7 @@ describe ("api search", function()
 	it ("as wizard", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
-		local output = ml:search_v2 ("shrunken head", room, true)
+		local output = ml:search ("shrunken head", room, true)
 
 		-- search has result
 		assert.is.truthy (output)
@@ -190,7 +190,7 @@ describe ("api search", function()
 		ml:setWorld (makeWorld ())
 		-- search thing in a different room
 		local room = ml.world[2]
-		local output = ml:search_v2 ("stone altar", room)
+		local output = ml:search ("stone altar", room)
 
 		-- search has no result
 		assert.is.falsy (output)
@@ -199,7 +199,7 @@ describe ("api search", function()
 	it ("includes rooms", function()
 		ml:setWorld (makeWorld ())
 		local room = ml.world[1]
-		local output = ml:search_v2 ("Mayan Site")
+		local output = ml:search ("Mayan Site")
 
 		-- search has a result
 		assert.is.truthy (output)

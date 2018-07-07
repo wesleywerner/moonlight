@@ -2,27 +2,30 @@ describe ("soundex", function()
 
 	local ml = require("src/moonlight")
 
-	ml.world = {
-		["catacombs"] = {
-			name = "Catacombs",
-			description = "A dark and dingy place.",
-			contains = {
-				{
-					name = "indiana",
-					person = true
-				},
-				{
-					name = "cucumber sandwich",
-					description = "An unexpected surprise in such a place."
-				},
-				{
-					name = "torch",
-					description = "A wicked torch mounted on the wall"
+	local function makeWorld ()
+		return {
+			{
+				name = "Catacombs",
+				description = "A dark and dingy place.",
+				contains = {
+					{
+						name = "indiana",
+						person = true
+					},
+					{
+						name = "cucumber sandwich",
+						description = "An unexpected surprise in such a place."
+					},
+					{
+						name = "torch",
+						description = "A wicked torch mounted on the wall"
+					}
 				}
 			}
 		}
-	}
+	end
 
+	ml:setWorld (makeWorld ())
 	ml:setPlayer ("indiana")
 	ml.options.soundex = true
 

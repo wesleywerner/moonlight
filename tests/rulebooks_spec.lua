@@ -4,8 +4,9 @@ describe("rulebook", function()
 
 	local function makeWorld()
 		return {
-			["lobby"] = {
-				["contains"] = {
+			{
+				name = "Lobby",
+				contains = {
 					{ name="You" },
 					{ name="mailbox"},
 					{ name="letter"},

@@ -4,6 +4,14 @@ return function (rulebooks)
 
 	rulebooks.before.examine = {
 		{
+			name = "unspecified nouns",
+			action = function (self, command)
+				if command.nouns[1] and not command.item1 then
+					return string.format(self.template.dontSeeIt, command.nouns[1]), false
+				end
+			end
+		},
+		{
 			name = "in the dark",
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
@@ -11,14 +19,6 @@ return function (rulebooks)
 					return self.template.darkroomDescription .. self:listRoomExits(), false
 				elseif darkroom and command.item1 then
 					return self.template.tooDarkForThat, false
-				end
-			end
-		},
-		{
-			name = "unspecified nouns",
-			action = function (self, command)
-				if command.nouns[1] and not command.item1 then
-					return string.format(self.template.dontSeeIt, command.nouns[1]), false
 				end
 			end
 		},

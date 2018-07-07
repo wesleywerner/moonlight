@@ -332,103 +332,126 @@ local function referRulebook (self, book, command)
 end
 
 
---- Search for an item in a specific parent item.
+--- Get the scope of visibilty of a thing
+-- @function search
+--
 -- @param self
+-- @{instance}
+--
+-- @param thing
+-- The thing to query
+--
+-- @return
+-- true if the thing is closed, or dark.
+-- true if not closed, not dark, or dark and lit.
+local function thingClosedOrDark (self, thing)
+	if (thing.closed == true) then
+		return true
+	elseif ((thing.dark == true) and not (thing.lit == true)) then
+		return true
+	end
+	return false
+end
+
+
+--- Search for a world thing.
+-- @function search
+--
+-- @param self
+-- @{instance}
 --
 -- @param term
--- The thing to search for, either by the name or by an instance of the
--- thing itself.
+-- The name of the thing to find, the thing itself (to find it's parent)
+-- or a predicate function to match items.
 --
 -- @param parent
--- The parent container to search within. Usually this is the current
--- room, but can also be the player for inventory checking, or any other
--- world item.
+-- The room to search. If given as nil all rooms (inclusive) are searched.
 --
--- @param stack
--- Ignore this parameter, it is used to track the search progress
--- internally, and only given a value as part of the recursive function.
+-- @param wizard
+-- Boolean flag includes searching things inside closed containers and
+-- in dark unlit rooms.
 --
--- @return item @{thing}, parent @{thing}, index
-local function search (self, term, parent, stack)
+-- @return
+-- An indexed table of matches, each match a collection
+-- { item, parent }
+-- Returns nil if no matches found.
+local function search (self, term, parent, wizard)
 
-	-- can search by name or by item
-	local isItemSearch = type(term) == "table"
-
-	-- init searched table stack
-	stack = stack or { }
-	local vessel = nil
-	local vesselType = nil
-
-	if type(parent.contains) == "table" and not stack[parent.contains] then
-		-- only see into open containers
-		if type(parent.closed) == "nil" or parent.closed == false then
-			vessel = parent.contains
-			vesselType = "container"
+	-- helper to match a thing
+	local function match (item)
+		if type(term) == "string" then
+			return string.lower(item.name) == string.lower(term)
+		elseif type(term) == "table" then
+			return item == term
+		elseif type(term) == "function" then
+			return term (item)
 		end
-	elseif type(parent.supports) == "table" and not stack[parent.supports] then
-		--print(tostring(parent.name) .. " is a supporter")
-		vessel = parent.supports
-		vesselType = "supporter"
 	end
 
-	if vessel then
+	-- helper to test if item contents should be queried,
+	-- based on seen things and if the item is closed or dark.
+	local function queryContents (item)
+		if wizard then
+			return true
+		else
+			return thingClosedOrDark (self, item) == false
+		end
+	end
 
-		-- search in teh current vessel
-		for i, v in ipairs(vessel) do
-			if isItemSearch then
-				if v == term then
-					return v, parent, i, vesselType
-				end
-			else
-				if string.lower(tostring(v.name)) == term then
-					--print("found " .. tostring(term) .. " in " .. tostring(parent.name) .. "!")
-					return v, parent, i, vesselType
-				end
+	-- stored as { matched item, parent, index, parent type }
+	local stack = { }
+
+	-- stored as { matched item, parent, index, parent type }
+	local results = { }
+
+	if parent then
+		-- include the parent in the search
+		if queryContents (parent) then
+			table.insert (stack, {parent})
+		end
+	else
+		-- search all rooms if no parent specified
+		for _, w in ipairs(self.world) do
+			table.insert (stack, {w})
+		end
+	end
+
+	-- while there are things on the stack to search
+	while #stack > 0 do
+
+		-- query the next item
+		local item, itemparent, index, ctype = unpack (table.remove(stack))
+
+		-- queue all it's children for later querying
+		if queryContents (item) then
+			for i, n in ipairs(item.contains or {}) do
+				table.insert (stack, { n, item, i, "container" })
+			end
+			for i, n in ipairs(item.supports or {}) do
+				table.insert (stack, { n, item, i, "supporter" })
 			end
 		end
 
-		-- push new vessels (children of the current) on the search stack
-		for k, v in ipairs(vessel) do
-			-- TODO this might cause bugs if the item is both a supporter and a container.
-			-- stack only tracks the searched space for one of those cases.
-			-- Possibly fix by concating both sets into the vessel table?
-			if not stack[v] and (type(v.contains) == "table" or type(v.supports) == "table") then
-				--print("looking inside " .. tostring(v.name))
-				stack[v] = true
-				local resv, resp, resi, rest = search(self, term, v, stack)
-				if resv then
-					return resv, resp, resi, rest
-				end
-			end
+		-- test matching
+		if match (item) then
+			table.insert (results, { item, itemparent, index, ctype })
 		end
 
+	end
+
+	if #results > 0 then
+		return results
 	end
 
 end
 
 
-
---- Search the world for a thing.
--- @param self
---
--- @param term
--- The thing to search for, either by the name or by an instance of the
--- thing itself.
---
--- @return @{search} results.
-local function searchGlobal (self, term)
-
-	if type(self.world) ~= "table" then
-		error ("The world is empty")
+--- Search and return the first match.
+local function searchFirst (self, term, parent, wizard)
+	local matches = search (self, term, parent, wizard)
+	if matches then
+		return unpack(matches[1])
 	end
-
-	for _, v in pairs(self.world) do
-		local item, parent, i = search (self, term, v)
-		if item then
-			return item, parent, i
-		end
-	end
-
 end
 
 
@@ -444,11 +467,13 @@ local function setPlayer (self, name)
 		self.player.isPlayer = nil
 	end
 
-	self.player, self.room = searchGlobal (self, string.lower(tostring(name)))
+	local match = search (self, name, nil, true)
 
-	if not self.player then
+	if not match then
 		error(string.format("I could not find a thing named %q.", name))
 	end
+
+	self.player, self.room = unpack (match[1])
 
 	if not self.room then
 		error(string.format("The thing named %q is not a child of a room.", name))
@@ -533,7 +558,7 @@ local function listContents (self, item, leadFormat)
 	-- TODO refer rulebook on listing things
 	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
 
-	if type(item.contains) == "table" and not item.closed then
+	if item.contains and not self:thingClosedOrDark (item) then
 		for k, v in pairs(item.contains) do
 			if not v.isPlayer then
 				table.insert(items, withArticle(self, v))
@@ -680,7 +705,7 @@ local function moveItemInto (self, item, target)
 	end
 
 	-- find the current parent of the item
-	local match, parent, idx, vesselType = search(self, item, self.room)
+	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
 
 	if match and target and parent then
 		if vesselType == "container" then
@@ -724,7 +749,7 @@ local function moveItemOnto (self, item, target)
 	end
 
 	-- find the current parent of the item
-	local match, parent, idx, vesselType = search(self, item, self.room)
+	local match, parent, idx, vesselType = searchFirst (self, item, self.room)
 
 	if match and target and parent then
 		if vesselType == "container" then
@@ -740,10 +765,10 @@ local function moveItemOnto (self, item, target)
 end
 
 
---- Test if the player is carrying an item.
-local function playerHas (self, item)
+--- Test if a persons is carrying a thing.
+local function isCarrying (self, item, owner)
 
-	return search(self, item, self.player) ~= nil
+	return searchFirst(self, item, owner or self.player, true)
 
 end
 
@@ -890,10 +915,6 @@ local function turn (self, sentence)
 	self.responses = { }
 	self.log = { }
 
-	-- TODO: boil the room down
-	-- copy the room object but only include items visible.
-	-- do not mutate the original room contents.
-
 	if referRulebook (self, self.rulebooks["turn"], "before") == false then
 		return
 	end
@@ -923,15 +944,15 @@ local function turn (self, sentence)
 	end
 
 	-- look up each noun item
-	command.item1, command.item1Parent = search(self, command.nouns[1], self.room)
-	command.item2, command.item2Parent = search(self, command.nouns[2], self.room)
+	command.item1, command.item1Parent = searchFirst(self, command.nouns[1], self.room)
+	command.item2, command.item2Parent = searchFirst(self, command.nouns[2], self.room)
 
 	-- Exits could point to things too, like doors.
 	-- If there is no command item, attempt to find it using the
 	-- direction value. The item will remain nil if it is not a thing.
 	if command.verb == "go" and command.direction then
 		if not command.item1 and self.room.exits then
-			command.item1 = search(self, self.room.exits[command.direction], self.room)
+			command.item1 = searchFirst(self, self.room.exits[command.direction], self.room)
 		end
 	end
 
@@ -1052,7 +1073,7 @@ return {
 	reset = reset,
 	setWorld = setWorld,
 	setPlayer = setPlayer,
-	isCarrying = playerHas,
+	isCarrying = isCarrying,
 	moveItemInto = moveItemInto,
 	moveItemOnto  = moveItemOnto,
 	describe = describe,
@@ -1065,7 +1086,9 @@ return {
 	listRulebooks = listRulebooks,
 	listContents = listContents,
 	search = search,
+	searchFirst = searchFirst,
 	validate = require("world_validator"),
+	thingClosedOrDark = thingClosedOrDark,
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the
@@ -1073,9 +1096,7 @@ return {
 	-- the simulator logic.
 	-- @table api
 	api = {
-		searchGlobal  = searchGlobal , -- @{searchGlobal}
 		parse = parse, -- @{parser.parse}
-		playerHas = playerHas, -- @{playerHas}
 		hooks = { }, -- The hooks as defined by @{hook}
 	}
 }

@@ -59,7 +59,8 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
-		local bowl = ml.api.searchGlobal(ml, "bowl")
+		local match = ml:search ("bowl")
+		local bowl = unpack(match[1])
 		assert.is.truthy(bowl)
 		local mint = bowl.contains[1]
 		assert.is.falsy(mint)

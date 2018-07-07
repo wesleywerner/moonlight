@@ -52,11 +52,13 @@ describe ("supporters", function()
 	end)
 
 	it("put moves from inventory", function()
+		local expected = {"You put the gold coin on the table."}
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put coin on the table")
 		local carrying = ml:isCarrying("gold coin")
-		assert.is_false(carrying)
+		assert.are.same(expected, ml.responses)
+		assert.is_nil(carrying)
 	end)
 
 end)

@@ -55,14 +55,6 @@ describe ("going", function()
 		assert.are.same (expected, ml.responses)
 	end)
 
-	it("not through closed", function()
-		local expected = {"The door is closed."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
-		ml:turn ("go south")
-		assert.are.same (expected, ml.responses)
-	end)
-
 	it("specific direction", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Bob")

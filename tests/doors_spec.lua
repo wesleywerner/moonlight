@@ -112,8 +112,35 @@ end)
 
 describe ("closed doors", function()
 
+	-- load moonlight
+	local ml = require("moonlight")
+
+	-- build the world as nested tables
+	function makeWorld()
+		return {
+			{
+				name = "Basement",
+				contains = {
+					{ name = "Freddie", person = true },
+					{ name = "rotting door", closed = true, destination = "pantry" }
+				},
+				exits = {
+					out = "rotting door"
+				}
+			},
+			{
+				name = "Pantry",
+				description = "A food pantry for rats."
+			}
+		}
+	end
+
 	pending("implicitly tries to open a door", function()
-		local expected = {"You open the front door.", "You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("go out")
+		local expected = {"You open the rotting door.", "A food pantry for the rats."}
+		assert.are.same (expected, ml.responses)
 	end)
 
 end)

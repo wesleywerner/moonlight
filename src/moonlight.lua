@@ -574,15 +574,21 @@ end
 -- The description format which can vary for rooms vs containers.
 --
 -- @return string
-local function listContents (self, item, leadFormat)
+local function listContents (self, item)
 
 	-- list all the items contained in the item, or on top of the item.
 	local items = { }
 	local containerText = nil
 	local supporterText = nil
 
-	-- TODO refer rulebook on listing things
-	--local listClosed = referRulebook (self, self.rulebooks["listing"], "container")
+	-- default container lead text
+	local lead = self.template.lead["container"]
+
+	-- switch to room lead text
+	local isRoom = self:roomByName (item.name)
+	if isRoom then
+		lead = self.template.lead["room"]
+	end
 
 	if item.contains and not self:thingClosedOrDark (item) then
 		for k, v in pairs(item.contains) do
@@ -592,7 +598,7 @@ local function listContents (self, item, leadFormat)
 		end
 		-- TODO test if item.isRoom and use the room lead instead of taking this parameter
 		if #items > 0 then
-			containerText = string.format(leadFormat or self.template.lead["container"], joinNames(self, items))
+			containerText = string.format(lead, joinNames(self, items))
 		end
 	end
 
@@ -632,13 +638,13 @@ end
 -- The description format which can vary for rooms vs containers.
 --
 -- @return string
-local function describe (self, item, leadFormat)
+local function describe (self, item)
 
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
 
 	-- TODO test if item.isRoom and use the room lead instead of taking this parameter
-	local contents = listContents (self, item, leadFormat)
+	local contents = listContents (self, item)
 
 	if item.closed == true then
 		desc = string.format("%s %s", desc, "It is closed.")
@@ -655,7 +661,7 @@ end
 --- Describe room.
 local function describeRoom (self)
 
-	return describe (self, self.room, self.template.lead["room"]) .. self:listRoomExits()
+	return describe (self, self.room) .. self:listRoomExits()
 
 end
 

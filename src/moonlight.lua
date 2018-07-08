@@ -128,7 +128,8 @@
 -- input during sentence parsing.
 local options = {
 	verbs = { "examine", "take", "drop", "attack",
-		"inventory", "insert", "go", "open", "close" },
+		"inventory", "insert", "go", "open", "close",
+		"unlock" },
 	ignores = { "an", "a", "the", "for", "to", "at", "of",
 		"with", "about", "on", "and", "from", "into" },
 	synonyms = {
@@ -241,6 +242,14 @@ local templateResponses = {
 		["verb"] = "I don't know what %q means.",
 		["thing"] = "I don't see the %s."
 	},
+	["unlock"] = {
+		["needs door"] = "You probably meant UNLOCK THE DOOR WITH THE KEY.",
+		["needs key"] = "You need a key to do that.",
+		["wont unlock"] = "It won't unlock.",
+		["already unlocked"] = "It is already unlocked",
+		["not unlockable"] = "That is not something you can unlock.",
+		["succeed"] = "You unlock the %s with the %s."
+	}
 
 }
 
@@ -282,6 +291,7 @@ local function standardRulebooks ()
 	require("open_rules")(rulebooks)
 	require("close_rules")(rulebooks)
 	require("turn_rules")(rulebooks)
+	require("unlock_rules")(rulebooks)
 
 	return rulebooks
 

@@ -160,7 +160,17 @@ describe ("locked doors", function()
 			{
 				name = "Basement",
 				contains = {
-					{ name = "Freddie", person = true },
+					{
+						name = "Freddie",
+						person = true,
+						contains = {
+							{
+								name = "brass key",
+								unlocks = { "rotting door" }
+							},
+							{ name = "iron key" }
+						}
+					},
 					{
 						name = "rotting door",
 						closed = true,
@@ -179,12 +189,47 @@ describe ("locked doors", function()
 		}
 	end
 
-	it("can't open", function()
-		local expected = {"It is locked."}
+	it("requires a door", function()
+		local expected = {ml.template.unlock["needs door"]}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
-		ml:turn ("open the door")
+		ml:turn ("unlock")
 		assert.are.same (expected, ml.responses)
+	end)
+
+	it("requires a key", function()
+		local expected = {ml.template.unlock["needs key"]}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("unlock the door")
+		assert.are.same (expected, ml.responses)
+	end)
+
+	it("requires a key in hand", function()
+		local expected = {string.format(ml.template.thing["not carried"], "brass key")}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("drop brass key")
+		local cmd = ml:turn ("unlock the door with the brass key")
+		assert.are.same (expected, ml.responses)
+	end)
+
+	it("won't unlock with the wrong key", function()
+		local expected = {"It won't unlock."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("unlock the door with the iron key")
+		assert.are.same (expected, ml.responses)
+	end)
+
+	it("will unlock with the right key", function()
+		local expected = {"You unlock the rotting door with the brass key."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		local cmd = ml:turn ("unlock the door with the brass key")
+
+		assert.are.same (expected, ml.responses)
+		assert.is_false (cmd.item1.locked)
 	end)
 
 end)

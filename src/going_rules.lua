@@ -14,7 +14,7 @@ return function (rulebooks)
 				if not commandHasDirection (self, command) then
 					-- allow going into things (like doors)
 					if not command.item1 then
-						return self.template.whichDirection, false
+						return self.template.missing["direction"], false
 					end
 				end
 			end
@@ -23,7 +23,7 @@ return function (rulebooks)
 			name = "room has exits",
 			action = function (self, command)
 				if type(self.room.exits) ~= "table" then
-					return string.format(self.template.noExits, tostring(self.room.name)), false
+					return string.format(self.template.go["cannot"], tostring(self.room.name)), false
 				end
 			end
 		},
@@ -34,13 +34,13 @@ return function (rulebooks)
 					-- enter a door
 					local room = self:roomByName (command.item1.destination or "")
 					if not room then
-						return self.template.noExitThatWay, false
+						return self.template.go["cannot"], false
 					end
 				else
 					-- find the room in the direction
 					local room = self:roomByDirection (command.direction)
 					if not room then
-						return self.template.noExitThatWay, false
+						return self.template.go["cannot"], false
 					end
 				end
 			end

@@ -7,9 +7,9 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.item1 then
 					if #command.nouns == 0 then
-						return string.format(self.template.verbMissingNouns, command.verb), false
+						return string.format(self.template.missing["noun"], command.verb), false
 					else
-						return string.format(self.template.dontSeeIt, command.nouns[1]), false
+						return string.format(self.template.unknown["thing"], command.nouns[1]), false
 					end
 				end
 			end
@@ -18,7 +18,7 @@ return function (rulebooks)
 			name = "thing not carried",
 			action = function (self, command)
 				if not self:isCarrying (command.item1) then
-					return string.format(self.template.dontHaveIt, command.item1.name), false
+					return string.format(self.template.thing["not carried"], command.item1.name), false
 				end
 			end
 		}
@@ -29,7 +29,7 @@ return function (rulebooks)
 			name = "thing",
 			action = function (self, command)
 				self:moveItemInto (command.item1, self.room)
-				return string.format(self.template.dropped, command.item1.name)
+				return string.format(self.template.drop["success"], command.item1.name)
 			end
 		}
 	}

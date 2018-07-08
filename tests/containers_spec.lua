@@ -44,7 +44,7 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put valve inside the lunchbox")
-		local expected = {"You need to tell me where you want to insert the valve."}
+		local expected = {"I don't see the lunchbox."}
 		assert.are.same(expected, ml.responses)
 	end)
 

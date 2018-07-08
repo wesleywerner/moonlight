@@ -8,7 +8,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
 				if darkroom then
-					return self.template.tooDarkForThat, false
+					return self.template.darkness["too dark"], false
 				end
 			end
 		},

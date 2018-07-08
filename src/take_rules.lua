@@ -8,9 +8,9 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.item1 then
 					if #command.nouns == 0 then
-						return string.format(self.template.verbMissingNouns, command.verb), false
+						return string.format(self.template.missing["noun"], command.verb), false
 					else
-						return string.format(self.template.dontSeeIt, command.nouns[1]), false
+						return string.format(self.template.unknown["thing"], command.nouns[1]), false
 					end
 				end
 			end
@@ -20,9 +20,9 @@ return function (rulebooks)
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
 				if darkroom and not command.item1 then
-					return self.template.darkroomDescription .. self:listRoomExits(), false
+					return self.template.darkness["description"] .. self:listRoomExits(), false
 				elseif darkroom and command.item1 then
-					return self.template.tooDarkForThat, false
+					return self.template.darkness["too dark"], false
 				end
 			end
 		},
@@ -30,7 +30,7 @@ return function (rulebooks)
 			name = "a person",
 			action = function (self, command)
 				if command.item1.person then
-					return string.format(self.template.takePerson, command.item1.name), false
+					return string.format(self.template.take["person"], command.item1.name), false
 				end
 			end
 		},
@@ -38,7 +38,7 @@ return function (rulebooks)
 			name = "a fixed thing",
 			action = function (self, command)
 				if command.item1.fixed then
-					return string.format(self.template.fixedInPlace, command.item1.name), false
+					return string.format(self.template.thing["fixed"], command.item1.name), false
 				end
 			end
 		},
@@ -46,7 +46,7 @@ return function (rulebooks)
 			name = "something already carried",
 			action = function (self, command)
 				if self:isCarrying (command.item1) then
-					return self.template.alreadyHaveIt, false
+					return self.template.take["when carried"], false
 				end
 			end
 		}
@@ -57,7 +57,7 @@ return function (rulebooks)
 			name = "thing",
 			action = function (self, command)
 				self:moveItemInto (command.item1, self.player)
-				return string.format(self.template.taken, command.item1.name)
+				return string.format(self.template.take["success"], command.item1.name)
 			end
 		}
 	}

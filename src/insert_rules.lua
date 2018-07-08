@@ -9,10 +9,10 @@ return function (rulebooks)
 			name = "check items exist",
 			action = function (self, command)
 				if not command.item1 then
-					return string.format(self.template.dontHaveIt, command.nouns[1]), false
+					return string.format(self.template.thing["not carried"], command.nouns[1]), false
 				end
 				if not command.item2 then
-					return string.format(self.template.missingSecondNoun, command.verb, command.item1.name), false
+					return string.format(self.template.unknown["thing"], command.nouns[2]), false
 				end
 			end
 		},
@@ -20,7 +20,7 @@ return function (rulebooks)
 			name = "player is carrying the thing",
 			action = function (self, command)
 				if not self:isCarrying (command.item1) then
-					return string.format(self.template.dontHaveIt, command.item1.name), false
+					return string.format(self.template.thing["not carried"], command.item1.name), false
 				end
 			end
 		},
@@ -28,7 +28,7 @@ return function (rulebooks)
 			name = "into a non-container",
 			action = function (self, command)
 				if command.direction == "in" and type(command.item2.contains) ~= "table" then
-					return string.format(self.template.notContainer, self:withArticle (command.item2)), false
+					return string.format(self.template.insert["not container"], self:withArticle (command.item2)), false
 				end
 			end
 		},
@@ -36,7 +36,7 @@ return function (rulebooks)
 			name = "onto a non-supporter",
 			action = function (self, command)
 				if command.direction == nil and type(command.item2.supports) ~= "table" then
-					return string.format(self.template.notSupporter, self:withArticle (command.item2)), false
+					return string.format(self.template.insert["not supporter"], self:withArticle (command.item2)), false
 				end
 			end
 		}
@@ -48,7 +48,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if command.direction == "in" then
 					self:moveItemInto (command.item1, command.item2)
-					return string.format(self.template.insertIn, command.item1.name, command.item2.name)
+					return string.format(self.template.insert["in"], command.item1.name, command.item2.name)
 				end
 			end
 		},
@@ -57,7 +57,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if command.direction == nil then
 					self:moveItemOnto (command.item1, command.item2)
-					return string.format(self.template.insertOn, command.item1.name, command.item2.name)
+					return string.format(self.template.insert["on"], command.item1.name, command.item2.name)
 				end
 			end
 		}

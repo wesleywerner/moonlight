@@ -102,7 +102,7 @@
 -- @field verbs
 -- Indexed table of words considered valid verbs.
 -- If the player tries using a verb not in this list
--- then the defaultResponses.unknownVerb response is issued.
+-- then the unknown verb response is issued.
 --
 -- @field ignores
 -- Indexed table of words to ignore when parsing a sentence.
@@ -182,41 +182,66 @@ local options = {
 }
 
 --- List of standard responses.
+-- It is categorized by [verb][state], where state varies by the action performed.
 -- See the link to the source for the template wording.
+--
 -- @table template
+--
 -- TODO move to a module? rename to suit a [verb][n] structure?
 local templateResponses = {
-	openLockedThing = "It is locked.",
-	alreadyClosed = "The %s is already closed.",
-	alreadyHaveIt = "You already have it.",
-	alreadyOpen = "The %s is already open.",
-	closed = "You close the %s.",
-	containerLead = "Inside it is %s.",
-	darkroomDescription = "You are in the dark.",
-	dontHaveIt = "You don't have the %s.",
-	dontSeeIt = "I don't see the %s.",
-	dropped = "You drop the %s.",
-	fixedInPlace = "The %s is fixed in place.",
-	insertIn = "You put the %s in the %s.",
-	insertOn = "You put the %s on the %s.",
-	missingFirstNoun = "You need to tell me what you want to %s",
-	missingSecondNoun = "You need to tell me where you want to %s the %s.",
-	noExits = "The room %q does not have exits defined, you can never leave!",
-	noExitThatWay = "You cannot go that way.",
-	notCloseable = "The %s cannot closed.",
-	notContainer = "You can't put things in %s.",
-	notOpenable = "The %s cannot be opened.",
-	notSupporter = "You can't put things on %s.",
-	opened = "You open the %s.",
-	pocketsEmpty = "You are carrying nothing.",
-	roomLead = "There is %s here.",
-	supporterLead = "On it is %s.",
-	taken = "You take the %s.",
-	takePerson = "%s wouldn't like that.",
-	tooDarkForThat = "It is too dark to do that.",
-	unknownVerb = "I don't know what %q means.",
-	verbMissingNouns = "Be a little more specific what you want to %s.",
-	whichDirection = "I can't tell which direction you want to go, N, S, E or W?",
+	["close"] = {
+		["succeed"] = "You close the %s.",
+		["when closed"] = "The %s is already closed.",
+		["cannot"] = "The %s cannot be closed."
+	},
+	["darkness"] = {
+		["description"] = "You are in the dark.",
+		["too dark"] = "It is too dark to do that."
+	},
+	["drop"] = {
+		["success"] = "You drop the %s."
+	},
+	["go"] = {
+		["cannot"] = "You cannot go that way."
+	},
+	["insert"] = {
+		["in"] = "You put the %s in the %s.",
+		["on"] = "You put the %s on the %s.",
+		["not container"] = "You can't put things in %s.",
+		["not supporter"] = "You can't put things on %s."
+	},
+	["inventory"] = {
+		["empty"] = "You are carrying nothing."
+	},
+	["lead"] = {
+		["room"] = "There is %s here.",
+		["supporter"] = "On it is %s.",
+		["container"] = "Inside it is %s.",
+	},
+	["missing"] = {
+		["direction"] = "I can't tell which direction you want to go, N, S, E or W?",
+		["noun"] = "Be a little more specific what you want to %s."
+	},
+	["open"] = {
+		["success"] = "You open the %s.",
+		["when locked"] = "It is locked.",
+		["when open"] = "The %s is already open.",
+		["cannot"] = "The %s cannot be opened."
+	},
+	["take"] = {
+		["when carried"] = "You already have it.",
+		["success"] = "You take the %s.",
+		["person"] = "%s wouldn't like that."
+	},
+	["thing"] = {
+		["not carried"] = "You don't have the %s.",
+		["fixed"] = "The %s is fixed in place."
+	},
+	["unknown"] = {
+		["verb"] = "I don't know what %q means.",
+		["thing"] = "I don't see the %s."
+	},
+
 }
 
 local utils = require("utils")
@@ -567,7 +592,7 @@ local function listContents (self, item, leadFormat)
 		end
 		-- TODO test if item.isRoom and use the room lead instead of taking this parameter
 		if #items > 0 then
-			containerText = string.format(leadFormat or self.template.containerLead, joinNames(self, items))
+			containerText = string.format(leadFormat or self.template.lead["container"], joinNames(self, items))
 		end
 	end
 
@@ -580,7 +605,7 @@ local function listContents (self, item, leadFormat)
 			table.insert(items, withArticle(self, v))
 		end
 		if #items > 0 then
-			supporterText = string.format(self.template.supporterLead, joinNames(self, items))
+			supporterText = string.format(self.template.lead["supporter"], joinNames(self, items))
 		end
 	end
 
@@ -630,7 +655,7 @@ end
 --- Describe room.
 local function describeRoom (self)
 
-	return describe (self, self.room, self.template.roomLead) .. self:listRoomExits()
+	return describe (self, self.room, self.template.lead["room"]) .. self:listRoomExits()
 
 end
 
@@ -664,7 +689,7 @@ end
 local function listInventory (self)
 
 	if #self.player.contains == 0 then
-		return self.template.pocketsEmpty
+		return self.template.inventory["empty"]
 	end
 
 	local items = { }
@@ -906,7 +931,7 @@ local function turn (self, sentence)
 
 	-- Do we understand the verb?
 	if not utils.contains (self.options.verbs, command.verb) then
-		table.insert(self.responses, string.format(self.template.unknownVerb, command.verb))
+		table.insert(self.responses, string.format(self.template.unknown["verb"], command.verb))
 		return command
 	end
 

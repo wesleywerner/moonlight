@@ -92,7 +92,7 @@ describe ("going", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("go north")
-		local expected = {"The room \"The Cave\" does not have exits defined, you can never leave!"}
+		local expected = {"You cannot go that way."}
 		assert.are.same(expected, ml.responses)
 	end)
 

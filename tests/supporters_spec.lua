@@ -16,11 +16,11 @@ describe ("supporters", function()
 
 	local ml = require("src/moonlight")
 
-	it("put bad command", function()
+	it("put onto something not seen", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put coin on the lunchbox")
-		local expected = {"You need to tell me where you want to insert the gold coin."}
+		local expected = {"I don't see the lunchbox."}
 		assert.are.same(expected, ml.responses)
 	end)
 

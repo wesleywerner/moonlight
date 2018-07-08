@@ -184,7 +184,9 @@ local options = {
 --- List of standard responses.
 -- See the link to the source for the template wording.
 -- @table template
+-- TODO move to a module? rename to suit a [verb][n] structure?
 local templateResponses = {
+	openLockedThing = "It is locked.",
 	alreadyClosed = "The %s is already closed.",
 	alreadyHaveIt = "You already have it.",
 	alreadyOpen = "The %s is already open.",

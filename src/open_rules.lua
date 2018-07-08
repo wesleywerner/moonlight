@@ -27,6 +27,14 @@ return function (rulebooks)
 				end
 			end
 		},
+		{
+			name = "locked things",
+			action = function (self, command)
+				if command.item1.locked == true then
+					return string.format(self.template.openLockedThing, command.item1.name), false
+				end
+			end
+		}
 	}
 
 	rulebooks.on.open = {

@@ -122,7 +122,11 @@ describe ("closed doors", function()
 				name = "Basement",
 				contains = {
 					{ name = "Freddie", person = true },
-					{ name = "rotting door", closed = true, destination = "pantry" }
+					{
+						name = "rotting door",
+						closed = true,
+						destination = "pantry"
+					}
 				},
 				exits = {
 					out = "rotting door"
@@ -135,11 +139,11 @@ describe ("closed doors", function()
 		}
 	end
 
-	pending("implicitly tries to open a door", function()
+	it("can't go through", function()
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
-		ml:turn ("go out")
-		local expected = {"You open the rotting door.", "A food pantry for the rats."}
+		ml:turn ("go in the rotting door")
+		local expected = {"The door is closed."}
 		assert.are.same (expected, ml.responses)
 	end)
 
@@ -147,8 +151,40 @@ end)
 
 describe ("locked doors", function()
 
-	pending("implicitly opening a locked door", function()
-		local expected = "TODO"
+	-- load moonlight
+	local ml = require("moonlight")
+
+	-- build the world as nested tables
+	function makeWorld()
+		return {
+			{
+				name = "Basement",
+				contains = {
+					{ name = "Freddie", person = true },
+					{
+						name = "rotting door",
+						closed = true,
+						locked = true,
+						destination = "pantry"
+					}
+				},
+				exits = {
+					out = "rotting door"
+				}
+			},
+			{
+				name = "Pantry",
+				description = "A food pantry for rats."
+			}
+		}
+	end
+
+	it("can't open", function()
+		local expected = {"It is locked."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Freddie")
+		ml:turn ("open the door")
+		assert.are.same (expected, ml.responses)
 	end)
 
 end)

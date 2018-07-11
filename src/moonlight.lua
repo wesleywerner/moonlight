@@ -662,7 +662,6 @@ local function listContents (self, item)
 				table.insert(items, withArticle(self, v))
 			end
 		end
-		-- TODO test if item.isRoom and use the room lead instead of taking this parameter
 		if #items > 0 then
 			containerText = string.format(lead, joinNames(self, items))
 		end

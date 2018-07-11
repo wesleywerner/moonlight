@@ -1,59 +1,57 @@
 describe("examine", function()
 
 	local function makeWorld()
-
-		local ego = { }
-		ego.name = "You"
-		ego.description = "As good looking as ever."
-		ego.contains = { }
-		ego.player = true
-
-		local mary = { }
-		mary.name = "Mary"
-		mary.description = "As good looking as ever."
-		mary.contains = { }
-		mary.person = true
-
-		local mint = { }
-		mint.name = "mint"
-		mint.description = "A small round, white peppermint."
-		mint.edible = true
-
-		local bowl = { }
-		bowl.name = "bowl"
-		bowl.description = "An opaque blue bowl."
-		-- any item with a "contains" table is a container
-		bowl.contains = { mint }
-		-- in future allow setting how much it can hold
-		bowl.space = 1
-		mint.size = 0.1
-
-		local podium = { }
-		podium.name = "podium"
-		podium.description = "A short podium supporting a bowl."
-		podium.fixed = true
-		-- item is a supporter
-		podium.supports = { bowl }
-
-		local envelope = { }
-		envelope.name = "envelope"
-
-		local key = { }
-		key.name = "key"
-
-		local bookcase = { }
-		bookcase.name = "bookcase"
-		bookcase.description = "It is just wooden box without the books."
-		bookcase.contains = { envelope }
-		bookcase.supports = { key }
-
-		local lobby = { }
-		lobby.name = "Lobby"
-		lobby.description = "You are in the hotel lobby."
-		lobby.contains = { bookcase, podium, ego, mary }
-
 		return {
-			lobby,
+			-- room
+			{
+				name = "Lobby",
+				description = "You are in the hotel lobby.",
+				contains = {
+					{
+						name = "You",
+						description = "As good looking as ever.",
+						person = true
+					},
+					{
+						name = "bookcase",
+						description = "It is just wooden box without the books.",
+						contains = {
+							{
+								name = "envelope"
+							}
+						},
+						supports = {
+							{
+								name = "key"
+							}
+						}
+					},
+					{
+						name = "podium",
+						description = "A short podium supporting a bowl.",
+						fixed = true,
+						supports = {
+							{
+								name = "bowl",
+								description = "An opaque blue bowl.",
+								contains = {
+									{
+										name = "mint",
+										description = "A small round, white peppermint.",
+										edible = true
+									}
+								}
+							}
+						}
+					},
+					{
+						name = "Mary",
+						description = "As good looking as ever.",
+						person = true
+					},
+				}
+			},
+			-- room
 			{
 				name = "Empty Space",
 				description = "It seems empty.",
@@ -62,7 +60,6 @@ describe("examine", function()
 				}
 			}
 		}
-
 	end
 
 	local ml = require("src/moonlight")

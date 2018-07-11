@@ -1,3 +1,8 @@
+--- Validates the world model.
+--
+-- @module world validator
+
+
 return function (self, world)
 
 	local issues = { }

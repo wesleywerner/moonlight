@@ -243,16 +243,15 @@ local options = {
 --
 -- @table template
 --
--- TODO move to a module? rename to suit a [verb][n] structure?
+-- TODO move to a module?
 local templateResponses = {
 	["close"] = {
 		["succeed"] = "You close the %s.",
 		["when closed"] = "The %s is already closed.",
 		["cannot"] = "The %s cannot be closed."
 	},
-	["darkness"] = {
-		["description"] = "You are in the dark.",
-		["too dark"] = "It is too dark to do that."
+	["examine"] = {
+		["in the dark"] = "You are in the dark.",
 	},
 	["drop"] = {
 		["success"] = "You drop the %s."
@@ -267,6 +266,7 @@ local templateResponses = {
 		["not supporter"] = "You can't put things on %s."
 	},
 	["inventory"] = {
+		["in the dark"] = "It is too dark to do that.",
 		["empty"] = "You are carrying nothing."
 	},
 	["lead"] = {
@@ -285,6 +285,7 @@ local templateResponses = {
 		["cannot"] = "The %s cannot be opened."
 	},
 	["take"] = {
+		["in the dark"] = "It is too dark to do that.",
 		["when carried"] = "You already have it.",
 		["success"] = "You take the %s.",
 		["person"] = "%s wouldn't like that."
@@ -708,7 +709,6 @@ local function describe (self, item)
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
 
-	-- TODO test if item.isRoom and use the room lead instead of taking this parameter
 	local contents = listContents (self, item)
 
 	if item.closed == true then
@@ -1057,7 +1057,6 @@ local function turn (self, sentence)
 	-- Increase the turn
 	self.turnNumber = self.turnNumber + 1
 
-	-- TODO return self.responses, command
 	return command
 
 end

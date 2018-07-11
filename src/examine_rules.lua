@@ -15,10 +15,8 @@ return function (rulebooks)
 			name = "in the dark",
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
-				if darkroom and not command.item1 then
-					return self.template.darkness["description"] .. self:listRoomExits(), false
-				elseif darkroom and command.item1 then
-					return self.template.darkness["too dark"], false
+				if darkroom then
+					return self.template.examine["in the dark"] .. self:listRoomExits(), false
 				end
 			end
 		},

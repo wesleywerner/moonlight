@@ -14,7 +14,7 @@ ml:setWorld ({
 		-- the room name is also used to reference in the room exits
 		name = "West of House",
 		-- the words displayed when looking
-		description = "You are standing in an open field west of a white house, with a boarded front door.",
+		description = "You are standing in an open field west of a white house.",
 		-- possible exits from this room
 		exits = {
 			south = "South of the House"
@@ -28,16 +28,19 @@ ml:setWorld ({
 				name = "small mailbox",
 				-- a closed container won't reveal it's contents until opened
 				closed = true,
+				-- it cannot be taken
+				fixed = true,
 				-- the mailbox contains
 				contains = {
 					-- only one thing in this mailbox
 					{
 						name = "leaflet",
-						description = [[WELCOME TO ZORK!
-						ZORK is a game of adventure, danger, and low cunning.
-						In it you will explore some of the most
-						amazing territory ever seen by mortals.
-						No computer should be without one!]]
+						description = [[
+						WELCOME TO ZORK!
+					ZORK is a game of adventure, danger, and low cunning.
+					In it you will explore some of the most
+					amazing territory ever seen by mortals.
+					No computer should be without one!]]
 					}
 				},
 			}
@@ -51,20 +54,14 @@ ml:setWorld ({
 			north = "West of House",
 			east = "Behind House"
 		},
-		-- TODO if our room does not have a contains table we error.
-		-- Validate rooms on turns.
-		contains = {}
 	},
 	-- our third room
 	{
 		name = "Behind House",
-		description = "You are behind the white house. A path leads into the forest to the east. In one corner of the house there is a small window which is slightly ajar.",
+		description = "You are behind the white house. In one corner of the house there is a small window which is slightly ajar.",
 		exits = {
 			west = "South of the House"
 		},
-		-- TODO if our room does not have a contains table we error.
-		-- Validate rooms on turns.
-		contains = {}
 	}
 })
 
@@ -80,32 +77,30 @@ ml.options.auto["describe exits"] = true
 ml:setPlayer ("You")
 
 -- print a welcome message
-io.write("\nWelcome! Enter 'bye' or 'quit' when done exploring.\n\n")
+io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, CLOSE things, GO north or ENTER doors and windows. BYE or EXIT ends the game.\n\n")
+
+-- examine the current room automatically on first run
+ml:turn ("look")
 
 -- begin the game
 while true do
 
+	-- display the last response
+	for _, message in ipairs(ml.responses) do
+		io.write(message, "\n")
+	end
+	io.write("\n")
+
+	-- print the current room name and input prompt
 	io.write(ml.room.name .. " > ")
 	local input = io.read()
 
+	-- end this game
 	if input == "q" or input == "quit" or input == "bye" or input == "exit" then
 		break
 	end
 
-	--io.write(string.format("(turn number %d)\n", ml.turnNumber))
-
-	-- simulate the world
+	-- simulate the world using the player's input
 	ml:turn (input)
-
-	-- print all the responses
-	--for _, message in ipairs(ml.log) do
-	--	io.write(message, "\n")
-	--end
-
-	for _, message in ipairs(ml.responses) do
-		io.write(message, "\n")
-	end
-
-	io.write("\n")
 
 end

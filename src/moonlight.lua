@@ -99,6 +99,12 @@
 -- A boolean indicating the thing is a person.
 -- The default article rule is ignored when the person is listed.
 --
+-- @field appearance
+-- Optional wording to display for an item when listing it in a room.
+-- This is used to make things stand out, instead of listing it as
+-- "There is an orchid here", you can specify
+-- "A sweet scent draws your eyes to an orchid nearby."
+--
 -- @field article
 -- Optional article used to prefix the thing's description.
 -- If not given the article will default to "a" or "an" depending
@@ -636,9 +642,6 @@ end
 -- @param item
 -- The item that will be described
 --
--- @param leadFormat
--- The description format which can vary for rooms vs containers.
---
 -- @return string
 local function listContents (self, item)
 
@@ -658,7 +661,8 @@ local function listContents (self, item)
 
 	if item.contains and not self:thingClosedOrDark (item) then
 		for k, v in pairs(item.contains) do
-			if not v.isPlayer then
+			-- list items that are not the player, or don't have custom appearances.
+			if not v.isPlayer and not v.appearance then
 				table.insert(items, withArticle(self, v))
 			end
 		end
@@ -671,9 +675,12 @@ local function listContents (self, item)
 	items = { }
 
 	-- list things on top of the item
-	if type(item.supports) == "table" then
+	if item.supports then
 		for k, v in pairs(item.supports) do
-			table.insert(items, withArticle(self, v))
+			-- list items that are not the player, or don't have custom appearances.
+			if not v.isPlayer and not v.appearance then
+				table.insert(items, withArticle(self, v))
+			end
 		end
 		if #items > 0 then
 			supporterText = string.format(self.template.lead["supporter"], joinNames(self, items))
@@ -686,6 +693,31 @@ local function listContents (self, item)
 		return containerText
 	elseif supporterText then
 		return supporterText
+	end
+
+end
+
+
+local function listAppearances (self, item)
+
+	local items = { }
+
+	for _, v in pairs(item.contains or {}) do
+		-- list items that are not the player, or don't have custom appearances.
+		if v.appearance and v.appearance ~= "" then
+			table.insert(items, v.appearance)
+		end
+	end
+
+	for _, v in pairs(item.supports or {}) do
+		-- list items that are not the player, or don't have custom appearances.
+		if v.appearance and v.appearance ~= "" then
+			table.insert(items, v.appearance)
+		end
+	end
+
+	if #items > 0 then
+		return table.concat (items, " ")
 	end
 
 end
@@ -707,11 +739,15 @@ local function describe (self, item)
 
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
-
+	local specialAppearances = listAppearances (self, item)
 	local contents = listContents (self, item)
 
 	if item.closed == true then
 		desc = string.format("%s %s", desc, "It is closed.")
+	end
+
+	if specialAppearances then
+		desc = string.format("%s %s", desc, specialAppearances)
 	end
 
 	if contents then

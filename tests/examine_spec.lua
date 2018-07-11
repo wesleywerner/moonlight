@@ -113,3 +113,44 @@ describe("examine", function()
 	end)
 
 end)
+
+describe ("things", function()
+
+	local function makeWorld()
+		return {
+			{
+				name = "Serene Pond",
+				description = "You are near a small, calm pond.",
+				contains = {
+					{
+						name = "You",
+						person = true
+					},
+					{
+						name = "orchid",
+						description = "A delicate flower of some kind.",
+						appearance = "You notice an orchid hanging nearby."
+					},
+					{
+						name = "pond",
+						description = "pond description.",
+						appearance = ""
+					},
+				}
+			}
+		}
+	end
+
+	local ml = require("src/moonlight")
+
+	it("with appearance", function()
+		-- things with a customized "appearance" property
+		local expected = {"You are near a small, calm pond. You notice an orchid hanging nearby."}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("You")
+		ml:turn ("look")
+
+		assert.are.same(expected, ml.responses)
+	end)
+
+end)

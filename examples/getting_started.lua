@@ -1,38 +1,35 @@
 --- Getting started with Moonlight.
 -- Browse the @{moonlight} api to learn all about this game.
 
--- add moonlight to the package path
+-- Add moonlight to the package path. This is so that moonlight
+-- finds all it's other modules.
 package.path = package.path .. ";./moonlight/?.lua"
 
--- load moonlight
+-- Load moonlight
 local ml = require("moonlight")
 
--- build the world as nested tables
+-- Load the world model
 ml:setWorld ({
-	-- our first room. all rooms must live on the root of the world table.
+	-- Rooms are defined as a list of tables. This is our first room.
 	{
-		-- the room name is also used to reference in the room exits
 		name = "West of House",
-		-- the words displayed when looking
 		description = "You are standing in an open field west of a white house.",
-		-- possible exits from this room
 		exits = {
 			south = "South of the House"
 		},
-		-- this room contains...
+		-- A list of things contained herein
 		contains = {
-			-- a person
+			-- the player character (via setPlayer)
 			{ name = "You", person = true },
 			-- a mailbox
 			{
 				name = "small mailbox",
-				-- a closed container won't reveal it's contents until opened
+				-- a closed thing won't reveal it's contents until opened
 				closed = true,
-				-- it cannot be taken
+				-- it cannot be picked up
 				fixed = true,
 				-- the mailbox contains
 				contains = {
-					-- only one thing in this mailbox
 					{
 						name = "leaflet",
 						description = [[
@@ -65,27 +62,25 @@ ml:setWorld ({
 	}
 })
 
--- set simulator options:
-
--- list contents of containers when opened.
+-- Auto list contents of containers when opened
 ml.options.auto["list contents of opened"] = true
 
--- always print the exits of a room.
+-- Auto list the exits out of the current room
 ml.options.auto["describe exits"] = true
 
--- set the player
+-- Set the player character by name
 ml:setPlayer ("You")
 
--- print a welcome message
+-- Print a welcome message
 io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, CLOSE things, GO north or ENTER doors and windows. BYE or EXIT ends the game.\n\n")
 
--- examine the current room automatically on first run
+-- Examine the current room on first run
 ml:turn ("look")
 
--- begin the game
+-- Begin the game
 while true do
 
-	-- display the last response
+	-- display the previous response
 	for _, message in ipairs(ml.responses) do
 		io.write(message, "\n")
 	end

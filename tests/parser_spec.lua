@@ -8,8 +8,18 @@ describe ("parser", function()
 		synonyms = ml.options.synonyms
 		}
 
+	it ("does not confuse nouns with similar names", function()
+		options.known_nouns = {"blue door", "blue key", "red door","red key"}
+		local result = ml.api.parse("unlock the red door with the red key", options)
+		local expected = {
+			verb="unlock",
+			nouns={"red door", "red key"}
+			}
+		assert.are.same(expected, result)
+	end)
+
 	it ("verb noun", function()
-		options.known_nouns = nil
+		options.known_nouns = {"door"}
 		local result = ml.api.parse("open door", options)
 		local expected = {
 			verb="open",
@@ -19,7 +29,7 @@ describe ("parser", function()
 	end)
 
 	it ("ignored words", function()
-		options.known_nouns = nil
+		options.known_nouns = {"door"}
 		local result = ml.api.parse("open the door", options)
 		local expected = {
 			verb="open",
@@ -29,7 +39,7 @@ describe ("parser", function()
 	end)
 
 	it ("listing nouns: the gargoyle", function()
-		options.known_nouns = nil
+		options.known_nouns = {"gargoyle", "sword"}
 		local result = ml.api.parse("give sword to gargoyle", options)
 		local expected = {
 			verb="give",
@@ -50,7 +60,7 @@ describe ("parser", function()
 
 	it ("listing nouns: the gate and the skeleton key (lazy)", function()
 		options.known_nouns = {"gate", "skeleton key"}
-		local result = ml.api.parse("unlock gate skel", options)
+		local result = ml.api.parse("unlock gate with key", options)
 		local expected = {
 			verb="unlock",
 			nouns={"gate","skeleton key"}
@@ -69,7 +79,7 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: look/examine", function()
-		options.known_nouns = nil
+		options.known_nouns = {"gate"}
 		local result = ml.api.parse("look at the gate", options)
 		local expected = {
 			verb="examine",
@@ -79,7 +89,7 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: get/take", function()
-		options.known_nouns = nil
+		options.known_nouns = {"apple"}
 		local result = ml.api.parse("get an apple", options)
 		local expected = {
 			verb="take",
@@ -89,7 +99,7 @@ describe ("parser", function()
 	end)
 
 	it ("interpolate synonymns: put/insert", function()
-		options.known_nouns = nil
+		options.known_nouns = {"box", "table"}
 		local result = ml.api.parse("put the box on the table", options)
 		local expected = {
 			verb="insert",
@@ -138,7 +148,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the wise guy", function()
+	it ("recognizing known nouns: the wise guy A", function()
 		options.known_nouns = {"wise guy", "computer"}
 		local result = ml.api.parse("ask the wise guy about the computer", options)
 		local expected = {
@@ -150,7 +160,7 @@ describe ("parser", function()
 
 	it ("recognizing known nouns: the wise guy (lazy)", function()
 		options.known_nouns = {"wise guy", "computer"}
-		local result = ml.api.parse("ask guy the comp", options)
+		local result = ml.api.parse("ask guy the computer", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "computer"}
@@ -191,7 +201,7 @@ describe ("parser", function()
 	end)
 
 	it ("recognizing directions: in", function()
-		options.known_nouns = nil
+		options.known_nouns = {"mirror"}
 		local result = ml.api.parse("look in mirror", options)
 		local expected = {
 			verb="examine",

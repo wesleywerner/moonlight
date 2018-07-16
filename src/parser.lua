@@ -86,6 +86,7 @@ return function (sentence, options)
 
 	parts = utils.filter(parts, removeIgnoresFilter)
 
+	--[[
 	-- Replace any partial nouns with the known nouns.
 	-- If a partial matches multiple known nouns, it will match the last one.
 	if options.known_nouns then
@@ -106,6 +107,67 @@ return function (sentence, options)
 	end
 
 	parts = utils.filter(parts, removeDuplicatesFilter)
+	--]]
+
+	local nouns = { }
+
+	local function matches (test)
+		local count = 0
+		local match = nil
+		for _, trueNoun in ipairs (options.known_nouns) do
+			local s, e, m = string.find (trueNoun, test)
+			if s then
+				count = count + 1
+				match = trueNoun
+			end
+		end
+		return count, match
+	end
+
+
+	-- match known nouns in the sentence using iterative scanning.
+	-- start with the first word. if it has multiple matches
+	-- then include the next word and scan again
+	-- until exactly one or none match.
+	for position = 1, #parts do
+
+		local noun = parts[position]
+
+		--print("\t", "new test for", noun)
+
+		-- get the number of matches
+		local matchCount, matchWord = matches (noun)
+
+		-- if a word does not match, include it in the noun list
+		-- unless it is part of a multi-match scenario
+		local skipNegativeInclude = false
+
+		-- multi matches: include the next noun and try again
+		if matchCount > 1 then
+			-- including the extra word moves the position forward
+			position = position + 1
+			skipNegativeInclude = true
+			--print ("\t", "multi matches for", noun, "trying again with", parts[position])
+			matchCount, matchWord = matches (string.format ("%s %s", noun, parts[position]))
+		end
+
+		-- a single match is success
+		if matchCount == 1 then
+			if not utils.contains (nouns, matchWord) then
+				--print ("\t", "single match to", matchWord)
+				table.insert (nouns, matchWord)
+			end
+		else
+			--print ("\t", "no match for", noun)
+			if not skipNegativeInclude then
+				table.insert (nouns, noun)
+			end
+		end
+
+		position = position + 1
+
+	end
+
 
 	-- Change verbs to their root synonym.
 	-- The first entry is the synonym list is the root word.
@@ -122,7 +184,7 @@ return function (sentence, options)
 		end
 	end
 
-	return { verb=verb, nouns=parts, direction=direction }
+	return { verb=verb, nouns=nouns, direction=direction }
 
 end
 

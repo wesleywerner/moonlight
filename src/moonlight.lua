@@ -906,6 +906,9 @@ end
 
 --- Get the room adjoining the current by direction
 local function roomByDirection (self, direction)
+	if not self.room.exits then
+		return
+	end
 	local way = self.room.exits[direction]
 	if not way then
 		return

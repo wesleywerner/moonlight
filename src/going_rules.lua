@@ -20,14 +20,6 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "room has exits",
-			action = function (self, command)
-				if type(self.room.exits) ~= "table" then
-					return string.format(self.template.go["cannot"], tostring(self.room.name)), false
-				end
-			end
-		},
-		{
 			name = "exit is a valid room",
 			action = function (self, command)
 				if command.item1 then

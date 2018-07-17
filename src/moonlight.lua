@@ -195,6 +195,7 @@ local options = {
 		"with", "about", "on", "and", "from", "into" },
 	synonyms = {
 		{ "attack", "hit", "smash", "kick", "cut", "kill" },
+		{ "go", "enter" },
 		{ "insert", "put" },
 		{ "take", "get", "pick" },
 		{ "inventory", "i" },

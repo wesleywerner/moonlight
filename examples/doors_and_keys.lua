@@ -86,7 +86,7 @@ ml.options.auto["describe exits"] = true
 ml:setPlayer ("Freddie")
 
 -- Print a welcome message
-io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, CLOSE things, GO north or ENTER doors and windows. BYE or EXIT ends the game.\n\n")
+io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, UNLOCK things WITH keys, or ENTER doors. BYE or EXIT ends the game.\n\n")
 
 -- Examine the current room on first run
 ml:turn ("look")

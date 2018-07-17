@@ -115,7 +115,7 @@ return function (sentence, options)
 		local count = 0
 		local match = nil
 		for _, trueNoun in ipairs (options.known_nouns) do
-			local s, e, m = string.find (trueNoun, test)
+			local s, e, m = string.find (trueNoun:lower(), test)
 			if s then
 				count = count + 1
 				match = trueNoun
@@ -143,7 +143,7 @@ return function (sentence, options)
 		local skipNegativeInclude = false
 
 		-- multi matches: include the next noun and try again
-		if matchCount > 1 then
+		while (matchCount > 1) and (position <= #parts) do
 			-- including the extra word moves the position forward
 			position = position + 1
 			skipNegativeInclude = true
@@ -158,7 +158,7 @@ return function (sentence, options)
 				table.insert (nouns, matchWord)
 			end
 		else
-			--print ("\t", "no match for", noun)
+			--print ("\t", "no match for", noun, skipNegativeInclude)
 			if not skipNegativeInclude then
 				table.insert (nouns, noun)
 			end

@@ -86,29 +86,6 @@ return function (sentence, options)
 
 	parts = utils.filter(parts, removeIgnoresFilter)
 
-	--[[
-	-- Replace any partial nouns with the known nouns.
-	-- If a partial matches multiple known nouns, it will match the last one.
-	if options.known_nouns then
-		for partno, part in ipairs(parts) do
-			for nounno, noun in ipairs(options.known_nouns) do
-				-- if the part matches a known noun
-				if string.match(noun, part) then
-					-- replace the part with the match
-					parts[partno] = noun
-				end
-			end
-		end
-	end
-
-	-- Remove duplicates which can occur from the above step.
-	local function removeDuplicatesFilter(k, v)
-		return utils.indexOf(parts, v) == k
-	end
-
-	parts = utils.filter(parts, removeDuplicatesFilter)
-	--]]
-
 	local nouns = { }
 
 	local function matches (test)
@@ -133,8 +110,6 @@ return function (sentence, options)
 
 		local noun = parts[position]
 
-		--print("\t", "new test for", noun)
-
 		-- get the number of matches
 		local matchCount, matchWord = matches (noun)
 
@@ -147,18 +122,18 @@ return function (sentence, options)
 			-- including the extra word moves the position forward
 			position = position + 1
 			skipNegativeInclude = true
-			--print ("\t", "multi matches for", noun, "trying again with", parts[position])
 			matchCount, matchWord = matches (string.format ("%s %s", noun, parts[position]))
 		end
 
 		-- a single match is success
 		if matchCount == 1 then
 			if not utils.contains (nouns, matchWord) then
-				--print ("\t", "single match to", matchWord)
 				table.insert (nouns, matchWord)
 			end
 		else
-			--print ("\t", "no match for", noun, skipNegativeInclude)
+			-- no match will use the player provided word as the noun.
+			-- this allows rulebooks to refer to this noun even though
+			-- it does not match any known thing.
 			if not skipNegativeInclude then
 				table.insert (nouns, noun)
 			end

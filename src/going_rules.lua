@@ -63,7 +63,8 @@ return function (rulebooks)
 				if room then
 					self:moveItemInto (self.player, room)
 					self.room = room
-					return self:describeRoom ()
+					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.
+					self:applyCommand ("examine")
 				end
 			end
 		}

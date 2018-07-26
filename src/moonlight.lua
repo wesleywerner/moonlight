@@ -392,7 +392,7 @@ local function referRulebook (self, book, command)
 	if type(command) == "string" then
 		-- if this is a non-action rulebook
 		rules = book[command]
-		command = { verb = command }
+		command = { verb = command, nouns = {} }
 	else
 		-- this is an action rulebook
 		rules = book[command.verb]
@@ -924,7 +924,7 @@ end
 --
 -- @return boolean
 -- If the action succeeded.
-local function apply (self, command)
+local function applyCommand (self, command)
 
 	-- call "before" rules
 	-- explicit false results stops further processing
@@ -1079,11 +1079,11 @@ local function turn (self, sentence)
 			if not v.isPlayer then
 				-- "all" actions promotes the child of item2 to item1
 				command.item1 = v
-				apply (self, command)
+				applyCommand (self, command)
 			end
 		end
 	else
-		apply (self, command)
+		applyCommand (self, command)
 		-- add a custom response if there is one
 		-- TODO hooks obsoleted by rulebooks
 		if hookResponse then
@@ -1171,6 +1171,7 @@ return {
 	turnNumber = 1,
 	rulebooks = standardRulebooks (),
 	-- functions
+	applyCommand = applyCommand,
 	reset = reset,
 	setWorld = setWorld,
 	setPlayer = setPlayer,

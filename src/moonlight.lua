@@ -157,6 +157,21 @@
 
 ------------------------------------------------------------------------
 
+--- A table of options defining verbose output.
+-- @table verboseOptions
+--
+-- @field parser
+-- Set true to output parser debug output to the @{instance}.log table.
+--
+-- @field rulebooks
+-- Set true to output rulebook debug output to the @{instance}.log table.
+--
+-- @field descriptions
+-- Set true to print full room descriptions every time a room is entered.
+-- Otherwise full descriptions are printed only on first entry.
+
+------------------------------------------------------------------------
+
 --- A table of options that define parser and response behavior.
 -- @table options
 --
@@ -187,6 +202,9 @@
 -- @field soundex
 -- A boolean to enable soundex matching of known nouns to the player's
 -- input during sentence parsing.
+--
+-- @field verbose
+-- A table of @{verboseOptions}.
 local options = {
 	verbs = { "examine", "take", "drop", "attack",
 		"inventory", "insert", "go", "open", "close",
@@ -240,7 +258,8 @@ local options = {
 	},
 	verbose = {
 		rulebooks = true,
-		parser = true
+		parser = true,
+		descriptions = false
 	}
 }
 
@@ -328,9 +347,17 @@ end
 
 --- Increment the number of times a noun has been verbed.
 local function countVerbUsedOnNoun (self, command)
-	if command.item1 then
-		command.item1.count = command.item1.count or { }
-		command.item1.count[command.verb] = (command.item1.count[command.verb] or 0) + 1
+	-- the counter can live on a thing or a room
+	local target = command.item1 or self.room
+	local verb = command.verb
+
+	if type(command) == "string" then
+		verb = command
+	end
+
+	if target then
+		target.count = target.count or { }
+		target.count[verb] = (target.count[verb] or 0) + 1
 	end
 end
 
@@ -736,33 +763,39 @@ end
 -- The description format which can vary for rooms vs containers.
 --
 -- @return string
-local function describe (self, item)
+local function describe (self, item, brief)
 
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
 	local specialAppearances = listAppearances (self, item)
 	local contents = listContents (self, item)
 
-	if item.closed == true then
-		desc = string.format("%s %s", desc, "It is closed.")
+	-- check if brief room descriptions have effect
+	if brief then
+		local verbose = self.options.verbose.descriptions
+		local firstVisit = item.count["examine"] == 1
+		if (not verbose and not firstVisit) then
+			-- negate the full room description
+			desc = nil
+		end
 	end
 
-	if specialAppearances then
-		desc = string.format("%s %s", desc, specialAppearances)
-	end
+	local closed = item.closed and "It is closed." or nil
 
-	if contents then
-		return string.format("%s %s", desc, contents)
-	else
-		return desc
-	end
+	local itemlist = utils.filter(
+		{ desc, closed, specialAppearances, contents },
+		function (n)
+			return n ~= nil
+		end)
+
+	return table.concat(itemlist, " ")
 
 end
 
 --- Describe room.
-local function describeRoom (self)
+local function describeRoom (self, brief)
 
-	return describe (self, self.room) .. self:listRoomExits()
+	return describe (self, self.room, brief) .. self:listRoomExits()
 
 end
 
@@ -932,13 +965,13 @@ local function applyCommand (self, command)
 		return false
 	end
 
+	countVerbUsedOnNoun (self, command)
+
 	-- call "on" rules
 	referRulebook (self, self.rulebooks["on"], command)
 
 	-- call "after" rules
 	referRulebook (self, self.rulebooks["after"], command)
-
-	countVerbUsedOnNoun (self, command)
 
 end
 

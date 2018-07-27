@@ -85,6 +85,14 @@ describe("take", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
+	pending("something fixed in place with custom message", function()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+		ml:turn("take the foo")
+		local expected = "You have no use for the foo."
+		assert.are.equals(expected, ml.responses[1])
+	end)
+
 	it("what you cannot see", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")

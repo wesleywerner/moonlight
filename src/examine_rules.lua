@@ -27,7 +27,7 @@ return function (rulebooks)
 			name = "the room",
 			action = function (self, command)
 				if not command.item1 then
-					return self:describeRoom ()
+					return self:describeRoom (command.brief)
 				end
 			end
 		},

@@ -64,7 +64,9 @@ return function (rulebooks)
 					self:moveItemInto (self.player, room)
 					self.room = room
 					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.
-					self:applyCommand ("examine")
+					-- The command also carries the allow_brief flag to indicate to examine rules
+					-- that brief room descriptions can be used.
+					self:applyCommand ({ verb = "examine", nouns = {}, brief = true })
 				end
 			end
 		}

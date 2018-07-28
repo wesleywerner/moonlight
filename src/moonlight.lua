@@ -314,7 +314,9 @@ local templateResponses = {
 		["in the dark"] = "It is too dark to do that.",
 		["when carried"] = "You already have it.",
 		["success"] = "You take the %s.",
-		["person"] = "%s wouldn't like that."
+		["person"] = "%s wouldn't like that.",
+		["not container"] = "You can't put things in %s.",
+		["from closed container"] = "The %s is closed."
 	},
 	["thing"] = {
 		["not carried"] = "You don't have the %s.",
@@ -382,6 +384,7 @@ local function standardRulebooks ()
 	require("close_rules")(rulebooks)
 	require("turn_rules")(rulebooks)
 	require("unlock_rules")(rulebooks)
+	require("all_rules")(rulebooks)
 
 	return rulebooks
 
@@ -962,19 +965,63 @@ end
 -- If the action succeeded.
 local function applyCommand (self, command)
 
-	-- call "before" rules
-	-- explicit false results stops further processing
-	if referRulebook (self, self.rulebooks["before"], command) == false then
-		return false
+	local queue = { }
+
+	-- this command applies to ALL things
+	if commandRefersAll (self, command) then
+
+		-- refer to the ALL rulebook if we can iterate over ALL things
+		if referRulebook (self, self.rulebooks["all"], command) then
+
+			-- ALL refers to a target thing, fallback to the room
+			local allTarget = command.item2 or self.room
+
+			-- iterate ALL children of the target
+			local children = listChildrenOf (self, allTarget)
+
+			for _, child in ipairs (children) do
+
+				-- ignoring the player
+				if not child.isPlayer then
+
+					-- repack the command table
+					-- (otherwise each iteration overrides the
+					--  previous command reference)
+					local newcommand = { }
+					for commandKey, commandValue in pairs (command) do
+						newcommand[commandKey] = commandValue
+					end
+
+					-- promote this child to item1
+					newcommand.item1 = child
+					newcommand.item1Parent = allTarget
+					table.insert (queue, newcommand)
+
+				end
+			end
+		end
+
+	else
+		table.insert (queue, command)
 	end
 
-	countVerbUsedOnNoun (self, command)
+	for _, cmd in ipairs (queue) do
 
-	-- call "on" rules
-	referRulebook (self, self.rulebooks["on"], command)
+		-- call "before" rules
+		-- explicit false results stops further processing
+		if referRulebook (self, self.rulebooks["before"], cmd) then
 
-	-- call "after" rules
-	referRulebook (self, self.rulebooks["after"], command)
+			countVerbUsedOnNoun (self, cmd)
+
+			-- call "on" rules
+			referRulebook (self, self.rulebooks["on"], cmd)
+
+			-- call "after" rules
+			referRulebook (self, self.rulebooks["after"], cmd)
+
+		end
+
+	end
 
 end
 
@@ -1107,24 +1154,12 @@ local function turn (self, sentence)
 		return command
 	end
 
-	-- include all items
-	if commandRefersAll (self, command) then
-		-- get list of children for item2, fall-back to the room.
-		local children = listChildrenOf (self, command.item2 or self.room)
-		for k, v in pairs (children) do
-			if not v.isPlayer then
-				-- "all" actions promotes the child of item2 to item1
-				command.item1 = v
-				applyCommand (self, command)
-			end
-		end
-	else
-		applyCommand (self, command)
-		-- add a custom response if there is one
-		-- TODO hooks obsoleted by rulebooks
-		if hookResponse then
-			table.insert(self.responses, hookResponse)
-		end
+	applyCommand (self, command)
+
+	-- add a custom response if there is one
+	-- TODO hooks obsoleted by rulebooks
+	if hookResponse then
+		table.insert(self.responses, hookResponse)
 	end
 
 	referRulebook (self, self.rulebooks["after"], "turn")

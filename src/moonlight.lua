@@ -388,11 +388,14 @@ local function standardRulebooks ()
 end
 
 
---- TODO
+--- Reset the simulator.
+-- Clears the internal state of the player, the world and loads
+-- the standard rulebooks.
 local function reset (self)
 	self.rulebooks = standardRulebooks()
 	self.player = nil
 	self.room = nil
+	self.world = nil
 end
 
 

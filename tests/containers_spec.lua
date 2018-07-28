@@ -128,11 +128,19 @@ describe ("containers", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("take thing inside closed", function()
-		local expected = {""}
+	it("take thing inside closed", function()
+		local expected = {"I don't see the gold coin."}
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
-		ml:turn("")
+		ml:turn("take the gold coin from toilet")
+		assert.are.same(expected, ml.responses)
+	end)
+
+	it("take all inside closed", function()
+		local expected = {"The toilet is closed."}
+		ml:setWorld (makeWorld())
+		ml:setPlayer ("Alice")
+		ml:turn("take all from toilet")
 		assert.are.same(expected, ml.responses)
 	end)
 

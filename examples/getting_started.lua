@@ -66,7 +66,7 @@ ml:setWorld ({
 ml.options.auto["list contents of opened"] = true
 
 -- Auto list the exits out of the current room
-ml.options.auto["describe exits"] = true
+ml.options.auto["list exits"] = true
 
 -- Set the player character by name
 ml:setPlayer ("You")

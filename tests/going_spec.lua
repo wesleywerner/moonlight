@@ -79,15 +79,6 @@ describe ("going", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	it("auto describe exits", function()
-		ml:setWorld (makeWorld())
-		ml.options.auto["describe exits"] = true
-		ml:setPlayer ("Bob")
-		ml:turn("look")
-		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
-		assert.are.same(expected, ml.responses)
-	end)
-
 	it("room without exits", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")

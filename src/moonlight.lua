@@ -249,10 +249,10 @@ local options = {
 	-- See the link to the source for all the available options.
 	-- @table auto
 	-- @field key true/false
-	-- @usage auto["describe exits"] = true
+	-- @usage auto["list exits"] = true
 	auto = {
 		-- list all exits after the room description
-		["describe exits"] = false,
+		["list exits"] = false,
 		-- list the contents of a container when opening it
 		["list contents of opened"] = false
 	},
@@ -819,7 +819,7 @@ local function listRoomExits (self)
 	-- always list exits in a dark room
 	local darkroom = self.room.dark and not self.room.lit
 
-	if self.options.auto["describe exits"] or darkroom then
+	if self.options.auto["list exits"] or darkroom then
 		if type(self.room.exits) == "table" then
 			local possibleWays = { }
 			for k, v in pairs(self.room.exits) do

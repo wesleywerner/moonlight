@@ -15,7 +15,7 @@ describe ("options", function()
 				name = "A forest path",
 				description = "A bright and lively path. A cave entrance lies to the north.",
 				contains = {
-					{ name = "Alice", person = true },
+					{ name = "Bob", person = true },
 					{ name = "hummingbird" },
 					{ name = "daisies", article="some" },
 				},
@@ -84,19 +84,22 @@ describe ("options", function()
 		assert.are.same ({"A tight winding white flaked wooden staircase. There is a ladder and an oak door here."}, ml.responses)
 	end)
 
-	pending("list exits in lit rooms", function()
+	it("list exits in lit rooms", function()
 		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("go south")
-		local expected = {"You cannot go that way."}
+		ml.options.auto["list exits"] = true
+		ml:setPlayer ("Bob")
+		ml:turn("look")
+		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("not list exits in lit rooms", function()
+	it("list exits in dark rooms", function()
 		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("go south")
-		local expected = {"You cannot go that way."}
+		ml:roomByName ("A forest path").dark = true
+		ml.options.auto["list exits"] = true
+		ml:setPlayer ("Bob")
+		ml:turn("look")
+		local expected = {"You are in the dark. You can go east, north and west."}
 		assert.are.same(expected, ml.responses)
 	end)
 

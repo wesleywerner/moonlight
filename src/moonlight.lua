@@ -472,6 +472,19 @@ local function referRulebook (self, bookName, command)
 end
 
 
+local function thingClosed (self, thing)
+	return thing.closed == true
+end
+
+
+local function thingDark (self, thing)
+	if ((thing.dark == true) and not (thing.lit == true)) then
+		return true
+	end
+	return false
+end
+
+
 --- Test if a thing is closed or dark, except when lit.
 --
 -- @param self
@@ -484,12 +497,13 @@ end
 -- true if the thing is closed, or dark.
 -- true if not closed, not dark, or dark and lit.
 local function thingClosedOrDark (self, thing)
-	if (thing.closed == true) then
-		return true
-	elseif ((thing.dark == true) and not (thing.lit == true)) then
-		return true
-	end
-	return false
+	return thingClosed (self, thing) or thingDark (self, thing)
+--	if (thing.closed == true) then
+--		return true
+--	elseif ((thing.dark == true) and not (thing.lit == true)) then
+--		return true
+--	end
+--	return false
 end
 
 
@@ -514,7 +528,7 @@ end
 -- An indexed table of matches, each match a collection
 -- { item, parent }
 -- Returns nil if no matches found.
-local function search (self, term, parent, wizard)
+local function search (self, term, parent, options)
 
 	-- helper to match a thing
 	local function match (item)
@@ -527,14 +541,29 @@ local function search (self, term, parent, wizard)
 		end
 	end
 
+	-- options of true allows all
+	if options == nil then
+		options = {
+			includeClosed = false,
+			includeDark = false
+		}
+	elseif options == true then
+		options = {
+			includeClosed = true,
+			includeDark = true
+		}
+	end
+
 	-- helper to test if item contents should be queried,
 	-- based on seen things and if the item is closed or dark.
 	local function queryContents (item)
-		if wizard then
-			return true
-		else
-			return thingClosedOrDark (self, item) == false
+		if not options.includeDark and thingDark (self, item) then
+			return false
 		end
+		if not options.includeClosed and thingClosed (self, item) then
+			return false
+		end
+		return true
 	end
 
 	-- stored as { matched item, parent, index, parent type }
@@ -586,8 +615,8 @@ end
 
 
 --- Search and return the first match.
-local function searchFirst (self, term, parent, wizard)
-	local matches = search (self, term, parent, wizard)
+local function searchFirst (self, term, parent, options)
+	local matches = search (self, term, parent, options)
 	if matches then
 		return unpack(matches[1])
 	end
@@ -915,6 +944,19 @@ end
 --- Test if a persons is carrying a thing.
 local function isCarrying (self, item, owner)
 	return searchFirst(self, item, owner or self.player, true)
+end
+
+
+--- Warp any thing to the player's inventory
+local function purloin (self, what)
+	-- wizard search, all rooms
+	local thing, parent = self:searchFirst (what, nil, true)
+	if thing then
+		moveIn (self, thing, self.player)
+		table.insert (self.responses, string.format("Purloined the %s", thing.name))
+	else
+		table.insert (self.responses, string.format("%s not found", tostring(what)))
+	end
 end
 
 
@@ -1270,6 +1312,7 @@ return {
 	validate = require("world_validator"),
 	thingClosedOrDark = thingClosedOrDark,
 	detach = detach,
+	purloin = purloin,
 
 	--- Used internally.
 	-- This table contains functions and other tables used by the

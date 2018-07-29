@@ -16,7 +16,7 @@ describe ("darkness", function()
 				name = "A forest path",
 				description = "A bright and lively path. A cave entrance lies to the north.",
 				contains = {
-					{ name = "glowing rock" },
+					{ name = "glowing rock", lit = true },
 					{ name = "hummingbird" },
 					{ name = "daisies", article="some" },
 				},
@@ -61,8 +61,15 @@ describe ("darkness", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("dark rooms lit by other things", function()
-
+	it("dark rooms lit by other things", function()
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Bob")
+		-- warp the glowing rocks into the cave
+		ml:purloin ("glowing rock")
+		assert.is.truthy (ml:isCarrying ("glowing rock"))
+		--ml:turn ("drop glowing rock")
+		ml:turn ("look")
+		assert.are.same ({"A dank and musty old place. There is a stalagmite here."}, ml.responses)
 	end)
 
 	pending("dark rooms lit by other things in open containers", function()

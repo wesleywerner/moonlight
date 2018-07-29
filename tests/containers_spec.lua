@@ -18,7 +18,8 @@ describe ("containers", function()
 					},
 					{
 						name = "black box",
-						contains = { }
+						contains = { },
+						closed = false
 					},
 					{
 						name = "daisies",
@@ -68,11 +69,31 @@ describe ("containers", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
+	it("insert all into closed", function()
+		ml:setWorld (makeWorld())
+		ml:setPlayer ("Alice")
+		ml:turn("take daisies")
+		ml:turn("close the black box")
+		local cmd = ml:turn("put all inside the box")
+		assert.are.equals("in", cmd.direction)
+		local expected = {"You can't put things in the black box, it is closed."}
+		assert.are.same(expected, ml.responses)
+	end)
+
 	it("insert into a non-container", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("put valve inside the daisies")
 		local expected = {"You can't put things in some daisies."}
+		assert.are.same(expected, ml.responses)
+	end)
+
+	it("insert into a closed container", function()
+		ml:setWorld (makeWorld())
+		ml:setPlayer ("Alice")
+		ml:turn("close the black box")
+		ml:turn("put valve inside the black box")
+		local expected = {"You can't put things in the black box, it is closed."}
 		assert.are.same(expected, ml.responses)
 	end)
 

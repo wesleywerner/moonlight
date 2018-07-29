@@ -44,6 +44,14 @@ return function (rulebooks)
 			action = function (self, command)
 				command.allFrom = self.player
 			end
+		},
+		{
+			name = "into a closed container",
+			action = function (self, command)
+				if command.item2.closed == true then
+					return string.format(self.template.insert["into closed"], command.item2.name), false
+				end
+			end
 		}
 	}
 

@@ -39,6 +39,14 @@ return function (rulebooks)
 					return string.format(self.template.insert["not supporter"], self:withArticle (command.item2)), false
 				end
 			end
+		},
+		{
+			name = "into a closed container",
+			action = function (self, command)
+				if command.item2.closed == true then
+					return string.format(self.template.insert["into closed"], command.item2.name), false
+				end
+			end
 		}
 	}
 

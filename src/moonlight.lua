@@ -289,7 +289,8 @@ local templateResponses = {
 		["in"] = "You put the %s in the %s.",
 		["on"] = "You put the %s on the %s.",
 		["not container"] = "You can't put things in %s.",
-		["not supporter"] = "You can't put things on %s."
+		["not supporter"] = "You can't put things on %s.",
+		["into closed"] = "You can't put things in the %s, it is closed."
 	},
 	["inventory"] = {
 		["in the dark"] = "It is too dark to do that.",

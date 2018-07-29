@@ -9,6 +9,7 @@ describe ("darkness", function()
 				contains = {
 					{ name = "Bob", person = true, contains = { { name = "gold coin" } } },
 					{ name = "stalagmite" },
+					{ name = "carton", contains = {}, closed = false }
 				},
 				exits = { s = "A forest path" }
 			},
@@ -61,27 +62,45 @@ describe ("darkness", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	it("dark rooms lit by other things", function()
+	it("light source in the room", function()
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Bob")
+		-- warp the glowing rocks into the cave
+		ml:purloin ("glowing rock")
+		ml:turn ("drop glowing rock")
+		ml:turn ("look")
+		assert.are.same ({"A dank and musty old place. There is a stalagmite, a carton and a glowing rock here."}, ml.responses)
+	end)
+
+	it("light source in open containers", function()
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Bob")
+		-- warp the glowing rocks into the cave
+		ml:purloin ("glowing rock")
+		ml:turn ("insert glowing rock in the carton")
+		ml:turn ("look")
+		assert.are.same ({"A dank and musty old place. There is a stalagmite and a carton here."}, ml.responses)
+	end)
+
+	it("light source in closed containers", function()
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Bob")
+		-- warp the glowing rocks into the cave
+		ml:purloin ("glowing rock")
+		ml:turn ("insert glowing rock in the carton")
+		ml:turn ("close the carton")
+		ml:turn ("look")
+		assert.are.same ({"You are in the dark. You can go s."}, ml.responses)
+	end)
+
+	it("carried light source", function()
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Bob")
 		-- warp the glowing rocks into the cave
 		ml:purloin ("glowing rock")
 		assert.is.truthy (ml:isCarrying ("glowing rock"))
-		--ml:turn ("drop glowing rock")
 		ml:turn ("look")
-		assert.are.same ({"A dank and musty old place. There is a stalagmite here."}, ml.responses)
-	end)
-
-	pending("dark rooms lit by other things in open containers", function()
-
-	end)
-
-	pending("dark rooms lit by other things in closed containers", function()
-
-	end)
-
-	pending("dark rooms lit when carrying a lit item", function()
-
+		assert.are.same ({"A dank and musty old place. There is a stalagmite and a carton here."}, ml.responses)
 	end)
 
 

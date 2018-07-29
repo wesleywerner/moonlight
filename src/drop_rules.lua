@@ -28,7 +28,7 @@ return function (rulebooks)
 		{
 			name = "thing",
 			action = function (self, command)
-				self:moveItemInto (command.item1, self.room)
+				self:moveIn (command.item1, self.room)
 				return string.format(self.template.drop["success"], command.item1.name)
 			end
 		}

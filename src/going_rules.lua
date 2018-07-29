@@ -61,7 +61,7 @@ return function (rulebooks)
 				end
 
 				if room then
-					self:moveItemInto (self.player, room)
+					self:moveIn (self.player, room)
 					self.room = room
 					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.
 					-- The command also carries the allow_brief flag to indicate to examine rules

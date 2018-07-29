@@ -885,30 +885,30 @@ end
 -- @param self
 -- @{instance}
 --
--- @param item
+-- @param what
 -- The @{thing} to move.
 --
--- @param target
--- The new parent, the @{thing} to move item to.
-local function moveItemInto (self, item, target)
-	self:detach (item)
-	table.insert(target.contains, item)
+-- @param where
+-- A container @{thing}.
+local function moveIn (self, what, where)
+	self:detach (what)
+	table.insert(where.contains, what)
 end
 
 
---- Move an item on top of a supporter.
+--- Put an item on top of a supporter.
 --
 -- @param self
 -- @{instance}
 --
--- @param item
+-- @param what
 -- The @{thing} to move.
 --
--- @param target
--- The new parent, the @{thing} to move item to.
-local function moveItemOnto (self, item, target)
-	self:detach (item)
-	table.insert(target.supports, item)
+-- @param where
+-- The supporter @{thing}.
+local function moveOn (self, what, where)
+	self:detach (what)
+	table.insert(where.supports, what)
 end
 
 
@@ -1254,8 +1254,8 @@ return {
 	setWorld = setWorld,
 	setPlayer = setPlayer,
 	isCarrying = isCarrying,
-	moveItemInto = moveItemInto,
-	moveItemOnto  = moveItemOnto,
+	moveIn = moveIn,
+	moveOn  = moveOn,
 	describe = describe,
 	describeRoom = describeRoom,
 	listRoomExits = listRoomExits,

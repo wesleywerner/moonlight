@@ -55,7 +55,7 @@ return function (rulebooks)
 			name = "a container",
 			action = function (self, command)
 				if command.direction == "in" then
-					self:moveItemInto (command.item1, command.item2)
+					self:moveIn (command.item1, command.item2)
 					return string.format(self.template.insert["in"], command.item1.name, command.item2.name)
 				end
 			end
@@ -64,7 +64,7 @@ return function (rulebooks)
 			name = "a supporter",
 			action = function (self, command)
 				if command.direction == nil then
-					self:moveItemOnto (command.item1, command.item2)
+					self:moveOn (command.item1, command.item2)
 					return string.format(self.template.insert["on"], command.item1.name, command.item2.name)
 				end
 			end

@@ -28,6 +28,23 @@ return function (rulebooks)
 				end
 			end
 		},
+		{
+			-- taking all looks at the specified thing or the room
+			name = "redirect taking from",
+			action = function (self, command)
+				command.allFrom = command.item2 or self.room
+			end
+		}
+	}
+
+	rulebooks.all.insert = {
+		{
+			-- inserting all looks at the player inventory
+			name = "redirect inserting from inventory",
+			action = function (self, command)
+				command.allFrom = self.player
+			end
+		}
 	}
 
 end

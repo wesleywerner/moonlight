@@ -48,13 +48,23 @@ describe ("containers", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	it("insert default response", function()
+	it("insert response", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("take coin")
 		local cmd = ml:turn("put valve inside the box")
 		assert.are.equals("in", cmd.direction)
 		local expected = {"You put the valve in the black box."}
+		assert.are.same(expected, ml.responses)
+	end)
+
+	it("insert all into open", function()
+		ml:setWorld (makeWorld())
+		ml:setPlayer ("Alice")
+		ml:turn("take daisies")
+		local cmd = ml:turn("put all inside the box")
+		assert.are.equals("in", cmd.direction)
+		local expected = {"You put the valve in the black box.", "You put the daisies in the black box."}
 		assert.are.same(expected, ml.responses)
 	end)
 

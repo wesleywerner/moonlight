@@ -32,7 +32,7 @@ ml:setWorld ({
 						article = "some",
 						description = "From last night's pizza.",
 						-- TODO set fixed message in the model
-						fixed = ""
+						--fixed = ""
 					}
 				}
 			},

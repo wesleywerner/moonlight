@@ -407,14 +407,16 @@ end
 -- @param self
 -- @{instance}
 --
--- @param book
--- The rulebook to test against.
+-- @param bookName
+-- The name of the rulebook to test against.
 --
 -- @param command
 -- The @{command} to validate.
 --
 -- @return boolean
-local function referRulebook (self, book, command)
+local function referRulebook (self, bookName, command)
+
+	local book = self.rulebooks[bookName]
 
 	if not book then
 		return true
@@ -443,8 +445,12 @@ local function referRulebook (self, book, command)
 
 			if self.options.verbose.rulebooks then
 				table.insert (self.log,
-				string.format("Consulted the %q rulebook on the %q topic: %s",
-					rule.name, command.verb, (result == false) and "fail" or "pass"))
+				string.format("Consulted the [%s] [%s] [%s] rule: %s",
+					bookName or "none",
+					command.verb,
+					rule.name,
+					(result == false) and "fail" or "pass"
+					))
 			end
 
 			if message then
@@ -971,13 +977,11 @@ local function applyCommand (self, command)
 	if commandRefersAll (self, command) then
 
 		-- refer to the ALL rulebook if we can iterate over ALL things
-		if referRulebook (self, self.rulebooks["all"], command) then
+		if referRulebook (self, "all", command) then
 
-			-- ALL refers to a target thing, fallback to the room
-			local allTarget = command.item2 or self.room
-
-			-- iterate ALL children of the target
-			local children = listChildrenOf (self, allTarget)
+			-- The ALL rulebook should identify the thing we are looking
+			-- at during the bulk action, stored in the allFrom value.
+			local children = listChildrenOf (self, command.allFrom)
 
 			for _, child in ipairs (children) do
 
@@ -994,7 +998,7 @@ local function applyCommand (self, command)
 
 					-- promote this child to item1
 					newcommand.item1 = child
-					newcommand.item1Parent = allTarget
+					newcommand.item1Parent = command.allFrom
 					table.insert (queue, newcommand)
 
 				end
@@ -1007,17 +1011,19 @@ local function applyCommand (self, command)
 
 	for _, cmd in ipairs (queue) do
 
+		--print("\t", cmd.verb, cmd.item1.name, cmd.item2.name)
+
 		-- call "before" rules
 		-- explicit false results stops further processing
-		if referRulebook (self, self.rulebooks["before"], cmd) then
+		if referRulebook (self, "before", cmd) then
 
 			countVerbUsedOnNoun (self, cmd)
 
 			-- call "on" rules
-			referRulebook (self, self.rulebooks["on"], cmd)
+			referRulebook (self, "on", cmd)
 
 			-- call "after" rules
-			referRulebook (self, self.rulebooks["after"], cmd)
+			referRulebook (self, "after", cmd)
 
 		end
 
@@ -1100,7 +1106,7 @@ local function turn (self, sentence)
 	self.responses = { }
 	self.log = { }
 
-	if referRulebook (self, self.rulebooks["turn"], "before") == false then
+	if referRulebook (self, "turn", "before") == false then
 		return
 	end
 
@@ -1162,7 +1168,7 @@ local function turn (self, sentence)
 		table.insert(self.responses, hookResponse)
 	end
 
-	referRulebook (self, self.rulebooks["after"], "turn")
+	referRulebook (self, "after", "turn")
 
 	-- Increase the turn
 	self.turnNumber = self.turnNumber + 1

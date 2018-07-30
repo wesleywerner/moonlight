@@ -1183,6 +1183,13 @@ local function turn (self, sentence)
 	command.item1, command.item1Parent = searchFirst(self, command.nouns[1], self.room)
 	command.item2, command.item2Parent = searchFirst(self, command.nouns[2], self.room)
 
+	-- handle the player referring to "it"
+	if (command.nouns[1] == "it") and (not command.item1) then
+		command.item1 = self.lastKnownThing
+	else
+		self.lastKnownThing = command.item1
+	end
+
 	-- Exits could point to things too, like doors.
 	-- If there is no command item, attempt to find it using the
 	-- direction value. The item will remain nil if it is not a thing.

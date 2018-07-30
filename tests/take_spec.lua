@@ -16,6 +16,7 @@ describe("take", function()
 							{
 								name = "bowl",
 								description = "An opaque blue bowl.",
+								fixed = "You have no need for the bowl.",
 								contains = {
 									{
 										name = "mint"
@@ -85,11 +86,11 @@ describe("take", function()
 		assert.are.equals(expected, ml.responses[1])
 	end)
 
-	pending("something fixed in place with custom message", function()
+	it("something fixed in place with custom message", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
-		ml:turn("take the foo")
-		local expected = "You have no use for the foo."
+		ml:turn("take the bowl")
+		local expected = "You have no need for the bowl."
 		assert.are.equals(expected, ml.responses[1])
 	end)
 

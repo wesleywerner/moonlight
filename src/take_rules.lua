@@ -36,7 +36,12 @@ return function (rulebooks)
 			name = "a fixed thing",
 			action = function (self, command)
 				if command.item1.fixed then
-					return string.format(self.template.thing["fixed"], command.item1.name), false
+					-- the fixed value can be custom text
+					if type(command.item1.fixed) == "string" then
+						return command.item1.fixed, false
+					else
+						return string.format(self.template.thing["fixed"], command.item1.name), false
+					end
 				end
 			end
 		},

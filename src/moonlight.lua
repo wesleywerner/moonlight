@@ -113,6 +113,8 @@
 --
 -- @field fixed
 -- The thing is fixed in place, meaning the player cannot take it.
+-- When set true, a default response is given to the player.
+-- The value can also be set as a custom response text.
 --
 -- @field contains
 -- A table of other things that is held. People and boxes can contain things.

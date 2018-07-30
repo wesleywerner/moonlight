@@ -44,6 +44,20 @@ describe ("options", function()
 				exits = {
 					down = "Tower Stairwell"
 				}
+			},
+			{
+				name = "The Kitchen",
+				contains = {
+					{ name = "Martha", person = true },
+					{
+						name = "cupboard",
+						closed = true,
+						contains = {
+							{ name = "pasta", article = "some" },
+							{ name = "rice", article = "some" }
+						}
+					}
+				}
 			}
 		}
 	end
@@ -103,19 +117,21 @@ describe ("options", function()
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("list contents of opened container", function()
+	it("list contents of opened container", function()
+		ml.options.auto["list contents of opened"] = true
 		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("go south")
-		local expected = {"You cannot go that way."}
+		ml:setPlayer ("Martha")
+		ml:turn("open the cupboard")
+		local expected = {"You open the cupboard.", "Inside it is some pasta and some rice."}
 		assert.are.same(expected, ml.responses)
 	end)
 
-	pending("not list contents of opened container", function()
+	it("not list contents of opened container", function()
+		ml.options.auto["list contents of opened"] = false
 		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
-		ml:turn("go south")
-		local expected = {"You cannot go that way."}
+		ml:setPlayer ("Martha")
+		ml:turn("open the cupboard")
+		local expected = {"You open the cupboard."}
 		assert.are.same(expected, ml.responses)
 	end)
 

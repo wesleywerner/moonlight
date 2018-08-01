@@ -109,7 +109,7 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("open the toilet")
-		local expected = {"You open the toilet."}
+		local expected = {"You open the toilet.", "Inside it is a gold coin."}
 		assert.are.same(expected, ml.responses)
 		assert.is.falsy(cmd.item1.closed)
 	end)

@@ -29,6 +29,7 @@ describe ("darkness", function()
 	end
 
 	local ml = require("src/moonlight")
+	ml.options.auto["list exits"] = false
 
 	it("does not describe dark rooms", function()
 		ml:setWorld (makeWorld())

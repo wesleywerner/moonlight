@@ -254,9 +254,9 @@ local options = {
 	-- @usage auto["list exits"] = true
 	auto = {
 		-- list all exits after the room description
-		["list exits"] = false,
+		["list exits"] = true,
 		-- list the contents of a container when opening it
-		["list contents of opened"] = false
+		["list contents of opened"] = true
 	},
 	verbose = {
 		rulebooks = true,
@@ -832,14 +832,21 @@ local function describe (self, item, brief)
 			return n ~= nil
 		end)
 
-	return table.concat(itemlist, " ")
+	if #itemlist > 0 then
+		return table.concat(itemlist, " ")
+	else
+		return nil
+	end
 
 end
 
 --- Describe room.
 local function describeRoom (self, brief)
 
-	return describe (self, self.room, brief) .. self:listRoomExits()
+	local output = { }
+	table.insert (output, describe (self, self.room, brief))
+	table.insert (output, self:listRoomExits())
+	return table.concat (output, " ")
 
 end
 
@@ -858,12 +865,12 @@ local function listRoomExits (self)
 			end
 			if #possibleWays > 0 then
 				table.sort(possibleWays)
-				return " You can go " .. joinNames(self, possibleWays) .. "."
+				return "You can go " .. joinNames(self, possibleWays) .. "."
 			end
 		end
 	end
 
-	return ""
+	return nil
 
 end
 

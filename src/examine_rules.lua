@@ -16,7 +16,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
 				if darkroom then
-					return self.template.examine["in the dark"] .. self:listRoomExits(), false
+					return self.template.examine["in the dark"] .. " " .. self:listRoomExits(), false
 				end
 			end
 		},

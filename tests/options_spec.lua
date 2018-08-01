@@ -73,7 +73,7 @@ describe ("options", function()
 		-- leaving the room, entering again
 		ml:turn ("go up")
 		ml:turn ("go down")
-		assert.are.same ({"There is a ladder and an oak door here."}, ml.responses)
+		assert.are.same ({"There is a ladder and an oak door here. You can go south and up."}, ml.responses)
 	end)
 
 	it("brief empty room descriptions", function()
@@ -83,7 +83,7 @@ describe ("options", function()
 		ml:turn ("go up")
 		ml:turn ("go down")
 		ml:turn ("go up")
-		assert.are.same ({""}, ml.responses)
+		assert.are.same ({"You can go down."}, ml.responses)
 	end)
 
 	it("verbose room descriptions", function()
@@ -95,7 +95,7 @@ describe ("options", function()
 		-- leaving the room, entering again
 		ml:turn ("go up")
 		ml:turn ("go down")
-		assert.are.same ({"A tight winding white flaked wooden staircase. There is a ladder and an oak door here."}, ml.responses)
+		assert.are.same ({"A tight winding white flaked wooden staircase. There is a ladder and an oak door here. You can go south and up."}, ml.responses)
 	end)
 
 	it("list exits in lit rooms", function()

@@ -2,77 +2,103 @@
 -- Browse the @{moonlight} api to learn all about this game.
 
 -- Add moonlight to the package path. This is so that moonlight
--- finds all it's other modules.
+-- finds all it's dependencies.
 package.path = package.path .. ";./moonlight/?.lua"
 
 -- Load moonlight
 local ml = require("moonlight")
 
--- Load the world model
-ml:setWorld ({
+local myworld = {
 	-- Rooms are defined as a list of tables. This is our first room.
 	{
-		name = "West of House",
-		description = "You are standing in an open field west of a white house.",
-		exits = {
-			south = "South of the House"
-		},
-		-- A list of things contained herein
+		name = "Kitchen",
+		description = "You are in a large open plan kitchen that is clean and tidy and spartan.",
+		-- List of things in this room
 		contains = {
-			-- the player character (via setPlayer)
-			{ name = "You", person = true },
-			-- a mailbox
 			{
-				name = "small mailbox",
-				-- a closed thing won't reveal it's contents until opened
-				closed = true,
-				-- it cannot be picked up
-				fixed = true,
-				-- the mailbox contains
+				name = "Carrie",
+				person = true,
+				-- This person is carrying some things
 				contains = {
 					{
-						name = "leaflet",
-						description = [[
-						WELCOME TO ZORK!
-					ZORK is a game of adventure, danger, and low cunning.
-					In it you will explore some of the most
-					amazing territory ever seen by mortals.
-					No computer should be without one!]]
+						name = "pocket lint",
+						description = "You are baffled how does this stuff always make it into your pockets.",
+						-- set the article of the lint so it reads "some pocket lint", and not "a pocket lint"
+						article = "some"
 					}
-				},
+				}
+			},
+			{
+				name = "fridge",
+				description = "A double-door fridge with a brushed metal finish.",
+				-- It is closed, hiding whatever is inside
+				closed = true,
+				-- It is locked, and needs a key to open
+				locked = true,
+				-- It cannot be taken
+				fixed = true,
+				-- Things inside the fridge
+				contains = {
+					{
+						name = "pizza slice",
+						description = "A slice of left-over pizza, margarita - your favorite!",
+						-- The player can consume it
+						edible = true
+					}
+				}
 			}
+		},
+		-- List exits out of this room
+		exits = {
+			south = "Lounge"
 		}
 	},
-	-- our second room in the game
+	-- Add a second room to our world
 	{
-		name = "South of the House",
-		description = "You are facing the south side of a white house. There is no door here, and all the windows are boarded.",
-		exits = {
-			north = "West of House",
-			east = "Behind House"
+		name = "Lounge",
+		description = "You are in a sparse lounge.",
+		contains = {
+			{
+				name = "couch",
+				description = "It is a tan couch.",
+				-- It cannot be taken
+				fixed = true,
+				-- The couch has things on top of it
+				supports = {
+					{
+						name = "cushion",
+						-- Something is hidden by the cusion.
+						-- It can be found by SEARCHing or TAKEing this thing
+						hides = {
+							{
+								name = "silver key",
+								description = "A flat silver key.",
+								-- This key unlocks the fridge.
+								-- This property is a table so we can
+								-- list multiple things that it can unlock.
+								unlocks = {
+									"fridge"
+								}
+							}
+						}
+					}
+				}
+			}
 		},
-	},
-	-- our third room
-	{
-		name = "Behind House",
-		description = "You are behind the white house. In one corner of the house there is a small window which is slightly ajar.",
 		exits = {
-			west = "South of the House"
-		},
+			north = "Kitchen"
+		}
 	}
-})
+}
 
--- Auto list contents of containers when opened
-ml.options.auto["list contents of opened"] = true
-
--- Auto list the exits out of the current room
-ml.options.auto["list exits"] = true
+-- Load the world model
+ml:setWorld (myworld)
 
 -- Set the player character by name
-ml:setPlayer ("You")
+ml:setPlayer ("Carrie")
 
 -- Print a welcome message
-io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, CLOSE things, GO north or ENTER doors and windows. BYE or EXIT ends the game.\n\n")
+io.write("\nWelcome! You can LOOK AT things, OPEN things, TAKE things, GO north, UNLOCK thing WITH thing, and SEARCH. Type BYE or EXIT to end the game.\n\n")
 
 -- Examine the current room on first run
 ml:turn ("look")
@@ -87,7 +113,7 @@ while true do
 	io.write("\n")
 
 	-- print the current room name and input prompt
-	io.write(ml.room.name .. " > ")
+	io.write(ml.room.name .. "\n> ")
 	local input = io.read()
 
 	-- end this game

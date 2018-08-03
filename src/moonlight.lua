@@ -265,6 +265,7 @@ local function standardRulebooks ()
 	require("close_rules")(rulebooks)
 	require("turn_rules")(rulebooks)
 	require("unlock_rules")(rulebooks)
+	require("search_rules")(rulebooks)
 	require("all_rules")(rulebooks)
 
 	return rulebooks

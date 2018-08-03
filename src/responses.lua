@@ -39,6 +39,12 @@ local responses = {
 		["when open"] = "The %s is already open.",
 		["cannot"] = "The %s cannot be opened."
 	},
+	["search"] = {
+		["too broad"] = "Search what?",
+		["unlucky"] = "Your search reveals nothing.",
+		["report"] = "You search the %s.",
+		["found"] = "You found %s."
+	},
 	["take"] = {
 		["in the dark"] = "It is too dark to do that.",
 		["when carried"] = "You already have it.",

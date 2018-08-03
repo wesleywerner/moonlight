@@ -1,0 +1,59 @@
+local options = {
+	verbs = { "examine", "take", "drop", "attack",
+		"inventory", "insert", "go", "open", "close",
+		"unlock" },
+	ignores = { "an", "a", "the", "for", "to", "at", "of",
+		"with", "about", "on", "and", "from", "into" },
+	synonyms = {
+		{ "attack", "hit", "smash", "kick", "cut", "kill" },
+		{ "go", "enter" },
+		{ "insert", "put" },
+		{ "take", "get", "pick" },
+		{ "inventory", "i" },
+		{ "examine", "x", "l", "look" },
+		{ "north", "n" },
+		{ "south", "s" },
+		{ "east", "e" },
+		{ "west", "w" },
+		{ "northeast", "ne" },
+		{ "southeast", "se" },
+		{ "northwest", "nw" },
+		{ "southwest", "sw" },
+		{ "in", "inside" },
+		{ "out", "outside" }
+	},
+	vowels = {"a", "e", "i", "o", "u"},
+	directions = {
+		"n","north",
+		"s","south",
+		"e","east",
+		"w","west",
+		"ne", "northeast",
+		"se", "southeast",
+		"nw", "northwest",
+		"sw", "southwest",
+		"up",
+		"down",
+		"in", "inside",
+		"out", "outside"
+		},
+
+	--- A table of boolean options that set automatic responses to certain actions.
+	-- See the link to the source for all the available options.
+	-- @table auto
+	-- @field key true/false
+	-- @usage auto["list exits"] = true
+	auto = {
+		-- list all exits after the room description
+		["list exits"] = true,
+		-- list the contents of a container when opening it
+		["list contents of opened"] = true
+	},
+	verbose = {
+		rulebooks = true,
+		parser = true,
+		descriptions = false
+	}
+}
+
+return options

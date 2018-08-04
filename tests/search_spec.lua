@@ -74,12 +74,4 @@ describe ("search", function()
 		assert.are.same (expected, ml.output)
 	end)
 
-	it ("not found by taking something fixed in place", function()
-		local expected = {"The couch is fixed in place."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
-		ml:turn ("take the couch")
-		assert.are.same (expected, ml.output)
-	end)
-
 end)

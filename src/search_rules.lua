@@ -37,7 +37,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "take action",
+			name = "perform",
 			action = function (self, command)
 				local parent = command.item1
 				for _, found in ipairs(command.item1.hides) do

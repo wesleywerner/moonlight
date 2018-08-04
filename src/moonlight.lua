@@ -207,6 +207,12 @@
 --
 -- @field verbose
 -- A table of @{verboseOptions}.
+--
+-- @field testing
+-- A boolean indicating that testing verbs can be used while testing the
+-- simulation.
+-- True by default.
+-- See @{testing.lua}.
 
 ------------------------------------------------------------------------
 
@@ -257,7 +263,7 @@ end
 
 
 --- Builds the standard set of rulebooks.
-local function standardRulebooks ()
+local function standardRulebooks (self)
 
 	local rulebooks = {
 		["before"] = { }, -- before action rules
@@ -279,6 +285,11 @@ local function standardRulebooks ()
 	require("search_rules")(rulebooks)
 	require("all_rules")(rulebooks)
 	require("reword_rules")(rulebooks)
+
+	-- include testing rules
+	if self.options.testing then
+		require("purloin_rules")(rulebooks)
+	end
 
 	return rulebooks
 
@@ -565,7 +576,7 @@ local function setWorld (self, world)
 	end
 
 	-- load standard rulebooks
-	self.rulebooks = standardRulebooks ()
+	self.rulebooks = standardRulebooks (self)
 
 	-- set the world
 	self.world = world

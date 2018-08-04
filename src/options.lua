@@ -45,7 +45,8 @@ local options = {
 		rulebooks = true,
 		parser = true,
 		descriptions = false
-	}
+	},
+	testing = true
 }
 
 return options

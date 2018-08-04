@@ -7,7 +7,11 @@ describe("take", function()
 				description = "You are in the hotel lobby.",
 				contains = {
 					{ name = "You", person = true },
-					{ name = "Mary", person = true },
+					{ name = "Mary", person = true,
+						contains = {
+							{ name = "topaz ring" }
+						}
+					},
 					{
 						name = "podium",
 						fixed = true,
@@ -124,6 +128,14 @@ describe("take", function()
 		ml:turn("take mary")
 		local expected = "Mary wouldn't like that."
 		assert.are.equals(expected, ml.output[1])
+	end)
+
+	it("thing carried by another person", function()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+		ml:turn("take the topaz ring")
+		local expected = {"You don't see the topaz ring."}
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("all the things in the room", function()

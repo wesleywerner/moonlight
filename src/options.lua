@@ -38,12 +38,6 @@ local options = {
 		"out", "outside",
 		"under", "behind"
 		},
-
-	--- A table of boolean options that set automatic responses to certain actions.
-	-- See the link to the source for all the available options.
-	-- @table auto
-	-- @field key true/false
-	-- @usage auto["list exits"] = true
 	auto = {
 		-- list all exits after the room description
 		["list exits"] = true,

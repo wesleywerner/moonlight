@@ -199,7 +199,7 @@
 -- Indexed table of known directions.
 --
 -- @field auto
--- @{moonlight.auto} options that set automatic responses to certain actions.
+-- @{auto} options that set automatic responses to certain actions.
 --
 -- @field soundex
 -- A boolean to enable soundex matching of known nouns to the player's
@@ -207,6 +207,17 @@
 --
 -- @field verbose
 -- A table of @{verboseOptions}.
+
+------------------------------------------------------------------------
+
+--- A table to set automatic responses.
+-- Available options are:
+-- list exits: list all exits after the room description
+-- list contents of opened: list the contents of a container when opening it
+-- @table auto
+-- @field key true/false
+-- @usage auto["list exits"] = true
+
 local options = require ("options")
 
 ------------------------------------------------------------------------

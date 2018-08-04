@@ -437,7 +437,7 @@ local function search (self, term, parent, options)
 	-- helper to match a thing
 	local function match (item)
 		if type(term) == "string" then
-			return string.lower(item.name) == string.lower(term)
+			return string.match(item.name, term)
 		elseif type(term) == "table" then
 			return item == term
 		elseif type(term) == "function" then
@@ -508,6 +508,9 @@ local function search (self, term, parent, options)
 			end
 			for i, n in ipairs(item.supports or {}) do
 				table.insert (stack, { n, item, i, "supporter" })
+			end
+			for i, n in ipairs(item.hides or {}) do
+				table.insert (stack, { n, item, i, "hidden" })
 			end
 		end
 

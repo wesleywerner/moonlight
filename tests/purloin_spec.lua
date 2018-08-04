@@ -50,7 +50,7 @@ describe ("purloin", function()
 		local expected = {"The ice cream magically appears in your pocket."}
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Carrie")
-		ml:turn ("purloin the ice cream")
+		ml:turn ("purloin the ice")
 		assert.are.same (expected, ml.output)
 	end)
 

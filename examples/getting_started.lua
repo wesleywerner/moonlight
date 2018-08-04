@@ -8,8 +8,9 @@ package.path = package.path .. ";./moonlight/?.lua"
 -- Load moonlight
 local ml = require("moonlight")
 
+-- Create your world. Note how no functions are placed in the model.
 local myworld = {
-	-- Rooms are defined as a list of tables. This is our first room.
+	-- Rooms are defined as a list of tables. Our first room.
 	{
 		name = "Kitchen",
 		description = "You are in a large open plan kitchen that is clean and tidy and spartan.",
@@ -63,17 +64,17 @@ local myworld = {
 				description = "It is a tan couch.",
 				-- It cannot be taken
 				fixed = true,
-				-- The couch has things on top of it
+				-- The couch can have things on top of it.
 				supports = { },
 				-- Something is hidden in the couch.
-				-- It can be found by SEARCHing this thing
+				-- It can be found by SEARCHing
 				hides = {
 					{
 						name = "silver key",
 						description = "A flat silver key.",
 						-- This key unlocks the fridge.
 						-- This property is a table so we can
-						-- list multiple things that it can unlock.
+						-- list multiple things to unlock.
 						unlocks = {
 							"fridge"
 						}
@@ -87,8 +88,17 @@ local myworld = {
 	}
 }
 
--- Load the world model
-ml:setWorld (myworld)
+-- Load the world model.
+local valid, issues = ml:setWorld (myworld)
+
+-- Demonstrate listing any potential issues with your model.
+-- The world still loads even with issues found.
+if not valid then
+	io.write ("Some issues with your world model:\n")
+	for _, issue in ipairs (issues) do
+		io.write ("\t", issue)
+	end
+end
 
 -- Set the player character by name
 ml:setPlayer ("Carrie")

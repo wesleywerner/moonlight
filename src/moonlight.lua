@@ -267,6 +267,7 @@ local function standardRulebooks ()
 	require("unlock_rules")(rulebooks)
 	require("search_rules")(rulebooks)
 	require("all_rules")(rulebooks)
+	require("reword_rules")(rulebooks)
 
 	return rulebooks
 
@@ -1055,8 +1056,9 @@ local function turn (self, sentence)
 
 	if self.options.verbose.parser then
 		table.insert(self.log, string.format("Parsed verb as %s", tostring(command.verb)))
-		table.insert(self.log, string.format("Parsed noun as %s", tostring(command.nouns[1])))
-		table.insert(self.log, string.format("Parsed noun as %s", tostring(command.nouns[2])))
+		table.insert(self.log, string.format("Parsed 1st noun as %s", tostring(command.nouns[1])))
+		table.insert(self.log, string.format("Parsed 2nd noun as %s", tostring(command.nouns[2])))
+		table.insert(self.log, string.format("Parsed direction as %s", tostring(command.direction)))
 	end
 
 	-- Do we understand the verb?
@@ -1098,6 +1100,11 @@ local function turn (self, sentence)
 		return command
 	end
 
+	-- refer the special reword rulebook, which can change the verb
+	-- to make more sense to the simulation
+	referRulebook (self, "reword", command)
+
+	-- apply the player command to the simulation
 	applyCommand (self, command)
 
 	-- add a custom response if there is one

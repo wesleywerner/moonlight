@@ -66,7 +66,7 @@ describe ("search", function()
 		assert.are.same (expected, ml.responses)
 	end)
 
-	it ("found by looking under the thing", function()
+	it ("found by looking under things", function()
 		local expected = {"You search the couch.", "You found a silver key."}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Carrie")

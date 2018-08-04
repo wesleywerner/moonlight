@@ -72,6 +72,12 @@ return function (self, world)
 					table.insert (checklist, v)
 				end
 			end
+			-- include hidden items
+			if type(test.hides) == "table" then
+				for _, v in pairs(test.hides) do
+					table.insert (checklist, v)
+				end
+			end
 			-- test exits
 			if type(test.destination) == "string" then
 				if self:roomByName (test.destination) then

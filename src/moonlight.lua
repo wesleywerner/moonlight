@@ -289,7 +289,7 @@ end
 -- Clears the internal state of the player, the world and loads
 -- the standard rulebooks.
 local function reset (self)
-	self.rulebooks = standardRulebooks()
+	self.rulebooks = nil
 	self.player = nil
 	self.room = nil
 	self.world = nil
@@ -549,12 +549,28 @@ end
 
 
 --- Set the world model.
+-- This function resets to the standard rulebooks.
+--
+-- @param self
+-- @{instance}
+--
+-- @param world
+-- The world model to set
+--
+-- @return valid bool, table of issues
 local function setWorld (self, world)
 	-- ensure all rooms can contain things
 	for _, room in ipairs(world) do
 		room.contains = room.contains or { }
 	end
+
+	-- load standard rulebooks
+	self.rulebooks = standardRulebooks ()
+
+	-- set the world
 	self.world = world
+
+	-- validate
 	local valid, issues = self:validate (world)
 	return valid, issues
 end
@@ -1221,7 +1237,7 @@ return {
 	log = { },
 	utils = utils,
 	turnNumber = 1,
-	rulebooks = standardRulebooks (),
+	rulebooks = { },
 	-- functions
 	applyCommand = applyCommand,
 	reset = reset,

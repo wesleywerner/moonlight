@@ -18,12 +18,15 @@ describe("rulebook", function()
 	it("triggers my examine rule", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local local_bool = false
 
 		local examine_rule = {
 			name = "my examine rule",
 			action = function (self, command)
-				if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				if command.nouns[1] == "mailbox" then
 					local_bool = true
 				end
 			end
@@ -31,8 +34,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.on.examine, examine_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.is_true(local_bool)
 
@@ -41,12 +42,15 @@ describe("rulebook", function()
 	it("does not trigger with unrelated verb", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local local_bool = false
 
 		local examine_rule = {
 			name = "my examine rule",
 			action = function (self, command)
-				if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				if command.nouns[1] == "mailbox" then
 					local_bool = true
 				end
 			end
@@ -54,8 +58,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.on.examine, examine_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("open the mailbox")
 		assert.is_false(local_bool)
 
@@ -64,12 +66,15 @@ describe("rulebook", function()
 	it("prevents the action with custom response", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local expected = "A magical force prevents you from examining the mailbox"
 
 		local examine_rule = {
 			name = "my examine rule",
 			action = function (self, command)
-				if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				if command.nouns[1] == "mailbox" then
 					return expected, false
 				end
 			end
@@ -77,8 +82,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.before.examine, examine_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({expected}, ml.output)
 
@@ -87,12 +90,15 @@ describe("rulebook", function()
 	it("pass through with custom response", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local expected = "A magical force prevents you from examining the mailbox"
 
 		local examine_rule = {
 			name = "my examine rule",
 			action = function (self, command)
-				if command.verb == "examine" and command.nouns[1] == "mailbox" then
+				if  command.nouns[1] == "mailbox" then
 					return expected
 				end
 			end
@@ -100,8 +106,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.before.examine, examine_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		assert.are.same({expected, "It is a mailbox."}, ml.output)
 
@@ -111,6 +115,9 @@ describe("rulebook", function()
 	it("before every turn rule", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local counter = 0
 
 		local turn_rule = {
@@ -124,8 +131,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.turn.before, turn_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		ml:turn("look")
 		ml:turn("take the letter")
@@ -136,6 +141,9 @@ describe("rulebook", function()
 	it("after every turn rule", function()
 
 		ml:reset()
+		ml:setWorld (makeWorld())
+		ml:setPlayer("You")
+
 		local counter = 0
 
 		local turn_rule = {
@@ -149,8 +157,6 @@ describe("rulebook", function()
 
 		table.insert(ml.rulebooks.after.turn, turn_rule)
 
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
 		ml:turn("look")
 		ml:turn("take the letter")

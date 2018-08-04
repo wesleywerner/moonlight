@@ -64,25 +64,21 @@ local myworld = {
 				-- It cannot be taken
 				fixed = true,
 				-- The couch has things on top of it
-				supports = {
+				supports = { },
+				-- Something is hidden in the couch.
+				-- It can be found by SEARCHing this thing
+				hides = {
 					{
-						name = "cushion",
-						-- Something is hidden by the cusion.
-						-- It can be found by SEARCHing or TAKEing this thing
-						hides = {
-							{
-								name = "silver key",
-								description = "A flat silver key.",
-								-- This key unlocks the fridge.
-								-- This property is a table so we can
-								-- list multiple things that it can unlock.
-								unlocks = {
-									"fridge"
-								}
-							}
+						name = "silver key",
+						description = "A flat silver key.",
+						-- This key unlocks the fridge.
+						-- This property is a table so we can
+						-- list multiple things that it can unlock.
+						unlocks = {
+							"fridge"
 						}
 					}
-				}
+				},
 			}
 		},
 		exits = {

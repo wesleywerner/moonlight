@@ -973,10 +973,10 @@ end
 local function callHook (self, command)
 
 	-- Call any hooks for the verb and noun
-	if type(self.api.hooks[command.verb]) == "table" then
+	if type(self.hooks[command.verb]) == "table" then
 
 		local noun = command.nouns[1]
-		local hook = self.api.hooks[command.verb][noun]
+		local hook = self.hooks[command.verb][noun]
 
 		if type(hook) == "function" then
 			return hook(self, command)
@@ -1147,14 +1147,14 @@ local function hook (self, verb, noun, callback)
 		error(string.format("No verb provided for the hook."), noun)
 	end
 
-	self.api.hooks[verb] = self.api.hooks[verb] or { }
+	self.hooks[verb] = self.hooks[verb] or { }
 
 	-- use default if noun is nil
 	if type(noun) == "nil" then
 		noun = "default"
 	end
 
-	self.api.hooks[verb][noun] = callback
+	self.hooks[verb][noun] = callback
 
 end
 
@@ -1181,7 +1181,6 @@ end
 -- @field setPlayer The @{setPlayer} function.
 -- @field output The @{output} table from the last @{turn}.
 -- @field turnNumber The simulation turn number.
--- @field api The @{api} table.
 return {
 	options = options,
 	responses = responses,
@@ -1215,14 +1214,6 @@ return {
 	thingClosedOrDark = thingClosedOrDark,
 	detach = detach,
 	purloin = purloin,
-
-	--- Used internally.
-	-- This table contains functions and other tables used by the
-	-- simulator. It is exposed to provide access to unit testing of
-	-- the simulator logic.
-	-- @table api
-	api = {
-		parse = parse, -- @{parser.parse}
-		hooks = { }, -- The hooks as defined by @{hook}
-	}
+	parse = parse,
+	hooks = { },
 }

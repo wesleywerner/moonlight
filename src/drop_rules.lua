@@ -15,7 +15,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "thing not carried",
+			name = "player is carrying the thing",
 			action = function (self, command)
 				if not self:isCarrying (command.item1) then
 					return string.format(self.responses.thing["not carried"], command.item1.name), false

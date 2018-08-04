@@ -1,7 +1,4 @@
 local options = {
-	verbs = { "examine", "take", "drop", "attack",
-		"inventory", "insert", "go", "open", "close",
-		"unlock", "search" },
 	ignores = { "an", "a", "the", "for", "to", "at", "of",
 		"with", "about", "on", "and", "from", "into" },
 	synonyms = {

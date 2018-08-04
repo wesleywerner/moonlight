@@ -1032,6 +1032,26 @@ local function listNouns (self)
 end
 
 
+--- Test the existence of a verb.
+-- This function scans loaded rulebooks to determine
+-- if the given verb is implemented.
+local function validVerb (self, verb)
+	local valid = false
+
+	-- test before rules
+	if self.rulebooks.before[verb] then
+		valid = true
+	end
+
+	-- test on rules
+	if self.rulebooks.on[verb] then
+		valid = true
+	end
+
+	return valid
+end
+
+
 --- Process the player's turn.
 -- The sentence is parsed into actionable verbs and nouns, those are
 -- applied to the world model and a response is generated.
@@ -1073,7 +1093,7 @@ local function turn (self, sentence)
 	end
 
 	-- Do we understand the verb?
-	if not utils.contains (self.options.verbs, command.verb) then
+	if not validVerb (self, command.verb) then
 		table.insert(self.output, string.format(self.responses.unknown["verb"], command.verb))
 		return command
 	end

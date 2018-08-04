@@ -454,17 +454,24 @@ local function search (self, term, parent, options)
 	elseif options == true then
 		options = {
 			includeClosed = true,
-			includeDark = true
+			includeDark = true,
+			includePersonal = true
 		}
 	end
 
 	-- helper to test if item contents should be queried,
 	-- based on seen things and if the item is closed or dark.
 	local function queryContents (item)
+		-- do not query dark things
 		if not options.includeDark and thingDark (self, item) then
 			return false
 		end
+		-- do not query closed things
 		if not options.includeClosed and thingClosed (self, item) then
+			return false
+		end
+		-- do not query persons
+		if item.person == true and item ~= self.player and not options.includePersonal then
 			return false
 		end
 		return true

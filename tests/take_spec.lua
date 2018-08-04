@@ -134,7 +134,7 @@ describe("take", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take the topaz ring")
-		local expected = {"You don't see the topaz ring."}
+		local expected = {"I don't see the topaz ring."}
 		assert.are.same(expected, ml.output)
 	end)
 

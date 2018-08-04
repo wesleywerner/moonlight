@@ -92,8 +92,8 @@ return function (sentence, options)
 		local count = 0
 		local match = nil
 		for _, trueNoun in ipairs (options.known_nouns) do
-			local s, e, m = string.find (trueNoun:lower(), test)
-			if s then
+			-- trueNoun contains test
+			if string.match (trueNoun:lower(), test) then
 				count = count + 1
 				match = trueNoun
 			end

@@ -48,7 +48,7 @@ return function (rulebooks)
 					else
 						self:moveIn (found, self.room)
 					end
-					table.insert (self.responses,
+					table.insert (self.output,
 						string.format(self.template.search["found"], self:withArticle(found)))
 				end
 			end

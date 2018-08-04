@@ -73,7 +73,7 @@ describe ("options", function()
 		-- leaving the room, entering again
 		ml:turn ("go up")
 		ml:turn ("go down")
-		assert.are.same ({"There is a ladder and an oak door here. You can go south and up."}, ml.responses)
+		assert.are.same ({"There is a ladder and an oak door here. You can go south and up."}, ml.output)
 	end)
 
 	it("brief empty room descriptions", function()
@@ -83,7 +83,7 @@ describe ("options", function()
 		ml:turn ("go up")
 		ml:turn ("go down")
 		ml:turn ("go up")
-		assert.are.same ({"You can go down."}, ml.responses)
+		assert.are.same ({"You can go down."}, ml.output)
 	end)
 
 	it("verbose room descriptions", function()
@@ -95,7 +95,7 @@ describe ("options", function()
 		-- leaving the room, entering again
 		ml:turn ("go up")
 		ml:turn ("go down")
-		assert.are.same ({"A tight winding white flaked wooden staircase. There is a ladder and an oak door here. You can go south and up."}, ml.responses)
+		assert.are.same ({"A tight winding white flaked wooden staircase. There is a ladder and an oak door here. You can go south and up."}, ml.output)
 	end)
 
 	it("list exits in lit rooms", function()
@@ -104,7 +104,7 @@ describe ("options", function()
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("list exits in dark rooms", function()
@@ -114,7 +114,7 @@ describe ("options", function()
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = {"You are in the dark. You can go east, north and west."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("list contents of opened container", function()
@@ -123,7 +123,7 @@ describe ("options", function()
 		ml:setPlayer ("Martha")
 		ml:turn("open the cupboard")
 		local expected = {"You open the cupboard.", "Inside it is some pasta and some rice."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("not list contents of opened container", function()
@@ -132,7 +132,7 @@ describe ("options", function()
 		ml:setPlayer ("Martha")
 		ml:turn("open the cupboard")
 		local expected = {"You open the cupboard."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 

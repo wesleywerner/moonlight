@@ -69,7 +69,7 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("look")
 		local expected = "You are in the hotel lobby. There is a bookcase, a podium and Mary here."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("an empty room", function()
@@ -77,7 +77,7 @@ describe("examine", function()
 		ml:setPlayer("Bob")
 		ml:turn("look")
 		local expected = "It seems empty."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("a container", function()
@@ -85,7 +85,7 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("look in the bowl")
 		local expected = "An opaque blue bowl. Inside it is a mint."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("a supporter", function()
@@ -93,7 +93,7 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("x podium")
 		local expected = "A short podium supporting a bowl. On it is a bowl."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("a supporting container", function()
@@ -101,7 +101,7 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("examine bookcase")
 		local expected = "It is just wooden box without the books. Inside it is an envelope. On it is a key."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("an unknown thing", function()
@@ -109,7 +109,7 @@ describe("examine", function()
 		ml:setPlayer("You")
 		ml:turn("examine the snargle")
 		local expected = "I don't see the snargle."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 end)
@@ -150,7 +150,7 @@ describe ("things", function()
 		ml:setPlayer ("You")
 		ml:turn ("look")
 
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 end)

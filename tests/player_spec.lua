@@ -30,7 +30,7 @@ describe ("player", function()
 		ml:setPlayer ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("is bob", function()
@@ -38,7 +38,7 @@ describe ("player", function()
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = { "A bright and lively path. There is a hummingbird and some daisies here."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("switches players", function()
@@ -46,12 +46,12 @@ describe ("player", function()
 		ml:setPlayer ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 
 		ml:setPlayer ("Bob")
 		ml:turn("look")
 		local expected = { "A bright and lively path. There is a hummingbird and some daisies here."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 end)

@@ -21,7 +21,7 @@ describe ("supporters", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put coin on the lunchbox")
 		local expected = {"I don't see the lunchbox."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("put response", function()
@@ -30,7 +30,7 @@ describe ("supporters", function()
 		local cmd = ml:turn("put coin on the table")
 		assert.is_nil(cmd.direction)
 		local expected = {"You put the gold coin on the table."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("put negative response", function()
@@ -39,7 +39,7 @@ describe ("supporters", function()
 		local cmd = ml:turn("put coin on the daisies")
 		assert.is_nil(cmd.direction)
 		local expected = {"You can't put things on some daisies."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("put examine", function()
@@ -48,7 +48,7 @@ describe ("supporters", function()
 		ml:turn("put coin on the table")
 		ml:turn("examine the table")
 		local expected = {"It is a table. On it is a gold coin."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("put moves from inventory", function()
@@ -57,7 +57,7 @@ describe ("supporters", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put coin on the table")
 		local carrying = ml:isCarrying("gold coin")
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 		assert.is_nil(carrying)
 	end)
 

@@ -38,7 +38,7 @@ describe ("containers", function()
 		local cmd = ml:turn("put coin inside the box")
 		assert.are.equals("in", cmd.direction)
 		local expected = {"You don't have the gold coin."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert to something not seen", function()
@@ -46,7 +46,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("put valve inside the lunchbox")
 		local expected = {"I don't see the lunchbox."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert response", function()
@@ -56,7 +56,7 @@ describe ("containers", function()
 		local cmd = ml:turn("put valve inside the box")
 		assert.are.equals("in", cmd.direction)
 		local expected = {"You put the valve in the black box."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert all into open", function()
@@ -66,7 +66,7 @@ describe ("containers", function()
 		local cmd = ml:turn("put all inside the box")
 		assert.are.equals("in", cmd.direction)
 		local expected = {"You put the valve in the black box.", "You put the daisies in the black box."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert all into closed", function()
@@ -77,7 +77,7 @@ describe ("containers", function()
 		local cmd = ml:turn("put all inside the box")
 		assert.are.equals("in", cmd.direction)
 		local expected = {"You can't put things in the black box, it is closed."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert into a non-container", function()
@@ -85,7 +85,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		ml:turn("put valve inside the daisies")
 		local expected = {"You can't put things in some daisies."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert into a closed container", function()
@@ -94,7 +94,7 @@ describe ("containers", function()
 		ml:turn("close the black box")
 		ml:turn("put valve inside the black box")
 		local expected = {"You can't put things in the black box, it is closed."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("insert removes from inventory", function()
@@ -110,7 +110,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet.", "Inside it is a gold coin."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 		assert.is.falsy(cmd.item1.closed)
 	end)
 
@@ -120,7 +120,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet.", "Inside it is a gold coin."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 		assert.is.falsy(cmd.item1.closed)
 	end)
 
@@ -130,7 +130,7 @@ describe ("containers", function()
 		ml:turn("open the toilet")
 		local cmd = ml:turn("close the toilet")
 		local expected = {"You close the toilet."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 		assert.is.truthy(cmd.item1.closed)
 	end)
 
@@ -140,7 +140,7 @@ describe ("containers", function()
 		ml:turn("open the toilet")
 		ml:turn("open the toilet")
 		local expected = {"The toilet is already open."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("close when already closed", function()
@@ -148,7 +148,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		ml:turn("close the toilet")
 		local expected = {"The toilet is already closed."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("examine thing inside closed", function()
@@ -156,7 +156,7 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("examine gold coin")
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("take thing inside closed", function()
@@ -164,7 +164,7 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("take the gold coin from toilet")
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("take all inside closed", function()
@@ -172,7 +172,7 @@ describe ("containers", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer ("Alice")
 		ml:turn("take all from toilet")
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("examine open", function()
@@ -181,7 +181,7 @@ describe ("containers", function()
 		ml:turn("open the toilet")
 		ml:turn("examine the toilet")
 		local expected = {"It is a toilet. Inside it is a gold coin."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("examine closed", function()
@@ -189,7 +189,7 @@ describe ("containers", function()
 		ml:setPlayer ("Alice")
 		ml:turn("examine toilet")
 		local expected = {"It is a toilet. It is closed."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 end)

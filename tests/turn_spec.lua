@@ -44,7 +44,7 @@ describe("turn", function()
 		ml:setPlayer("You")
 		ml:turn("examine book")
 		local expected = "It is just wooden box without the books."
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 	end)
 
 	it("counts the times a thing is verbed", function()
@@ -59,7 +59,7 @@ describe("turn", function()
 
 	it("does not understand unknown verbs", function()
 		local result = ml:turn("snafu the lantern")
-		assert.are.same({"I don't know what \"snafu\" means."}, ml.responses)
+		assert.are.same({"I don't know what \"snafu\" means."}, ml.output)
 	end)
 
 end)

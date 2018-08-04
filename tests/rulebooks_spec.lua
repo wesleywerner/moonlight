@@ -80,7 +80,7 @@ describe("rulebook", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 
 	end)
 
@@ -103,7 +103,7 @@ describe("rulebook", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
-		assert.are.same({expected, "It is a mailbox."}, ml.responses)
+		assert.are.same({expected, "It is a mailbox."}, ml.output)
 
 	end)
 
@@ -163,7 +163,7 @@ describe("rulebook", function()
 		ml:setWorld (makeWorld())
 		ml:turn("examine the mailbox")
 		local expected = {"No player character has been set."}
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 end)

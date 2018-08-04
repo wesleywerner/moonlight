@@ -107,7 +107,7 @@ ml:turn ("look")
 while true do
 
 	-- display the previous response
-	for _, message in ipairs(ml.responses) do
+	for _, message in ipairs(ml.output) do
 		io.write(message, "\n")
 	end
 	io.write("\n")

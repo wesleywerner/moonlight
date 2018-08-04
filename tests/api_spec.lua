@@ -245,7 +245,7 @@ describe ("move thing", function()
 		ml:setPlayer ("Freddie")
 		ml:turn ("put the gun in the locker")
 		--
-		assert.are.same (expectedResponse, ml.responses)
+		assert.are.same (expectedResponse, ml.output)
 	end)
 
 	it ("on top something", function()
@@ -254,7 +254,7 @@ describe ("move thing", function()
 		ml:setPlayer ("Freddie")
 		ml:turn ("put the gun on the locker")
 		--
-		assert.are.same (expectedResponse, ml.responses)
+		assert.are.same (expectedResponse, ml.output)
 	end)
 
 end)

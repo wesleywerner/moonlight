@@ -46,7 +46,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 
 		-- check the mint is in inventory
 		local inventory = ml.player.contains
@@ -72,10 +72,10 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 		ml:turn("get mint")
 		local expected = "You already have it."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("something fixed in place", function()
@@ -83,7 +83,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take the podium")
 		local expected = "The podium is fixed in place."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("something fixed in place with custom message", function()
@@ -91,7 +91,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take the bowl")
 		local expected = "You have no need for the bowl."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("what you cannot see", function()
@@ -99,7 +99,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take the headlamp")
 		local expected = "I don't see the headlamp."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("unspecified thing", function()
@@ -107,7 +107,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take")
 		local expected = "Be a little more specific what you want to take."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("missing noun", function()
@@ -115,7 +115,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take the grue")
 		local expected = "I don't see the grue."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("a person", function()
@@ -123,7 +123,7 @@ describe("take", function()
 		ml:setPlayer("You")
 		ml:turn("take mary")
 		local expected = "Mary wouldn't like that."
-		assert.are.equals(expected, ml.responses[1])
+		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("all the things in the room", function()
@@ -131,7 +131,7 @@ describe("take", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("take all")
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 	it("all the things from something", function()
@@ -141,7 +141,7 @@ describe("take", function()
 		local cmd = ml:turn("take all from the bowl")
 		assert.is.equals("all", cmd.nouns[1])
 		assert.is.equals("bowl", cmd.nouns[2])
-		assert.are.same(expected, ml.responses)
+		assert.are.same(expected, ml.output)
 	end)
 
 end)

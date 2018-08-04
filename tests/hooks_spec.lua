@@ -79,7 +79,7 @@ describe("hook", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
-		assert.are.same({ expected }, ml.responses)
+		assert.are.same({ expected }, ml.output)
 
 	end)
 
@@ -96,7 +96,7 @@ describe("hook", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("examine the mailbox")
-		assert.are.same({ "It is a mailbox.", expected }, ml.responses)
+		assert.are.same({ "It is a mailbox.", expected }, ml.output)
 
 	end)
 

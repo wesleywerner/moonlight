@@ -30,7 +30,7 @@ describe ("inventory", function ()
 		ml:setPlayer("You")
 		ml:turn("inventory")
 		local expected = "You are carrying nothing."
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 	end)
 
 	it("listing when holding one thing", function()
@@ -39,7 +39,7 @@ describe ("inventory", function ()
 		ml:turn("take the coin")
 		ml:turn("inventory")
 		local expected = "You are carrying a coin."
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 	end)
 
 	it("listing when holding more things", function()
@@ -49,7 +49,7 @@ describe ("inventory", function ()
 		ml:turn("take the shovel")
 		ml:turn("inventory")
 		local expected = "You are carrying a coin and a shovel."
-		assert.are.same({expected}, ml.responses)
+		assert.are.same({expected}, ml.output)
 	end)
 
 end)

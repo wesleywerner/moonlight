@@ -9,7 +9,7 @@ return function (rulebooks)
 			name = "a seen thing",
 			action = function (self, command)
 				if not command.item1 then
-					return self.template.search["too broad"], false
+					return self.responses.search["too broad"], false
 				end
 			end
 		},
@@ -17,7 +17,7 @@ return function (rulebooks)
 			name = "that which does not hide",
 			action = function (self, command)
 				if not command.item1.hides then
-					return self.template.search["unlucky"], false
+					return self.responses.search["unlucky"], false
 				end
 			end
 		},
@@ -33,7 +33,7 @@ return function (rulebooks)
 		{
 			name = "report action",
 			action = function (self, command)
-				return string.format (self.template.search["report"], command.item1.name)
+				return string.format (self.responses.search["report"], command.item1.name)
 			end
 		},
 		{
@@ -49,7 +49,7 @@ return function (rulebooks)
 						self:moveIn (found, self.room)
 					end
 					table.insert (self.output,
-						string.format(self.template.search["found"], self:withArticle(found)))
+						string.format(self.responses.search["found"], self:withArticle(found)))
 				end
 			end
 		},

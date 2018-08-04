@@ -7,7 +7,7 @@ return function (rulebooks)
 			name = "check items exist",
 			action = function (self, command)
 				if not command.item1 then
-					return string.format(self.template.unknown["thing"], command.verb), false
+					return string.format(self.responses.unknown["thing"], command.verb), false
 				end
 			end
 		},
@@ -15,7 +15,7 @@ return function (rulebooks)
 			name = "not something that can open",
 			action = function (self, command)
 				if command.item1.closed == nil then
-					return string.format(self.template.open["cannot"], command.item1.name), false
+					return string.format(self.responses.open["cannot"], command.item1.name), false
 				end
 			end
 		},
@@ -23,7 +23,7 @@ return function (rulebooks)
 			name = "already open",
 			action = function (self, command)
 				if command.item1.closed == false then
-					return string.format(self.template.open["when open"], command.item1.name), false
+					return string.format(self.responses.open["when open"], command.item1.name), false
 				end
 			end
 		},
@@ -31,7 +31,7 @@ return function (rulebooks)
 			name = "locked things",
 			action = function (self, command)
 				if command.item1.locked == true then
-					return string.format(self.template.open["when locked"], command.item1.name), false
+					return string.format(self.responses.open["when locked"], command.item1.name), false
 				end
 			end
 		}
@@ -42,7 +42,7 @@ return function (rulebooks)
 			name = "opening",
 			action = function (self, command)
 				command.item1.closed = false
-				return string.format(self.template.open["success"], command.item1.name)
+				return string.format(self.responses.open["success"], command.item1.name)
 			end
 		},
 		{

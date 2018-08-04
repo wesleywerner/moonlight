@@ -8,9 +8,9 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.item1 then
 					if #command.nouns == 0 then
-						return string.format(self.template.missing["noun"], command.verb), false
+						return string.format(self.responses.missing["noun"], command.verb), false
 					else
-						return string.format(self.template.unknown["thing"], command.nouns[1]), false
+						return string.format(self.responses.unknown["thing"], command.nouns[1]), false
 					end
 				end
 			end
@@ -20,7 +20,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
 				if darkroom then
-					return self.template.take["in the dark"], false
+					return self.responses.take["in the dark"], false
 				end
 			end
 		},
@@ -28,7 +28,7 @@ return function (rulebooks)
 			name = "a person",
 			action = function (self, command)
 				if command.item1.person then
-					return string.format(self.template.take["person"], command.item1.name), false
+					return string.format(self.responses.take["person"], command.item1.name), false
 				end
 			end
 		},
@@ -40,7 +40,7 @@ return function (rulebooks)
 					if type(command.item1.fixed) == "string" then
 						return command.item1.fixed, false
 					else
-						return string.format(self.template.thing["fixed"], command.item1.name), false
+						return string.format(self.responses.thing["fixed"], command.item1.name), false
 					end
 				end
 			end
@@ -49,7 +49,7 @@ return function (rulebooks)
 			name = "something already carried",
 			action = function (self, command)
 				if self:isCarrying (command.item1) then
-					return self.template.take["when carried"], false
+					return self.responses.take["when carried"], false
 				end
 			end
 		}
@@ -60,7 +60,7 @@ return function (rulebooks)
 			name = "thing",
 			action = function (self, command)
 				self:moveIn (command.item1, self.player)
-				return string.format(self.template.take["success"], command.item1.name)
+				return string.format(self.responses.take["success"], command.item1.name)
 			end
 		}
 	}

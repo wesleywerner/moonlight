@@ -8,20 +8,20 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.item1 then
 					if command.nouns[1] then
-						return string.format (self.template.unknown["thing"], command.nouns[1]), false
+						return string.format (self.responses.unknown["thing"], command.nouns[1]), false
 					else
-						return self.template.unlock["needs door"], false
+						return self.responses.unlock["needs door"], false
 					end
 				end
 				if not command.item2 then
 					if command.nouns[2] then
-						return string.format (self.template.unknown["thing"], command.nouns[2]), false
+						return string.format (self.responses.unknown["thing"], command.nouns[2]), false
 					else
-						return self.template.unlock["needs key"], false
+						return self.responses.unlock["needs key"], false
 					end
 				end
 				if not self:isCarrying (command.item2) then
-					return string.format(self.template.thing["not carried"], command.item2.name), false
+					return string.format(self.responses.thing["not carried"], command.item2.name), false
 				end
 			end
 		},
@@ -30,7 +30,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local door = command.item1
 				if type(door.locked) == "nil" then
-					return self.template.unlock["not lockable"], false
+					return self.responses.unlock["not lockable"], false
 				end
 			end
 		},
@@ -39,7 +39,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local door = command.item1
 				if door.locked == false then
-					return self.template.unlock["already unlocked"], false
+					return self.responses.unlock["already unlocked"], false
 				end
 			end
 		},
@@ -51,7 +51,7 @@ return function (rulebooks)
 				local key = command.item2
 				local rightKey = utils.contains (key.unlocks or {}, door.name)
 				if not rightKey then
-					return self.template.unlock["wont unlock"], false
+					return self.responses.unlock["wont unlock"], false
 				end
 			end
 		}
@@ -64,7 +64,7 @@ return function (rulebooks)
 				local door = command.item1
 				local key = command.item2
 				door.locked = false
-				return string.format (self.template.unlock.succeed, door.name, key.name), false
+				return string.format (self.responses.unlock.succeed, door.name, key.name), false
 			end
 		}
 

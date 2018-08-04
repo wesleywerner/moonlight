@@ -603,12 +603,12 @@ local function listContents (self, item)
 	local supporterText = nil
 
 	-- default container lead text
-	local lead = self.template.lead["container"]
+	local lead = self.responses.lead["container"]
 
 	-- switch to room lead text
 	local isRoom = self:roomByName (item.name)
 	if isRoom then
-		lead = self.template.lead["room"]
+		lead = self.responses.lead["room"]
 	end
 
 	if item.contains and not self:thingClosedOrDark (item) then
@@ -635,7 +635,7 @@ local function listContents (self, item)
 			end
 		end
 		if #items > 0 then
-			supporterText = string.format(self.template.lead["supporter"], joinNames(self, items))
+			supporterText = string.format(self.responses.lead["supporter"], joinNames(self, items))
 		end
 	end
 
@@ -760,7 +760,7 @@ end
 local function listInventory (self)
 
 	if #self.player.contains == 0 then
-		return self.template.inventory["empty"]
+		return self.responses.inventory["empty"]
 	end
 
 	local items = { }
@@ -1063,7 +1063,7 @@ local function turn (self, sentence)
 
 	-- Do we understand the verb?
 	if not utils.contains (self.options.verbs, command.verb) then
-		table.insert(self.output, string.format(self.template.unknown["verb"], command.verb))
+		table.insert(self.output, string.format(self.responses.unknown["verb"], command.verb))
 		return command
 	end
 
@@ -1184,7 +1184,7 @@ end
 -- @field api The @{api} table.
 return {
 	options = options,
-	template = responses,
+	responses = responses,
 	turn = turn,
 	hook = hook,
 	output = { },

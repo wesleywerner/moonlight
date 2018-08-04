@@ -7,7 +7,7 @@ return function (rulebooks)
 			name = "unspecified nouns",
 			action = function (self, command)
 				if command.nouns[1] and not command.item1 then
-					return string.format(self.template.unknown["thing"], command.nouns[1]), false
+					return string.format(self.responses.unknown["thing"], command.nouns[1]), false
 				end
 			end
 		},
@@ -16,7 +16,7 @@ return function (rulebooks)
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
 				if darkroom then
-					return self.template.examine["in the dark"] .. " " .. self:listRoomExits(), false
+					return self.responses.examine["in the dark"] .. " " .. self:listRoomExits(), false
 				end
 			end
 		},

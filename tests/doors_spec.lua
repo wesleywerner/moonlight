@@ -190,7 +190,7 @@ describe ("locked doors", function()
 	end
 
 	it("requires a door", function()
-		local expected = {ml.template.unlock["needs door"]}
+		local expected = {ml.responses.unlock["needs door"]}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
 		ml:turn ("unlock")
@@ -198,7 +198,7 @@ describe ("locked doors", function()
 	end)
 
 	it("requires a key", function()
-		local expected = {ml.template.unlock["needs key"]}
+		local expected = {ml.responses.unlock["needs key"]}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
 		ml:turn ("unlock the door")
@@ -206,7 +206,7 @@ describe ("locked doors", function()
 	end)
 
 	it("requires a key in hand", function()
-		local expected = {string.format(ml.template.thing["not carried"], "brass key")}
+		local expected = {string.format(ml.responses.thing["not carried"], "brass key")}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
 		ml:turn ("drop brass key")

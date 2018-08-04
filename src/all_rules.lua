@@ -13,7 +13,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if command.item2 then
 					if (not command.item2.contains) and (not command.item2.supports) then
-						return string.format(self.template.take["not container"], command.item2.name), false
+						return string.format(self.responses.take["not container"], command.item2.name), false
 					end
 				end
 			end
@@ -23,7 +23,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if command.item2 then
 					if (command.item2.closed) then
-						return string.format(self.template.take["from closed container"], command.item2.name), false
+						return string.format(self.responses.take["from closed container"], command.item2.name), false
 					end
 				end
 			end
@@ -49,7 +49,7 @@ return function (rulebooks)
 			name = "into a closed container",
 			action = function (self, command)
 				if command.item2.closed == true then
-					return string.format(self.template.insert["into closed"], command.item2.name), false
+					return string.format(self.responses.insert["into closed"], command.item2.name), false
 				end
 			end
 		}

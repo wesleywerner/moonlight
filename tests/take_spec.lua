@@ -39,11 +39,31 @@ describe("take", function()
 					{ name = "hummingbird" },
 					{ name = "daisies", article="some" },
 				}
+			},
+			{
+				name = "Secret Alcove",
+				contains = {
+					{
+						name = "Carrie",
+						person = true
+					},
+					{ name = "red key" },
+					{ name = "blue key" }
+				}
 			}
 		}
 	end
 
 	local ml = require("src/moonlight")
+
+	pending("distinguishes mutliple matches", function()
+		local expected = {"Did you mean the red key or the blue key?"}
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Carrie")
+		ml:turn ("take the key")
+		for _, n in ipairs(ml.log) do print("\t",n) end
+		assert.are.same (expected, ml.output)
+	end)
 
 	it("moves the item to inventory", function()
 		ml:setWorld (makeWorld())

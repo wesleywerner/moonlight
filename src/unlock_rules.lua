@@ -64,7 +64,15 @@ return function (rulebooks)
 				local door = command.item1
 				local key = command.item2
 				door.locked = false
-				return string.format (self.responses.unlock.succeed, door.name, key.name), false
+				return string.format (self.responses.unlock.succeed, door.name, key.name)
+			end
+		},
+		{
+			name = "auto open unlocked things",
+			action = function (self, command)
+				if self.options.auto["open unlocked things"] then
+					self.applyCommand (self, { verb = "open", item1 = command.item1 })
+				end
 			end
 		}
 

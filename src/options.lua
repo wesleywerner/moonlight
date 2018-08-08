@@ -41,7 +41,9 @@ local options = {
 		-- list the contents of a container when opening it
 		["list contents of opened"] = true,
 		-- take things found while searching
-		["take things searched"] = false
+		["take things searched"] = false,
+		-- open things when unlocking them
+		["open unlocked things"] = false
 	},
 	verbose = {
 		rulebooks = true,

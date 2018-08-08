@@ -59,11 +59,21 @@ return function (rulebooks)
 
 	rulebooks.on.unlock = {
 		{
-			name = "unlocking",
+			name = "do",
 			action = function (self, command)
 				local door = command.item1
 				local key = command.item2
 				door.locked = false
+			end
+		},
+	}
+
+	rulebooks.after.unlock = {
+		{
+			name = "report",
+			action = function (self, command)
+				local door = command.item1
+				local key = command.item2
 				return string.format (self.responses.unlock.succeed, door.name, key.name)
 			end
 		},
@@ -75,7 +85,6 @@ return function (rulebooks)
 				end
 			end
 		}
-
 	}
 
 end

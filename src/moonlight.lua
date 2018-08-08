@@ -346,9 +346,17 @@ local function referRulebook (self, bookName, command)
 
 		if type(rule.action) == "function" then
 
+			-- log before rule consults first
+			if bookName == "after" and self.options.verbose.rulebooks then
+				table.insert (self.log,
+				string.format("Consulting the [%s] [%s] [%s] rule",
+					bookName or "none", command.verb, rule.name))
+			end
+
 			local message, result = rule.action(self, command)
 
-			if self.options.verbose.rulebooks then
+			-- log other rule consults last
+			if bookName ~= "after" and self.options.verbose.rulebooks then
 				table.insert (self.log,
 				string.format("Consulted the [%s] [%s] [%s] rule: %s",
 					bookName or "none",

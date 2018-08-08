@@ -57,13 +57,22 @@ describe ("search", function()
 		assert.are.same (expected, ml.output)
 	end)
 
-	it ("found examine", function()
+	it ("found does not auto take", function()
 		local expected = {"It is a tan couch. On it is a silver key."}
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Carrie")
 		ml:turn ("search the couch")
 		ml:turn ("examine the couch")
 		assert.are.same (expected, ml.output)
+	end)
+
+	it ("found auto takes things", function()
+		ml.options.auto["take things searched"] = true
+		ml:setWorld (makeWorld ())
+		ml:setPlayer ("Carrie")
+		ml:turn ("search the couch")
+		ml.options.auto["take things searched"] = false
+		assert.is.truthy (ml:isCarrying ("silver key"))
 	end)
 
 	it ("found by looking under things", function()

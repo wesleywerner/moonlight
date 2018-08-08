@@ -39,7 +39,9 @@ local options = {
 		-- list all exits after the room description
 		["list exits"] = true,
 		-- list the contents of a container when opening it
-		["list contents of opened"] = true
+		["list contents of opened"] = true,
+		-- take things found while searching
+		["take things searched"] = false
 	},
 	verbose = {
 		rulebooks = true,

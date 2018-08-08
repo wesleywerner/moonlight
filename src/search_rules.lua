@@ -39,8 +39,11 @@ return function (rulebooks)
 		{
 			name = "perform",
 			action = function (self, command)
+				-- store found things on the command
+				command.found = { }
 				local parent = command.item1
 				for _, found in ipairs(command.item1.hides) do
+					table.insert (command.found, found)
 					if parent.supports then
 						self:moveOn (found, parent)
 					elseif parent.contains then
@@ -53,6 +56,16 @@ return function (rulebooks)
 				end
 			end
 		},
+		{
+			name = "auto take found things",
+			action = function (self, command)
+				if self.options.auto["take things searched"] then
+					for _, found in ipairs(command.found) do
+						self.applyCommand (self, { verb = "take", item1 = found })
+					end
+				end
+			end
+		}
 	}
 
 	rulebooks.after.search = {

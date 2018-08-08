@@ -61,7 +61,7 @@ local myworld = {
 		contains = {
 			{
 				name = "couch",
-				description = "It is a tan couch.",
+				description = "It is a tan couch. It looks like things could hide within it.",
 				-- It cannot be taken
 				fixed = true,
 				-- The couch can have things on top of it.
@@ -99,6 +99,9 @@ if not valid then
 		io.write ("\t", issue)
 	end
 end
+
+-- Set the game option to always try taking things found while searching
+ml.options.auto["take things searched"] = true
 
 -- Set the player character by name
 ml:setPlayer ("Carrie")

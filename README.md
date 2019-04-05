@@ -1,5 +1,7 @@
 # moonlight
 
+[![Coverage Status](https://coveralls.io/repos/github/wesleywerner/moonlight/badge.svg?branch=master)](https://coveralls.io/github/wesleywerner/moonlight?branch=master)
+
 Moonlight is an interactive fiction world simulator.
 
 It takes care of parsing player sentences, matching the known nouns

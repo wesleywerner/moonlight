@@ -50,6 +50,7 @@ local options = {
 		parser = true,
 		descriptions = false
 	},
+	-- enable testing to load the purloin rules
 	testing = true
 }
 

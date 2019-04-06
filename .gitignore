@@ -1,3 +1,10 @@
+# site files - these are generated in a separate branch
+site/
+
+# docker files - until we can create a working dockerfile to run busted
+docker/
+
+# todo list
 TODO
 
 # generated docs

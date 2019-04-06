@@ -1,5 +1,5 @@
 file = "src/moonlight.lua"
-title = "moonlight documentation"
+title = "Moonlight API"
 description = "Moonlight interactive fiction world simulator."
 all = true
 sort = true

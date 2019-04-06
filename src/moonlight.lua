@@ -550,6 +550,7 @@ end
 -- @param self
 -- @param name
 -- The name of the player character.
+-- TODO Rename setPlayer to player
 local function setPlayer (self, name)
 
 	-- unassign the current player
@@ -587,6 +588,7 @@ end
 -- The world model to set
 --
 -- @return valid bool, table of issues
+-- TODO Rename setWorld to Load
 local function setWorld (self, world)
 	-- ensure all rooms can contain things
 	for _, room in ipairs(world) do
@@ -1216,7 +1218,7 @@ end
 -- @param callback
 -- The function to call when the hook is triggered.
 --
--- TODO see hook example
+-- TODO hooks obsoleted by rulebooks
 local function hook (self, verb, noun, callback)
 
 	if type(verb) == "nil" then

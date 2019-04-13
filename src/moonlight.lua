@@ -75,8 +75,9 @@
 -- determine visibililty.
 --
 -- @field exits
--- A key-value table of compass directions as keys, with room names
--- for values, of all the exits in a room.
+-- Table of exits in a room, defined as direction=room key-values.
+-- The exit value can also point to the name of a @{thing}
+-- providing that thing has a `destination` property.
 --
 -- @table room
 
@@ -430,7 +431,7 @@ end
 -- or a predicate function to match items.
 --
 -- @param parent
--- The room to search. If given as nil all rooms (inclusive) are searched.
+-- The room to search. If given as `nil` all rooms are searched.
 --
 -- @param wizard
 -- Boolean flag includes searching things inside closed containers and

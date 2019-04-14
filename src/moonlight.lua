@@ -453,7 +453,10 @@ local function search (self, term, parent, options)
 	-- helper to match a thing
 	local function match (item)
 		if type(term) == "string" then
-			return string.match(item.name, term)
+			-- the hyphen is a magic character in Lua patterns.
+			-- escape them in the item name to get a match.
+			local escapedTerm = string.gsub(term, "%-", "%%-")
+			return string.match(item.name, escapedTerm)
 		elseif type(term) == "table" then
 			return item == term
 		elseif type(term) == "function" then

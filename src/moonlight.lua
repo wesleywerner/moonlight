@@ -273,13 +273,8 @@ end
 --- Builds the standard set of rulebooks.
 local function standardRulebooks (self)
 
-	local rulebooks = {
-		["before"] = { }, -- before action rules
-		["on"] = { }, -- action rules
-		["after"] = { }, -- after action rules
-		["turn"] = { }, -- rules for before and after turns
-	}
-
+	local rulebooks = { }
+	require("rulebooks")(rulebooks)
 	require("take_rules")(rulebooks)
 	require("drop_rules")(rulebooks)
 	require("examine_rules")(rulebooks)
@@ -1256,19 +1251,6 @@ local function hook (self, verb, noun, callback)
 end
 
 
---- Lists all the rulebooks and rules.
-local function listRulebooks (self)
-	for timing, collection in pairs(self.rulebooks) do
-		for action, rules in pairs(collection) do
-			print(string.format("The %s.%s book contains:", timing, action))
-			for _, rule in ipairs(rules) do
-				print(string.format("\tThe %s rule", rule.name))
-			end
-		end
-	end
-end
-
-
 --- The moonlight instance.
 -- @table instance
 -- @field options The simulator @{options}
@@ -1303,7 +1285,6 @@ return {
 	roomByDirection = roomByDirection,
 	listInventory = listInventory,
 	withArticle = withArticle,
-	listRulebooks = listRulebooks,
 	listContents = listContents,
 	search = search,
 	searchFirst = searchFirst,

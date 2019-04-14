@@ -18,7 +18,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("verb noun", function()
+	it ("reads verb and noun", function()
 		options.known_nouns = {"door"}
 		local result = ml.parse("open door", options)
 		local expected = {
@@ -28,7 +28,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("ignored words", function()
+	it ("skips ignored words", function()
 		options.known_nouns = {"door"}
 		local result = ml.parse("open the door", options)
 		local expected = {
@@ -38,17 +38,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("listing nouns: the gargoyle", function()
-		options.known_nouns = {"gargoyle", "sword"}
-		local result = ml.parse("give sword to gargoyle", options)
-		local expected = {
-			verb="give",
-			nouns={"sword","gargoyle"}
-			}
-		assert.are.same(expected, result)
-	end)
-
-	it ("listing nouns: the gate and the skeleton key", function()
+	it ("reads multiple nouns - full sentence", function()
 		options.known_nouns = {"gate", "skeleton key"}
 		local result = ml.parse("unlock the gate with the skeleton key", options)
 		local expected = {
@@ -58,7 +48,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("listing nouns: the gate and the skeleton key (lazy)", function()
+	it ("reads multiple nouns - shorthand", function()
 		options.known_nouns = {"gate", "skeleton key"}
 		local result = ml.parse("unlock gate with key", options)
 		local expected = {
@@ -68,7 +58,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("listing nouns: the unseen tablet", function()
+	it ("reads unknown nouns", function()
 		options.known_nouns = {"wise guy", "computer"}
 		local result = ml.parse("ask the wise guy about an unseen tablet", options)
 		local expected = {
@@ -78,7 +68,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("interpolate synonymns: look/examine", function()
+	it ("interprets verb synonym: look/examine", function()
 		options.known_nouns = {"gate"}
 		local result = ml.parse("look at the gate", options)
 		local expected = {
@@ -88,7 +78,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("interpolate synonymns: get/take", function()
+	it ("interprets verb synonym: get/take", function()
 		options.known_nouns = {"apple"}
 		local result = ml.parse("get an apple", options)
 		local expected = {
@@ -98,7 +88,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("interpolate synonymns: put/insert", function()
+	it ("interprets verb synonym: put/insert", function()
 		options.known_nouns = {"box", "table"}
 		local result = ml.parse("put the box on the table", options)
 		local expected = {
@@ -108,7 +98,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("interpolate synonymns: x/examine", function()
+	it ("interprets verb synonym: x/examine", function()
 		options.known_nouns = {"red apple"}
 		local result = ml.parse("x red apple", options)
 		local expected = {
@@ -118,7 +108,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("interpolate synonymns: i/inventory", function()
+	it ("interprets verb synonym: i/inventory", function()
 		options.known_nouns = nil
 		local result = ml.parse("i", options)
 		local expected = {
@@ -128,7 +118,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the old man", function()
+	it ("recognises multi-word nouns", function()
 		options.known_nouns = {"old man"}
 		local result = ml.parse("talk to the old man", options)
 		local expected = {
@@ -138,7 +128,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the red stone", function()
+	it ("recognises partial multi-word nouns", function()
 		options.known_nouns = {"red stone", "blue stone"}
 		local result = ml.parse("take red", options)
 		local expected = {
@@ -148,7 +138,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the wise guy A", function()
+	it ("recognises known nouns: the wise guy A", function()
 		options.known_nouns = {"wise guy", "computer"}
 		local result = ml.parse("ask the wise guy about the computer", options)
 		local expected = {
@@ -158,7 +148,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the wise guy (lazy)", function()
+	it ("recognises known nouns: the wise guy (lazy)", function()
 		options.known_nouns = {"wise guy", "computer"}
 		local result = ml.parse("ask guy the computer", options)
 		local expected = {
@@ -168,7 +158,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing known nouns: the wormwood herb", function()
+	it ("recognises known nouns: the wormwood herb", function()
 		options.known_nouns = {"wormwood herb"}
 		local result = ml.parse("eat herb", options)
 		local expected = {
@@ -178,7 +168,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing directions: going northwest", function()
+	it ("recognises directions: going northwest", function()
 		options.known_nouns = nil
 		local result = ml.parse("go northwest", options)
 		local expected = {
@@ -189,7 +179,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing directions: looking east", function()
+	it ("recognises directions: looking east", function()
 		options.known_nouns = nil
 		local result = ml.parse("look e", options)
 		local expected = {
@@ -200,7 +190,7 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
-	it ("recognizing directions: in", function()
+	it ("recognises directions: in", function()
 		options.known_nouns = {"mirror"}
 		local result = ml.parse("look in mirror", options)
 		local expected = {
@@ -221,5 +211,25 @@ describe ("parser", function()
 		assert.are.same(expected, result)
 	end)
 
+	it ("matches items with hyphens", function()
+		local expected = {"A small bio-fridge."}
+		ml:setWorld ({
+			{
+				name = "Bio Lab",
+				contains = {
+					{
+						name = "Hugo",
+						person = true
+					},
+					{
+						name = "bio-fridge",
+						description = "A small bio-fridge."
+					}
+				}
+			}})
+		ml:setPlayer ("Hugo")
+		local command = ml:turn ("examine bio-fridge")
+		assert.are.same (expected, ml.output)
+	end)
 
 end)

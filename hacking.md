@@ -52,7 +52,6 @@ tail -n 30 luacov.report.out
 LDoc is used to generate documentation for the source code, it is included as a git submodule. It requires the penlight rock, which may already be installed as a dependency if you installed `busted` earlier.
 
 ```
-# pull the LDoc submodule
 git submodule init && git submodule update
 ```
 
@@ -62,3 +61,13 @@ Run generation:
 lua LDoc/ldoc.lua .
 lua LDoc/ldoc.lua --dir site/api .
 ```
+
+# Guides
+
+## Extending collections onto things
+
+World things have various collections: things contained, things supported, things hidden, parts of things... To add another such collection add support for the new collection in these functions:
+
+`listNouns`: so that the children of the new collection are listed in known nouns.
+`search`: so that the simulator can locate the child things when resolving names to objects.
+`listContents`: if you want the children of the new collection listed in item descriptions.

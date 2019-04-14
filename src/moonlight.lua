@@ -118,10 +118,10 @@
 -- The value can also be set as a custom response text.
 --
 -- @field contains
--- A table of other things that is held. People and boxes can contain things.
+-- A table of @{thing}s that is held. People and boxes can contain things.
 --
 -- @field supports
--- A table of other things supported. Tables can supporting things.
+-- A table of @{thing}s supported. Tables can supporting things.
 --
 -- @field closed
 -- A boolean if the thing is closed. Closed things do not reveal
@@ -141,6 +141,13 @@
 -- @field edible
 -- A boolean indicating the thing is edible by the player.
 --
+-- @field parts
+-- A table of @{thing}s that are a part of this thing.
+-- Parts are not listed in room or item descriptions, but the player
+-- can interact with them using the standard verb rules.
+-- The purpose of the parts table is to allow game developers to combine
+-- multiple things together to form a larger whole.
+-- Buttons and levers can be parts on a control panel, for example.
 
 ------------------------------------------------------------------------
 
@@ -520,6 +527,9 @@ local function search (self, term, parent, options)
 			end
 			for i, n in ipairs(item.hides or {}) do
 				table.insert (stack, { n, item, i, "hidden" })
+			end
+			for i, n in ipairs(item.parts or {}) do
+				table.insert (stack, { n, item, i, "part" })
 			end
 		end
 
@@ -1069,6 +1079,11 @@ local function listNouns (self)
 		end
 		if type(v.supports) == "table" then
 			for a, b in pairs(v.supports) do
+				table.insert(checklist, b)
+			end
+		end
+		if type(v.parts) == "table" then
+			for a, b in pairs(v.parts) do
 				table.insert(checklist, b)
 			end
 		end

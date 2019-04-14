@@ -54,7 +54,6 @@ describe("examine", function()
 			-- room
 			{
 				name = "Empty Space",
-				description = "It seems empty.",
 				contains = {
 					{ name = "Bob", person = true }
 				}
@@ -64,7 +63,7 @@ describe("examine", function()
 
 	local ml = require("src/moonlight")
 
-	it("the room", function()
+	it("room with description", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("look")
@@ -72,15 +71,7 @@ describe("examine", function()
 		assert.are.equals(expected, ml.output[1])
 	end)
 
-	it("an empty room", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("Bob")
-		ml:turn("look")
-		local expected = "It seems empty."
-		assert.are.equals(expected, ml.output[1])
-	end)
-
-	it("a container", function()
+	pending("room without description", function()
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("look in the bowl")

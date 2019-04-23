@@ -11,7 +11,24 @@ return function (rulebooks)
 		self.turn = { }
 	end
 
-	--- Add a before-rule
+	--- Gets a formatted string of all defined rules.
+	function rulebooks.list (self)
+		local output = ""
+		for timing, collection in pairs(self) do
+			if type (collection) == "table" then
+				for action, rules in pairs(collection) do
+					output = output .. string.format("[The %s.%s book]\n", timing, action)
+					for _, rule in ipairs(rules) do
+						output = output .. string.format("The %s rule\n", rule.name)
+					end
+					output = output .. "\n"
+				end
+			end
+		end
+		return output
+	end
+
+	--- Add a before-rule.
 	--
 	-- @param self @{instance}
 	--

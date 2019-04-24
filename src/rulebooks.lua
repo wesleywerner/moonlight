@@ -11,21 +11,67 @@ return function (rulebooks)
 		self.turn = { }
 	end
 
-	--- Gets a formatted string of all defined rules.
-	function rulebooks.list (self)
-		local output = ""
-		for timing, collection in pairs(self) do
-			if type (collection) == "table" then
-				for action, rules in pairs(collection) do
-					output = output .. string.format("[The %s.%s book]\n", timing, action)
-					for _, rule in ipairs(rules) do
-						output = output .. string.format("The %s rule\n", rule.name)
-					end
-					output = output .. "\n"
+	--- Get a list of recognised timings  in rulebooks.
+	function rulebooks.listTimings (self)
+		return { "before", "on", "after" }
+	end
+
+	--- Get a list of rulebook names.
+	function rulebooks.listBooks (self)
+		local timings = self:listTimings()
+		local books = { }
+		local skip = { }
+
+		for _, timing in ipairs(timings) do
+			for verb, ruleList in pairs(self[timing]) do
+				-- unique items only
+				if not skip[verb] then
+					table.insert(books, verb)
+					skip[verb] = true
 				end
 			end
 		end
+
+		-- sort alphabetically
+		table.sort(books)
+
+		return books
+	end
+
+	--- Get the list of rule names for a rulebook.
+	function rulebooks.listRules (self, bookname)
+		local output = { }
+		local timings = self:listTimings()
+		for _, timing in ipairs(timings) do
+			for _, rule in ipairs(self[timing][bookname] or {}) do
+				-- initialise table before adding the rule name
+				output[timing] = output[timing] or { }
+				table.insert(output[timing], rule.name)
+			end
+		end
 		return output
+	end
+
+	--- Gets a formatted string of rules.
+	function rulebooks.list (self)
+
+		local output = { }
+		local books = self:listBooks()
+		local timings = self:listTimings()
+
+		for _, bookname in ipairs(books) do
+			table.insert(output, string.format("The %s rulebook contains:", bookname))
+			local rules = self:listRules(bookname)
+			for _, timing in ipairs(timings) do
+				table.insert(output, string.format("  %s rules:", timing:upper()))
+				for _, rulename in ipairs(rules[timing] or {}) do
+					table.insert(output, string.format("    - the %q rule", rulename))
+				end
+			end
+		end
+
+		return table.concat(output, "\n")
+
 	end
 
 	--- Add a before-rule.

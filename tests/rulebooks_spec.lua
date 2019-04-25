@@ -120,16 +120,13 @@ describe("rulebook", function()
 
 		local counter = 0
 
-		local turn_rule = {
-			name = "my turn counter rule",
-			action = function (self, command)
-				if command.verb == "before" then
-					counter = counter + 1
-				end
+		local turnAction = function (self, command)
+			if command.verb == "turn" then
+				counter = counter + 1
 			end
-		}
+		end
 
-		table.insert(ml.rulebooks.turn.before, turn_rule)
+		ml.rulebooks:addBefore("turn", "my turn counter rule", turnAction)
 
 		ml:turn("examine the mailbox")
 		ml:turn("look")
@@ -146,16 +143,13 @@ describe("rulebook", function()
 
 		local counter = 0
 
-		local turn_rule = {
-			name = "my turn counter rule",
-			action = function (self, command)
-				if command.verb == "turn" then
-					counter = counter + 1
-				end
+		local turnAction = function (self, command)
+			if command.verb == "turn" then
+				counter = counter + 1
 			end
-		}
+		end
 
-		table.insert(ml.rulebooks.after.turn, turn_rule)
+		ml.rulebooks:addAfter("turn", "my turn counter rule", turnAction)
 
 		ml:turn("examine the mailbox")
 		ml:turn("look")

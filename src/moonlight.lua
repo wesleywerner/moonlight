@@ -1130,7 +1130,7 @@ local function turn (self, sentence)
 	self.output = { }
 	self.log = { }
 
-	if referRulebook (self, "turn", "before") == false then
+	if referRulebook (self, "before", "turn") == false then
 		return
 	end
 

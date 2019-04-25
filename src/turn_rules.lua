@@ -2,7 +2,7 @@
 -- @module turn_rules
 return function (rulebooks)
 
-	rulebooks.turn.before = {
+	rulebooks.before.turn = {
 		{
 			name = "player exists check",
 			action = function (self)

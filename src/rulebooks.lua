@@ -8,7 +8,6 @@ return function (rulebooks)
 		self.before = { }
 		self.on = { }
 		self.after = { }
-		self.turn = { }
 	end
 
 	--- Get a list of recognised timings  in rulebooks.

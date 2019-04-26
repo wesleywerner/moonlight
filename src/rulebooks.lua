@@ -59,12 +59,11 @@ return function (rulebooks)
 		local timings = self:listTimings()
 
 		for _, bookname in ipairs(books) do
-			table.insert(output, string.format("The %s rulebook contains:", bookname))
+			table.insert(output, string.format("\n[%s rulebook]", bookname))
 			local rules = self:listRules(bookname)
 			for _, timing in ipairs(timings) do
-				table.insert(output, string.format("  %s rules:", timing:upper()))
 				for _, rulename in ipairs(rules[timing] or {}) do
-					table.insert(output, string.format("    - the %q rule", rulename))
+					table.insert(output, string.format("<%s> %q rule", timing, rulename))
 				end
 			end
 		end

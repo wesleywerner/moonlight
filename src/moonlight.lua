@@ -315,16 +315,17 @@ end
 -- @param self
 -- @{instance}
 --
--- @param bookName
--- The name of the rulebook to test against.
+-- @param timing
+-- The @{TIMING} applicable
 --
 -- @param command
 -- The @{command} to validate.
 --
 -- @return boolean
-local function referRulebook (self, bookName, command)
+-- Truthy value indicating that the rules passed.
+local function referRulebook (self, timing, command)
 
-	local book = self.rulebooks[bookName]
+	local book = self.rulebooks[timing]
 
 	if not book then
 		return true
@@ -349,20 +350,20 @@ local function referRulebook (self, bookName, command)
 
 		if type(rule.action) == "function" then
 
-			-- log before rule consults first
-			if bookName == "after" and self.options.verbose.rulebooks then
+			-- log before rules, first
+			if timing == "after" and self.options.verbose.rulebooks then
 				table.insert (self.log,
 				string.format("Consulting the [%s] [%s] [%s] rule",
-					bookName or "none", command.verb, rule.name))
+					timing or "none", command.verb, rule.name))
 			end
 
 			local message, result = rule.action(self, command)
 
-			-- log other rule consults last
-			if bookName ~= "after" and self.options.verbose.rulebooks then
+			-- log other rules, second
+			if timing ~= "after" and self.options.verbose.rulebooks then
 				table.insert (self.log,
 				string.format("Consulted the [%s] [%s] [%s] rule: %s",
-					bookName or "none",
+					timing or "none",
 					command.verb,
 					rule.name,
 					(result == false) and "fail" or "pass"

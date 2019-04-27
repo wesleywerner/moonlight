@@ -35,9 +35,14 @@ return function (rulebooks)
 
 					-- adjust the room light level
 					if lightsource then
+						-- TODO remove .lit when not used anymore
 						self.room.lit = true
+						self.room.is_lit = true
+						self.room.is_dark = false
 					else
 						self.room.lit = false
+						self.room.is_lit = false
+						self.room.is_dark = true
 					end
 				end
 			end

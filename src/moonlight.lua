@@ -67,12 +67,19 @@
 --
 -- @field dark
 -- A boolean if the room is dark. The player is limited to what they can
--- see and do in dark rooms.
+-- see and do in dark rooms. This value stays true even if there is a
+-- light source in the room. When that light is removed then darkness
+-- returns.
 --
--- @field lit
--- A room is lit if dark and there is light source inside the room.
--- This value is set by the simulator, and is used in rulebooks to
--- determine visibililty.
+-- @field is_dark
+-- Boolean if the room is dark, and there is no light source.
+-- This value is set by the simulator and should be used in rulebooks to
+-- determine visibility.
+--
+-- @field is_lit
+-- Boolean if the room is not dark, or there is a light source.
+-- This value is set by the simulator and should be used in rulebooks to
+-- determine visibility.
 --
 -- @field exits
 -- Table of exits in a room, defined as direction=room key-values.

@@ -243,6 +243,7 @@ local options = require ("options")
 -- @table responses
 local responses = require ("responses")
 
+local apply_command_functions = require("command_functions")
 local utils = require("utils")
 local parse = require("parser")
 
@@ -1009,7 +1010,6 @@ local function applyCommand (self, command)
 
 					-- promote this child to item1
 					newcommand.item1 = child
-					newcommand.item1Parent = command.allFrom
 					table.insert (queue, newcommand)
 
 				end
@@ -1022,7 +1022,8 @@ local function applyCommand (self, command)
 
 	for _, cmd in ipairs (queue) do
 
-		--print("\t", cmd.verb, cmd.item1.name, cmd.item2.name)
+		-- Enhance the command object with helper functions
+		apply_command_functions(command)
 
 		-- call "before" rules
 		-- explicit false results stops further processing
@@ -1172,8 +1173,8 @@ local function turn (self, sentence)
 	end
 
 	-- look up each noun item
-	command.item1, command.item1Parent = searchFirst(self, command.nouns[1], self.room)
-	command.item2, command.item2Parent = searchFirst(self, command.nouns[2], self.room)
+	command.item1 = searchFirst(self, command.nouns[1], self.room)
+	command.item2 = searchFirst(self, command.nouns[2], self.room)
 
 	-- handle the player referring to "it"
 	if (command.nouns[1] == "it") and (not command.item1) then

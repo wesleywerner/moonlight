@@ -1,7 +1,7 @@
 --- The standard rulebook for applying commands to ALL things.
 -- This rulebook handles testing if the given verb is actionable as
--- a bulk command. the command item2 value would be the item to apply
--- the bulk action, otherwise the room if no item2 is present.
+-- a bulk command. the command second_item value would be the item to apply
+-- the bulk action, otherwise the room if no second_item is present.
 -- @module all_rules
 return function (rulebooks)
 
@@ -11,9 +11,9 @@ return function (rulebooks)
 		{
 			name = "the second noun contains things",
 			action = function (self, command)
-				if command.item2 then
-					if (not command.item2.contains) and (not command.item2.supports) then
-						return string.format(self.responses.take["not container"], command.item2.name), false
+				if command.second_item then
+					if (not command.second_item.contains) and (not command.second_item.supports) then
+						return string.format(self.responses.take["not container"], command.second_item.name), false
 					end
 				end
 			end
@@ -21,9 +21,9 @@ return function (rulebooks)
 		{
 			name = "the second noun is an open container",
 			action = function (self, command)
-				if command.item2 then
-					if (command.item2.closed) then
-						return string.format(self.responses.take["from closed container"], command.item2.name), false
+				if command.second_item then
+					if (command.second_item.closed) then
+						return string.format(self.responses.take["from closed container"], command.second_item.name), false
 					end
 				end
 			end
@@ -32,7 +32,7 @@ return function (rulebooks)
 			-- taking all looks at the specified thing or the room
 			name = "redirect taking from",
 			action = function (self, command)
-				command.allFrom = command.item2 or self.room
+				command.allFrom = command.second_item or self.room
 			end
 		}
 	}
@@ -48,8 +48,8 @@ return function (rulebooks)
 		{
 			name = "into a closed container",
 			action = function (self, command)
-				if command.item2.closed == true then
-					return string.format(self.responses.insert["into closed"], command.item2.name), false
+				if command.second_item.closed == true then
+					return string.format(self.responses.insert["into closed"], command.second_item.name), false
 				end
 			end
 		}

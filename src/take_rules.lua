@@ -6,21 +6,19 @@ return function (rulebooks)
 		{
 			name = "the noun exists",
 			action = function (self, command)
-				if not command.item1 then
-					if #command.nouns == 0 then
+				if not command.first_item then
+					if not command.first_noun then
 						return string.format(self.responses.missing["noun"], command.verb), false
 					else
-						return string.format(self.responses.unknown["thing"], command.nouns[1]), false
+						return string.format(self.responses.unknown["thing"], command.first_noun), false
 					end
 				end
 			end
 		},
 		{
-			-- TODO Move darkness CHECK to the turn rulebooks
 			name = "in the dark",
 			action = function (self, command)
-				local darkroom = self.room.dark and not self.room.lit
-				if darkroom then
+				if self.room.is_dark then
 					return self.responses.take["in the dark"], false
 				end
 			end
@@ -28,20 +26,20 @@ return function (rulebooks)
 		{
 			name = "not taking a person",
 			action = function (self, command)
-				if command.item1.person then
-					return string.format(self.responses.take["person"], command.item1.name), false
+				if command.first_item.person then
+					return string.format(self.responses.take["person"], command.first_item.name), false
 				end
 			end
 		},
 		{
 			name = "the noun is not fixed in place",
 			action = function (self, command)
-				if command.item1.fixed then
+				if command.first_item.fixed then
 					-- the fixed value can be custom text
-					if type(command.item1.fixed) == "string" then
-						return command.item1.fixed, false
+					if type(command.first_item.fixed) == "string" then
+						return command.first_item.fixed, false
 					else
-						return string.format(self.responses.thing["fixed"], command.item1.name), false
+						return string.format(self.responses.thing["fixed"], command.first_item.name), false
 					end
 				end
 			end
@@ -49,7 +47,7 @@ return function (rulebooks)
 		{
 			name = "the noun is not already carried",
 			action = function (self, command)
-				if self:isCarrying (command.item1) then
+				if self:isCarrying (command.first_item) then
 					return self.responses.take["when carried"], false
 				end
 			end
@@ -60,8 +58,7 @@ return function (rulebooks)
 		{
 			name = "take the noun",
 			action = function (self, command)
-				self:moveIn (command.item1, self.player)
-				--return string.format(self.responses.take["success"], command.item1.name)
+				self:moveIn (command.first_item, self.player)
 			end
 		}
 	}
@@ -70,7 +67,7 @@ return function (rulebooks)
 		{
 			name = "report",
 			action = function (self, command)
-				return string.format(self.responses.take["success"], command.item1.name)
+				return string.format(self.responses.take["success"], command.first_item.name)
 			end
 		}
 	}

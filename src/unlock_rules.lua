@@ -7,17 +7,17 @@ return function (rulebooks)
 			name = "the player refers to a door",
 			action = function (self, command)
 				-- Test that a door is referred in the command
-				if not command.item1 then
-					if command.nouns[1] then
-						return string.format (self.responses.unknown["thing"], command.nouns[1]), false
+				if not command.first_item then
+					if command.first_noun then
+						return string.format (self.responses.unknown["thing"], command.first_noun), false
 					else
 						return self.responses.unlock["needs door"], false
 					end
 				end
 				-- Test that a key is referred in the command
-				if not command.item2 then
-					if command.nouns[2] then
-						return string.format (self.responses.unknown["thing"], command.nouns[2]), false
+				if not command.second_item then
+					if command.second_noun then
+						return string.format (self.responses.unknown["thing"], command.second_noun), false
 					else
 						return self.responses.unlock["needs key"], false
 					end
@@ -27,15 +27,15 @@ return function (rulebooks)
 		{
 			name = "the player carries the key",
 			action = function (self, command)
-				if not self:isCarrying (command.item2) then
-					return string.format(self.responses.thing["not carried"], command.item2.name), false
+				if not self:isCarrying (command.second_item) then
+					return string.format(self.responses.thing["not carried"], command.second_item.name), false
 				end
 			end
 		},
 		{
 			name = "the door is lockable",
 			action = function (self, command)
-				local door = command.item1
+				local door = command.first_item
 				if type(door.locked) == "nil" then
 					return self.responses.unlock["not lockable"], false
 				end
@@ -44,7 +44,7 @@ return function (rulebooks)
 		{
 			name = "the door is not already unlocked",
 			action = function (self, command)
-				local door = command.item1
+				local door = command.first_item
 				if door.locked == false then
 					return self.responses.unlock["already unlocked"], false
 				end
@@ -54,8 +54,8 @@ return function (rulebooks)
 			name = "the key matches the door",
 			action = function (self, command)
 				local utils = require("utils")
-				local door = command.item1
-				local key = command.item2
+				local door = command.first_item
+				local key = command.second_item
 				local rightKey = utils.contains (key.unlocks or {}, door.name)
 				if not rightKey then
 					return self.responses.unlock["wont unlock"], false
@@ -68,8 +68,8 @@ return function (rulebooks)
 		{
 			name = "unlock the door",
 			action = function (self, command)
-				local door = command.item1
-				local key = command.item2
+				local door = command.first_item
+				local key = command.second_item
 				door.locked = false
 			end
 		},
@@ -79,8 +79,8 @@ return function (rulebooks)
 		{
 			name = "report",
 			action = function (self, command)
-				local door = command.item1
-				local key = command.item2
+				local door = command.first_item
+				local key = command.second_item
 				return string.format (self.responses.unlock.succeed, door.name, key.name)
 			end
 		},
@@ -89,7 +89,7 @@ return function (rulebooks)
 			name = "apply the open-unlocked-things option",
 			action = function (self, command)
 				if self.options.auto["open unlocked things"] then
-					self.applyCommand (self, { verb = "open", item1 = command.item1 })
+					self.applyCommand (self, { verb = "open", first_item = command.first_item })
 				end
 			end
 		}

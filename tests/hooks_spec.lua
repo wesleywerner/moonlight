@@ -102,19 +102,19 @@ describe("hook", function()
 
 	it("receives noun items", function()
 
-		local item1, item2 = nil, nil
+		local first_item, second_item = nil, nil
 		local examine_callback = function(ml, command)
-			item1, item2 = command.item1, command.item2
+			first_item, second_item = command.first_item, command.second_item
 		end
 		ml:hook("insert", "mailbox", examine_callback)
 
 		ml:setWorld (makeWorld())
 		ml:setPlayer("You")
 		ml:turn("put the mailbox in the letter")
-		assert.is.not_nil(item1)
-		assert.is.not_nil(item2)
-		assert.are.equals("mailbox", item1.name)
-		assert.are.equals("letter", item2.name)
+		assert.is.not_nil(first_item)
+		assert.is.not_nil(second_item)
+		assert.are.equals("mailbox", first_item.name)
+		assert.are.equals("letter", second_item.name)
 
 	end)
 end)

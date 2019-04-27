@@ -6,16 +6,15 @@ return function (rulebooks)
 		{
 			name = "the noun exists",
 			action = function (self, command)
-				if command.nouns[1] and not command.item1 then
-					return string.format(self.responses.unknown["thing"], command.nouns[1]), false
+				if command.first_noun and not command.first_item then
+					return string.format(self.responses.unknown["thing"], command.first_noun), false
 				end
 			end
 		},
 		{
 			name = "the room is lit",
 			action = function (self, command)
-				local darkroom = self.room.dark and not self.room.lit
-				if darkroom then
+				if self.room.is_dark then
 					return self.responses.examine["in the dark"] .. " " .. self:listRoomExits(), false
 				end
 			end
@@ -26,7 +25,7 @@ return function (rulebooks)
 		{
 			name = "describe the room",
 			action = function (self, command)
-				if not command.item1 then
+				if not command.first_item then
 					return self:describeRoom (command.brief)
 				end
 			end
@@ -34,8 +33,8 @@ return function (rulebooks)
 		{
 			name = "describe the noun",
 			action = function (self, command)
-				if command.item1 then
-					return self:describe (command.item1)
+				if command.first_item then
+					return self:describe (command.first_item)
 				end
 			end
 		}

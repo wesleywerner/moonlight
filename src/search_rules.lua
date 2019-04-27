@@ -8,7 +8,7 @@ return function (rulebooks)
 		{
 			name = "the noun exists",
 			action = function (self, command)
-				if not command.item1 then
+				if not command.first_item then
 					return self.responses.search["too broad"], false
 				end
 			end
@@ -16,7 +16,7 @@ return function (rulebooks)
 		{
 			name = "the noun is hiding something",
 			action = function (self, command)
-				if not command.item1.hides then
+				if not command.first_item.hides then
 					return self.responses.search["unlucky"], false
 				end
 			end
@@ -27,7 +27,7 @@ return function (rulebooks)
 		{
 			name = "report the search is starting",
 			action = function (self, command)
-				return string.format (self.responses.search["report"], command.item1.name)
+				return string.format (self.responses.search["report"], command.first_item.name)
 			end
 		},
 		{
@@ -35,8 +35,8 @@ return function (rulebooks)
 			action = function (self, command)
 				-- store found things on the command
 				command.found = { }
-				local parent = command.item1
-				for _, found in ipairs(command.item1.hides) do
+				local parent = command.first_item
+				for _, found in ipairs(command.first_item.hides) do
 					table.insert (command.found, found)
 					if parent.supports then
 						self:moveOn (found, parent)
@@ -68,7 +68,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if self.options.auto["take things searched"] then
 					for _, found in ipairs(command.found) do
-						self.applyCommand (self, { verb = "take", item1 = found })
+						self.applyCommand (self, { verb = "take", first_item = found })
 					end
 				end
 			end

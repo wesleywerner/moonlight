@@ -229,7 +229,7 @@ describe ("locked doors", function()
 		local cmd = ml:turn ("unlock the door with the brass key")
 
 		assert.are.same (expected, ml.output)
-		assert.is_false (cmd.item1.locked)
+		assert.is_false (cmd.first_item.locked)
 	end)
 
 	it("auto opens unlocked things", function()
@@ -241,7 +241,7 @@ describe ("locked doors", function()
 		ml.options.auto["open unlocked things"] = false
 
 		assert.are.same (expected, ml.output)
-		assert.is_false (cmd.item1.locked)
+		assert.is_false (cmd.first_item.locked)
 	end)
 
 end)

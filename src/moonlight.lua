@@ -25,11 +25,11 @@
 -- @field direction
 -- The word of the direction implied in the sentence.
 --
--- @field item1
+-- @field first_item
 -- The world item (table) that matches the first of the nouns field.
 -- If this has a value it is guaranteed to match an item in the world.
 --
--- @field item2
+-- @field second_item
 -- The world item (table) that matches the second of the nouns field.
 -- If this has a value it is guaranteed to match an item in the world.
 --
@@ -250,21 +250,20 @@ local options = require ("options")
 -- @table responses
 local responses = require ("responses")
 
-local apply_command_functions = require("command_functions")
 local utils = require("utils")
 local parse = require("parser")
 
 --- Test if the command object refers to all things.
 -- @return boolean
 local function commandRefersAll (self, command)
-	return (not command.item1) and (command.nouns[1] == "all")
+	return (not command.first_item) and (command.nouns[1] == "all")
 end
 
 
 --- Increment the number of times a noun has been verbed.
 local function countVerbUsedOnNoun (self, command)
 	-- the counter can live on a thing or a room
-	local target = command.item1 or self.room
+	local target = command.first_item or self.room
 	local verb = command.verb
 
 	if type(command) == "string" then
@@ -1015,8 +1014,8 @@ local function applyCommand (self, command)
 						newcommand[commandKey] = commandValue
 					end
 
-					-- promote this child to item1
-					newcommand.item1 = child
+					-- promote this child to first_item
+					newcommand.first_item = child
 					table.insert (queue, newcommand)
 
 				end
@@ -1028,9 +1027,6 @@ local function applyCommand (self, command)
 	end
 
 	for _, cmd in ipairs (queue) do
-
-		-- Enhance the command object with helper functions
-		apply_command_functions(command)
 
 		-- call "before" rules
 		-- explicit false results stops further processing
@@ -1180,22 +1176,24 @@ local function turn (self, sentence)
 	end
 
 	-- look up each noun item
-	command.item1 = searchFirst(self, command.nouns[1], self.room)
-	command.item2 = searchFirst(self, command.nouns[2], self.room)
+	command.first_item = searchFirst(self, command.nouns[1], self.room)
+	command.second_item = searchFirst(self, command.nouns[2], self.room)
+	command.first_noun = command.nouns[1]
+	command.second_noun = command.nouns[2]
 
 	-- handle the player referring to "it"
-	if (command.nouns[1] == "it") and (not command.item1) then
-		command.item1 = self.lastKnownThing
+	if (command.nouns[1] == "it") and (not command.first_item) then
+		command.first_item = self.lastKnownThing
 	else
-		self.lastKnownThing = command.item1
+		self.lastKnownThing = command.first_item
 	end
 
 	-- Exits could point to things too, like doors.
 	-- If there is no command item, attempt to find it using the
 	-- direction value. The item will remain nil if it is not a thing.
 	if command.verb == "go" and command.direction then
-		if not command.item1 and self.room.exits then
-			command.item1 = searchFirst(self, self.room.exits[command.direction], self.room)
+		if not command.first_item and self.room.exits then
+			command.first_item = searchFirst(self, self.room.exits[command.direction], self.room)
 		end
 	end
 

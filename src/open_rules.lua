@@ -6,7 +6,7 @@ return function (rulebooks)
 		{
 			name = "the noun exist",
 			action = function (self, command)
-				if not command.item1 then
+				if not command.first_item then
 					return string.format(self.responses.unknown["thing"], command.verb), false
 				end
 			end
@@ -14,24 +14,24 @@ return function (rulebooks)
 		{
 			name = "it can be opened",
 			action = function (self, command)
-				if command.item1.closed == nil then
-					return string.format(self.responses.open["cannot"], command.item1.name), false
+				if command.first_item.closed == nil then
+					return string.format(self.responses.open["cannot"], command.first_item.name), false
 				end
 			end
 		},
 		{
 			name = "it is not already open",
 			action = function (self, command)
-				if command.item1.closed == false then
-					return string.format(self.responses.open["when open"], command.item1.name), false
+				if command.first_item.closed == false then
+					return string.format(self.responses.open["when open"], command.first_item.name), false
 				end
 			end
 		},
 		{
 			name = "it is not locked",
 			action = function (self, command)
-				if command.item1.locked == true then
-					return string.format(self.responses.open["when locked"], command.item1.name), false
+				if command.first_item.locked == true then
+					return string.format(self.responses.open["when locked"], command.first_item.name), false
 				end
 			end
 		}
@@ -41,7 +41,7 @@ return function (rulebooks)
 		{
 			name = "open the thing",
 			action = function (self, command)
-				command.item1.closed = false
+				command.first_item.closed = false
 			end
 		}
 	}
@@ -50,7 +50,7 @@ return function (rulebooks)
 		{
 			name = "report opened",
 			action = function (self, command)
-				return string.format(self.responses.open["success"], command.item1.name)
+				return string.format(self.responses.open["success"], command.first_item.name)
 			end
 		},
 		{
@@ -58,7 +58,7 @@ return function (rulebooks)
 			name = "list contents of opened",
 			action = function (self, command)
 				if self.options.auto["list contents of opened"] == true then
-					local contents = self:listContents (command.item1)
+					local contents = self:listContents (command.first_item)
 					return contents
 				end
 			end

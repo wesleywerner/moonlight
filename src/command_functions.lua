@@ -27,7 +27,7 @@ return function (command)
 	-- @return boolean
 	-- Truthy if the
 	command.has_first_item = function (self)
-		return type(self.item1) == "table"
+		return type(self.first_item) == "table"
 	end
 
 end

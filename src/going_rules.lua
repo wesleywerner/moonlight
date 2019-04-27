@@ -13,7 +13,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if not commandHasDirection (self, command) then
 					-- allow going into things (like doors)
-					if not command.item1 then
+					if not command.first_item then
 						return self.responses.missing["direction"], false
 					end
 				end
@@ -22,9 +22,9 @@ return function (rulebooks)
 		{
 			name = "the noun has a destination",
 			action = function (self, command)
-				if command.item1 then
+				if command.first_item then
 					-- enter a door
-					local room = self:roomByName (command.item1.destination or "")
+					local room = self:roomByName (command.first_item.destination or "")
 					if not room then
 						return self.responses.go["not an exit"], false
 					end
@@ -34,7 +34,7 @@ return function (rulebooks)
 		{
 			name = "the direction has an exit",
 			action = function (self, command)
-				if not command.item1 then
+				if not command.first_item then
 					-- find the room in the direction
 					local room = self:roomByDirection (command.direction)
 					if not room then
@@ -46,8 +46,8 @@ return function (rulebooks)
 		{
 			name = "the noun is open",
 			action = function (self, command)
-				if command.item1 and (command.item1.closed == true) then
-					return string.format(self.responses.go["through a closed door"], command.item1.name), false
+				if command.first_item and (command.first_item.closed == true) then
+					return string.format(self.responses.go["through a closed door"], command.first_item.name), false
 				end
 			end
 		}
@@ -58,9 +58,9 @@ return function (rulebooks)
 			name = "move player to the destination",
 			action = function (self, command)
 				local room
-				if command.item1 then
+				if command.first_item then
 					-- enter a door
-					room = self:roomByName (command.item1.destination)
+					room = self:roomByName (command.first_item.destination)
 				else
 					-- go by direction
 					room = self:roomByDirection (command.direction)

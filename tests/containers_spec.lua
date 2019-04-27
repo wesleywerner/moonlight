@@ -111,7 +111,7 @@ describe ("containers", function()
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet.", "Inside it is a gold coin."}
 		assert.are.same(expected, ml.output)
-		assert.is.falsy(cmd.item1.closed)
+		assert.is.falsy(cmd.first_item.closed)
 	end)
 
 	it("open it (with auto listing of contents)", function()
@@ -121,7 +121,7 @@ describe ("containers", function()
 		local cmd = ml:turn("open the toilet")
 		local expected = {"You open the toilet.", "Inside it is a gold coin."}
 		assert.are.same(expected, ml.output)
-		assert.is.falsy(cmd.item1.closed)
+		assert.is.falsy(cmd.first_item.closed)
 	end)
 
 	it("close it", function()
@@ -131,7 +131,7 @@ describe ("containers", function()
 		local cmd = ml:turn("close the toilet")
 		local expected = {"You close the toilet."}
 		assert.are.same(expected, ml.output)
-		assert.is.truthy(cmd.item1.closed)
+		assert.is.truthy(cmd.first_item.closed)
 	end)
 
 	it("open when already open", function()

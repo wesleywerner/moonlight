@@ -2,7 +2,7 @@ return function (rulebooks)
 
 	rulebooks.before.purloin = {
 		{
-			name = "thing exits",
+			name = "the noun exits",
 			action = function (self, command)
 				-- use a wizard search to find the thing in the entire world
 				local noun = command.nouns[1]
@@ -26,9 +26,17 @@ return function (rulebooks)
 
 	rulebooks.on.purloin = {
 		{
-			name = "purloin found thing",
+			name = "move the item to the player",
 			action = function (self, command)
 				self.moveIn (self, command.item1, self.player)
+			end
+		}
+	}
+
+	rulebooks.after.purloin = {
+		{
+			name = "report",
+			action = function (self, command)
 				return string.format("The %s magically appears in your pocket.", command.item1.name)
 			end
 		}

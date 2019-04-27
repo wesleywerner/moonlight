@@ -751,8 +751,11 @@ end
 -- @param item
 -- The item that will be described
 --
--- @param leadFormat
--- The description format which can vary for rooms vs containers.
+-- @param brief
+-- Truthy value to use brief descriptions: Only show the item description
+-- if it is the first time examining it.
+-- If options.verbose.descriptions is truthy then brief descriptions are
+-- ignored.
 --
 -- @return string
 local function describe (self, item, brief)
@@ -788,7 +791,15 @@ local function describe (self, item, brief)
 
 end
 
---- Describe room.
+--- Describe the room that the player is currently in.
+--
+-- @param self @{instance}
+--
+-- @param brief
+-- Truthy value to use brief descriptions: Only show the item description
+-- if it is the first time examining it.
+-- If options.verbose.descriptions is truthy then brief descriptions are
+-- ignored.
 local function describeRoom (self, brief)
 
 	local output = { }

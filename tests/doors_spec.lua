@@ -143,7 +143,7 @@ describe ("closed doors", function()
 		ml:setWorld (makeWorld ())
 		ml:setPlayer ("Freddie")
 		ml:turn ("go in the rotting door")
-		local expected = {"The door is closed."}
+		local expected = {"The rotting door is closed."}
 		assert.are.same (expected, ml.output)
 	end)
 

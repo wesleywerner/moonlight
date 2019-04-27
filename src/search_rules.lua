@@ -6,7 +6,7 @@ return function (rulebooks)
 
 	rulebooks.before.search = {
 		{
-			name = "a seen thing",
+			name = "the noun exists",
 			action = function (self, command)
 				if not command.item1 then
 					return self.responses.search["too broad"], false
@@ -14,30 +14,24 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "that which does not hide",
+			name = "the noun is hiding something",
 			action = function (self, command)
 				if not command.item1.hides then
 					return self.responses.search["unlucky"], false
 				end
 			end
 		},
-		{
-			name = "",
-			action = function (self, command)
-
-			end
-		},
 	}
 
 	rulebooks.on.search = {
 		{
-			name = "report action",
+			name = "report the search is starting",
 			action = function (self, command)
 				return string.format (self.responses.search["report"], command.item1.name)
 			end
 		},
 		{
-			name = "perform",
+			name = "reveal the hidden items",
 			action = function (self, command)
 				-- store found things on the command
 				command.found = { }
@@ -51,13 +45,26 @@ return function (rulebooks)
 					else
 						self:moveIn (found, self.room)
 					end
-					table.insert (self.output,
-						string.format(self.responses.search["found"], self:withArticle(found)))
+				end
+			end
+		},
+	}
+
+	rulebooks.after.search = {
+		{
+			name = "the list of things found",
+			action = function (self, command)
+				if command.found then
+					for _, found in ipairs(command.found) do
+						table.insert (self.output,
+							string.format(self.responses.search["found"], self:withArticle(found)))
+					end
 				end
 			end
 		},
 		{
-			name = "auto take found things",
+			-- TODO move to FINALLY timing
+			name = "apply the take-found-things option",
 			action = function (self, command)
 				if self.options.auto["take things searched"] then
 					for _, found in ipairs(command.found) do
@@ -65,11 +72,7 @@ return function (rulebooks)
 					end
 				end
 			end
-		}
-	}
-
-	rulebooks.after.search = {
-
+		},
 	}
 
 end

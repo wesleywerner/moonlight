@@ -3,7 +3,7 @@
 return function (rulebooks)
 	rulebooks.before.drop =	{
 		{
-			name = "unspecified nouns",
+			name = "the noun exists",
 			action = function (self, command)
 				if not command.item1 then
 					if #command.nouns == 0 then
@@ -15,7 +15,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "player is carrying the thing",
+			name = "the player is carrying the noun",
 			action = function (self, command)
 				if not self:isCarrying (command.item1) then
 					return string.format(self.responses.thing["not carried"], command.item1.name), false
@@ -26,7 +26,7 @@ return function (rulebooks)
 
 	rulebooks.on.drop = {
 		{
-			name = "thing",
+			name = "drop the noun in the room",
 			action = function (self, command)
 				self:moveIn (command.item1, self.room)
 				return string.format(self.responses.drop["success"], command.item1.name)

@@ -4,7 +4,7 @@ return function (rulebooks)
 
 	rulebooks.before.take = {
 		{
-			name = "unspecified nouns",
+			name = "the noun exists",
 			action = function (self, command)
 				if not command.item1 then
 					if #command.nouns == 0 then
@@ -16,6 +16,7 @@ return function (rulebooks)
 			end
 		},
 		{
+			-- TODO Move darkness CHECK to the turn rulebooks
 			name = "in the dark",
 			action = function (self, command)
 				local darkroom = self.room.dark and not self.room.lit
@@ -25,7 +26,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "a person",
+			name = "not taking a person",
 			action = function (self, command)
 				if command.item1.person then
 					return string.format(self.responses.take["person"], command.item1.name), false
@@ -33,7 +34,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "a fixed thing",
+			name = "the noun is not fixed in place",
 			action = function (self, command)
 				if command.item1.fixed then
 					-- the fixed value can be custom text
@@ -46,7 +47,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "something already carried",
+			name = "the noun is not already carried",
 			action = function (self, command)
 				if self:isCarrying (command.item1) then
 					return self.responses.take["when carried"], false
@@ -57,9 +58,18 @@ return function (rulebooks)
 
 	rulebooks.on.take = {
 		{
-			name = "thing",
+			name = "take the noun",
 			action = function (self, command)
 				self:moveIn (command.item1, self.player)
+				--return string.format(self.responses.take["success"], command.item1.name)
+			end
+		}
+	}
+
+	rulebooks.after.take = {
+		{
+			name = "report",
+			action = function (self, command)
 				return string.format(self.responses.take["success"], command.item1.name)
 			end
 		}

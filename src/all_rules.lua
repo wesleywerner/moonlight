@@ -9,7 +9,7 @@ return function (rulebooks)
 
 	rulebooks.all.take = {
 		{
-			name = "from something that contains",
+			name = "the second noun contains things",
 			action = function (self, command)
 				if command.item2 then
 					if (not command.item2.contains) and (not command.item2.supports) then
@@ -19,7 +19,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "from an open container",
+			name = "the second noun is an open container",
 			action = function (self, command)
 				if command.item2 then
 					if (command.item2.closed) then

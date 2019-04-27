@@ -9,7 +9,7 @@ return function (rulebooks)
 
 	rulebooks.before.go = {
 		{
-			name = "unspecified direction",
+			name = "a direction was specified",
 			action = function (self, command)
 				if not commandHasDirection (self, command) then
 					-- allow going into things (like doors)
@@ -20,28 +20,34 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "exit is a valid room",
+			name = "the noun has a destination",
 			action = function (self, command)
 				if command.item1 then
 					-- enter a door
 					local room = self:roomByName (command.item1.destination or "")
 					if not room then
-						return self.responses.go["cannot"], false
-					end
-				else
-					-- find the room in the direction
-					local room = self:roomByDirection (command.direction)
-					if not room then
-						return self.responses.go["cannot"], false
+						return self.responses.go["not an exit"], false
 					end
 				end
 			end
 		},
 		{
-			name = "cannot pass closed doors",
+			name = "the direction has an exit",
+			action = function (self, command)
+				if not command.item1 then
+					-- find the room in the direction
+					local room = self:roomByDirection (command.direction)
+					if not room then
+						return self.responses.go["not an exit"], false
+					end
+				end
+			end
+		},
+		{
+			name = "the noun is open",
 			action = function (self, command)
 				if command.item1 and (command.item1.closed == true) then
-					return "The door is closed.", false
+					return string.format(self.responses.go["through a closed door"], command.item1.name), false
 				end
 			end
 		}
@@ -49,7 +55,7 @@ return function (rulebooks)
 
 	rulebooks.on.go = {
 		{
-			name = "direction",
+			name = "move player to the destination",
 			action = function (self, command)
 				local room
 				if command.item1 then
@@ -63,6 +69,8 @@ return function (rulebooks)
 				if room then
 					self:moveIn (self.player, room)
 					self.room = room
+
+					-- TODO move to SAY/REPORT timing
 					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.
 					-- The command also carries the allow_brief flag to indicate to examine rules
 					-- that brief room descriptions can be used.
@@ -71,5 +79,7 @@ return function (rulebooks)
 			end
 		}
 	}
+
+
 
 end

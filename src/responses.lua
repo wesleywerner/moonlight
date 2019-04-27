@@ -11,7 +11,8 @@ local responses = {
 		["success"] = "You drop the %s."
 	},
 	["go"] = {
-		["cannot"] = "You cannot go that way."
+		["not an exit"] = "You cannot go that way.",
+		["through a closed door"] = "The %s is closed."
 	},
 	["insert"] = {
 		["in"] = "You put the %s in the %s.",

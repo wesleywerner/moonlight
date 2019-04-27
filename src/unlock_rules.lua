@@ -4,8 +4,9 @@ return function (rulebooks)
 
 	rulebooks.before.unlock = {
 		{
-			name = "have a door and a key",
+			name = "the player refers to a door",
 			action = function (self, command)
+				-- Test that a door is referred in the command
 				if not command.item1 then
 					if command.nouns[1] then
 						return string.format (self.responses.unknown["thing"], command.nouns[1]), false
@@ -13,6 +14,7 @@ return function (rulebooks)
 						return self.responses.unlock["needs door"], false
 					end
 				end
+				-- Test that a key is referred in the command
 				if not command.item2 then
 					if command.nouns[2] then
 						return string.format (self.responses.unknown["thing"], command.nouns[2]), false
@@ -20,13 +22,18 @@ return function (rulebooks)
 						return self.responses.unlock["needs key"], false
 					end
 				end
+			end
+		},
+		{
+			name = "the player carries the key",
+			action = function (self, command)
 				if not self:isCarrying (command.item2) then
 					return string.format(self.responses.thing["not carried"], command.item2.name), false
 				end
 			end
 		},
 		{
-			name = "thing not lockable",
+			name = "the door is lockable",
 			action = function (self, command)
 				local door = command.item1
 				if type(door.locked) == "nil" then
@@ -35,7 +42,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "thing already unlocked",
+			name = "the door is not already unlocked",
 			action = function (self, command)
 				local door = command.item1
 				if door.locked == false then
@@ -44,7 +51,7 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "with the right key",
+			name = "the key matches the door",
 			action = function (self, command)
 				local utils = require("utils")
 				local door = command.item1
@@ -59,7 +66,7 @@ return function (rulebooks)
 
 	rulebooks.on.unlock = {
 		{
-			name = "do",
+			name = "unlock the door",
 			action = function (self, command)
 				local door = command.item1
 				local key = command.item2
@@ -78,7 +85,8 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "auto open unlocked things",
+			-- TODO move into the FINALLY timing
+			name = "apply the open-unlocked-things option",
 			action = function (self, command)
 				if self.options.auto["open unlocked things"] then
 					self.applyCommand (self, { verb = "open", item1 = command.item1 })

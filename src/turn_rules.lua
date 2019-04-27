@@ -4,7 +4,7 @@ return function (rulebooks)
 
 	rulebooks.before.turn = {
 		{
-			name = "player exists check",
+			name = "the player character exists",
 			action = function (self)
 				if self.player == nil then
 					return "No player character has been set.", false
@@ -12,24 +12,28 @@ return function (rulebooks)
 			end
 		},
 		{
-			name = "adjust room light level",
+			-- This rule will make dark rooms "lit" if there is
+			-- a light source in contact with open air.
+			name = "and adjust the room light level",
 			action = function (self, command)
 				if self.room.dark == true then
-					-- use superpower search options to include dark
-					-- rooms, otherwise we won't find a lit thing
-					-- in contact with open air.
+
+					-- change the search options to include dark things
 					local options = {
 						includeClosed = false,
 						includeDark = true
 					}
-					-- be careful not to match the room itself,
-					-- which can also have a lit value.
+
+					-- search for lit things, excluding the room itself.
 					local searchfunc = function (n)
-						-- any lit thing that is not the room itself
 						return n.lit == true and n ~= self.room
 					end
+
+					-- query the search
 					local lightsource = self:searchFirst (
 						searchfunc, self.room, options)
+
+					-- adjust the room light level
 					if lightsource then
 						self.room.lit = true
 					else

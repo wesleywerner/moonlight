@@ -33,11 +33,18 @@ return function (rulebooks)
 		{
 			name = "reveal the hidden items",
 			action = function (self, command)
+
 				-- store found things on the command
 				command.found = { }
+
 				local parent = command.first_item
+
 				for _, found in ipairs(command.first_item.hides) do
+
+					-- store for later use
 					table.insert (command.found, found)
+
+					-- move the found thing into view
 					if parent.supports then
 						self:moveOn (found, parent)
 					elseif parent.contains then
@@ -45,6 +52,7 @@ return function (rulebooks)
 					else
 						self:moveIn (found, self.room)
 					end
+
 				end
 			end
 		},
@@ -68,7 +76,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if self.options.auto["take things searched"] then
 					for _, found in ipairs(command.found) do
-						self.applyCommand (self, { verb = "take", first_item = found })
+						self:simulate (self:parse("take " .. found.name))
 					end
 				end
 			end

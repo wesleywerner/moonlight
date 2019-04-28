@@ -251,14 +251,6 @@ local options = require ("options")
 local responses = require ("responses")
 
 local utils = require("utils")
-local parse = require("parser")
-
---- Test if the command object refers to all things.
--- @return boolean
-local function commandRefersAll (self, command)
-	return (not command.first_item) and (command.nouns[1] == "all")
-end
-
 
 --- Increment the number of times a noun has been verbed.
 local function countVerbUsedOnNoun (self, command)
@@ -981,67 +973,55 @@ local function roomByDirection (self, direction)
 end
 
 
---- Apply a command to a world model.
--- This forwards the simulation by performing the command action against
--- the command nouns.
+--- Simulate an action in the world.
+-- Applies the given command to the world model.
+--
+-- @param self
+-- @{instance}
+--
+-- @param command
+-- The @{command} to simulate.
 --
 -- @return boolean
--- If the action succeeded.
-local function applyCommand (self, command)
+-- True if the action succeeded.
+local function simulate (self, command)
 
 	local queue = { }
 
-	-- this command applies to ALL things
-	if commandRefersAll (self, command) then
+	-- The command applies to ALL items
+	local refersAll = (not command.first_item) and (command.first_noun == "all")
 
-		-- refer to the ALL rulebook if we can iterate over ALL things
+	if refersAll then
+
+		-- The ALL rulebook should identify the thing we are looking
+		-- at during the bulk action, stored in the allFrom value.
 		if referRulebook (self, "all", command) then
 
-			-- The ALL rulebook should identify the thing we are looking
-			-- at during the bulk action, stored in the allFrom value.
+			-- Queue a new command for each child item
 			local children = listChildrenOf (self, command.allFrom)
-
 			for _, child in ipairs (children) do
-
-				-- ignoring the player
 				if not child.isPlayer then
-
-					-- repack the command table
-					-- (otherwise each iteration overrides the
-					--  previous command reference)
 					local newcommand = { }
 					for commandKey, commandValue in pairs (command) do
 						newcommand[commandKey] = commandValue
 					end
-
-					-- promote this child to first_item
 					newcommand.first_item = child
 					table.insert (queue, newcommand)
-
 				end
 			end
 		end
-
 	else
+		-- Only queue a single command
 		table.insert (queue, command)
 	end
 
+	-- Process each command in the queue
 	for _, cmd in ipairs (queue) do
-
-		-- call "before" rules
-		-- explicit false results stops further processing
 		if referRulebook (self, "before", cmd) then
-
 			countVerbUsedOnNoun (self, cmd)
-
-			-- call "on" rules
 			referRulebook (self, "on", cmd)
-
-			-- call "after" rules
 			referRulebook (self, "after", cmd)
-
 		end
-
 	end
 
 end
@@ -1129,6 +1109,80 @@ local function validVerb (self, verb)
 end
 
 
+--- Parse a sentence into a command object.
+-- The player's location is inferred when parsing so that visible
+-- items are matched to the nouns in the sentence.
+--
+-- @param self
+-- @{instance}
+--
+-- @param sentence string
+--
+-- @returns @{command} object
+local function parse (self, sentence)
+
+	local parser = require("parser")
+
+	-- list of known nouns in the current room
+	local known_nouns = listNouns(self)
+
+	-- Parse the sentence
+	local command = parser (sentence, {
+		known_nouns = known_nouns,
+		directions = self.options.directions,
+		ignores = self.options.ignores,
+		synonyms = self.options.synonyms,
+		soundex = self.options.soundex
+		})
+
+	-- Alias nouns
+	command.first_noun = command.nouns[1]
+	command.second_noun = command.nouns[2]
+
+	-- Lookup world items by name
+	command.first_item = self:searchFirst(command.first_noun, self.room)
+	command.second_item = self:searchFirst(command.second_noun, self.room)
+
+	-- Handle referring to "it"
+	if (command.first_noun == "it") and (not command.first_item) then
+		command.first_item = self.lastKnownThing
+	else
+		self.lastKnownThing = command.first_item
+	end
+
+	-- Handle "going" a direction.
+	-- Exits could point to items like doors.
+	-- If there is no found item, try to find it using the
+	-- name of the thing stored in the exit direction.
+	-- The item will remain nil if it is not a thing.
+	if command.verb == "go" and command.direction then
+		if not command.first_item and self.room.exits then
+			command.first_item = searchFirst(self, self.room.exits[command.direction], self.room)
+		end
+	end
+
+	-- Log the parsed values
+	if self.options.verbose.parser then
+
+		table.insert(self.log,
+			string.format("Parsed verb as %q", tostring(command.verb)))
+
+		table.insert(self.log,
+			string.format("Parsed first noun as %q", tostring(command.first_noun)))
+
+		table.insert(self.log,
+			string.format("Parsed second noun as %q", tostring(command.second_noun)))
+
+		table.insert(self.log,
+			string.format("Parsed direction as %q", tostring(command.direction)))
+
+	end
+
+	return command
+
+end
+
+
 --- Process the player's turn.
 -- The sentence is parsed into actionable verbs and nouns, those are
 -- applied to the world model and a response is generated.
@@ -1146,55 +1200,18 @@ local function turn (self, sentence)
 	self.output = { }
 	self.log = { }
 
+	-- Consult the "before turn" rulebook
 	if referRulebook (self, "before", "turn") == false then
 		return
 	end
 
-	-- list of known nouns from the current room
-	local known_nouns = listNouns(self)
-
 	-- Parse the sentence
-	local command = parse (sentence, {
-		known_nouns = known_nouns,
-		directions = self.options.directions,
-		ignores = self.options.ignores,
-		synonyms = self.options.synonyms,
-		soundex = self.options.soundex
-		})
-
-	if self.options.verbose.parser then
-		table.insert(self.log, string.format("Parsed verb as %s", tostring(command.verb)))
-		table.insert(self.log, string.format("Parsed 1st noun as %s", tostring(command.nouns[1])))
-		table.insert(self.log, string.format("Parsed 2nd noun as %s", tostring(command.nouns[2])))
-		table.insert(self.log, string.format("Parsed direction as %s", tostring(command.direction)))
-	end
+	local command = self:parse (sentence)
 
 	-- Do we understand the verb?
 	if not validVerb (self, command.verb) then
 		table.insert(self.output, string.format(self.responses.unknown["verb"], command.verb))
 		return command
-	end
-
-	-- look up each noun item
-	command.first_item = searchFirst(self, command.nouns[1], self.room)
-	command.second_item = searchFirst(self, command.nouns[2], self.room)
-	command.first_noun = command.nouns[1]
-	command.second_noun = command.nouns[2]
-
-	-- handle the player referring to "it"
-	if (command.nouns[1] == "it") and (not command.first_item) then
-		command.first_item = self.lastKnownThing
-	else
-		self.lastKnownThing = command.first_item
-	end
-
-	-- Exits could point to things too, like doors.
-	-- If there is no command item, attempt to find it using the
-	-- direction value. The item will remain nil if it is not a thing.
-	if command.verb == "go" and command.direction then
-		if not command.first_item and self.room.exits then
-			command.first_item = searchFirst(self, self.room.exits[command.direction], self.room)
-		end
 	end
 
 	-- call any hooks for this command
@@ -1215,7 +1232,7 @@ local function turn (self, sentence)
 	referRulebook (self, "reword", command)
 
 	-- apply the player command to the simulation
-	applyCommand (self, command)
+	simulate (self, command)
 
 	-- add a custom response if there is one
 	-- TODO hooks obsoleted by rulebooks
@@ -1289,7 +1306,7 @@ return {
 	turnNumber = 1,
 	rulebooks = { },
 	-- functions
-	applyCommand = applyCommand,
+	simulate = simulate,
 	reset = reset,
 	setWorld = setWorld,
 	setPlayer = setPlayer,

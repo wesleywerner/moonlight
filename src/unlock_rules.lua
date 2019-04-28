@@ -89,7 +89,7 @@ return function (rulebooks)
 			name = "apply the open-unlocked-things option",
 			action = function (self, command)
 				if self.options.auto["open unlocked things"] then
-					self.applyCommand (self, { verb = "open", first_item = command.first_item })
+					self:simulate (self:parse("open " .. command.first_item.name))
 				end
 			end
 		}

@@ -1,6 +1,7 @@
 describe ("parser", function()
 
 	local ml = require("src/moonlight")
+	local parser = require("src/parser")
 
 	local options = {
 		directions = ml.options.directions,
@@ -10,7 +11,7 @@ describe ("parser", function()
 
 	it ("does not confuse nouns with similar names", function()
 		options.known_nouns = {"blue door", "blue key", "red door","red key"}
-		local result = ml.parse("unlock the red door with the red key", options)
+		local result = parser("unlock the red door with the red key", options)
 		local expected = {
 			verb="unlock",
 			nouns={"red door", "red key"}
@@ -20,7 +21,7 @@ describe ("parser", function()
 
 	it ("reads verb and noun", function()
 		options.known_nouns = {"door"}
-		local result = ml.parse("open door", options)
+		local result = parser("open door", options)
 		local expected = {
 			verb="open",
 			nouns={"door"}
@@ -30,7 +31,7 @@ describe ("parser", function()
 
 	it ("skips ignored words", function()
 		options.known_nouns = {"door"}
-		local result = ml.parse("open the door", options)
+		local result = parser("open the door", options)
 		local expected = {
 			verb="open",
 			nouns={"door"}
@@ -40,7 +41,7 @@ describe ("parser", function()
 
 	it ("reads multiple nouns - full sentence", function()
 		options.known_nouns = {"gate", "skeleton key"}
-		local result = ml.parse("unlock the gate with the skeleton key", options)
+		local result = parser("unlock the gate with the skeleton key", options)
 		local expected = {
 			verb="unlock",
 			nouns={"gate","skeleton key"}
@@ -50,7 +51,7 @@ describe ("parser", function()
 
 	it ("reads multiple nouns - shorthand", function()
 		options.known_nouns = {"gate", "skeleton key"}
-		local result = ml.parse("unlock gate with key", options)
+		local result = parser("unlock gate with key", options)
 		local expected = {
 			verb="unlock",
 			nouns={"gate","skeleton key"}
@@ -60,7 +61,7 @@ describe ("parser", function()
 
 	it ("reads unknown nouns", function()
 		options.known_nouns = {"wise guy", "computer"}
-		local result = ml.parse("ask the wise guy about an unseen tablet", options)
+		local result = parser("ask the wise guy about an unseen tablet", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "unseen", "tablet"}
@@ -70,7 +71,7 @@ describe ("parser", function()
 
 	it ("interprets verb synonym: look/examine", function()
 		options.known_nouns = {"gate"}
-		local result = ml.parse("look at the gate", options)
+		local result = parser("look at the gate", options)
 		local expected = {
 			verb="examine",
 			nouns={"gate"}
@@ -80,7 +81,7 @@ describe ("parser", function()
 
 	it ("interprets verb synonym: get/take", function()
 		options.known_nouns = {"apple"}
-		local result = ml.parse("get an apple", options)
+		local result = parser("get an apple", options)
 		local expected = {
 			verb="take",
 			nouns={"apple"}
@@ -90,7 +91,7 @@ describe ("parser", function()
 
 	it ("interprets verb synonym: put/insert", function()
 		options.known_nouns = {"box", "table"}
-		local result = ml.parse("put the box on the table", options)
+		local result = parser("put the box on the table", options)
 		local expected = {
 			verb="insert",
 			nouns={"box","table"}
@@ -100,7 +101,7 @@ describe ("parser", function()
 
 	it ("interprets verb synonym: x/examine", function()
 		options.known_nouns = {"red apple"}
-		local result = ml.parse("x red apple", options)
+		local result = parser("x red apple", options)
 		local expected = {
 			verb="examine",
 			nouns={"red apple"}
@@ -110,7 +111,7 @@ describe ("parser", function()
 
 	it ("interprets verb synonym: i/inventory", function()
 		options.known_nouns = nil
-		local result = ml.parse("i", options)
+		local result = parser("i", options)
 		local expected = {
 			verb="inventory",
 			nouns={ }
@@ -120,7 +121,7 @@ describe ("parser", function()
 
 	it ("recognises multi-word nouns", function()
 		options.known_nouns = {"old man"}
-		local result = ml.parse("talk to the old man", options)
+		local result = parser("talk to the old man", options)
 		local expected = {
 			verb="talk",
 			nouns={"old man"}
@@ -130,7 +131,7 @@ describe ("parser", function()
 
 	it ("recognises partial multi-word nouns", function()
 		options.known_nouns = {"red stone", "blue stone"}
-		local result = ml.parse("take red", options)
+		local result = parser("take red", options)
 		local expected = {
 			verb="take",
 			nouns={"red stone"}
@@ -140,7 +141,7 @@ describe ("parser", function()
 
 	it ("recognises known nouns: the wise guy A", function()
 		options.known_nouns = {"wise guy", "computer"}
-		local result = ml.parse("ask the wise guy about the computer", options)
+		local result = parser("ask the wise guy about the computer", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "computer"}
@@ -150,7 +151,7 @@ describe ("parser", function()
 
 	it ("recognises known nouns: the wise guy (lazy)", function()
 		options.known_nouns = {"wise guy", "computer"}
-		local result = ml.parse("ask guy the computer", options)
+		local result = parser("ask guy the computer", options)
 		local expected = {
 			verb="ask",
 			nouns={"wise guy", "computer"}
@@ -160,7 +161,7 @@ describe ("parser", function()
 
 	it ("recognises known nouns: the wormwood herb", function()
 		options.known_nouns = {"wormwood herb"}
-		local result = ml.parse("eat herb", options)
+		local result = parser("eat herb", options)
 		local expected = {
 			verb="eat",
 			nouns={"wormwood herb"}
@@ -170,7 +171,7 @@ describe ("parser", function()
 
 	it ("recognises directions: going northwest", function()
 		options.known_nouns = nil
-		local result = ml.parse("go northwest", options)
+		local result = parser("go northwest", options)
 		local expected = {
 			verb="go",
 			direction="northwest",
@@ -181,7 +182,7 @@ describe ("parser", function()
 
 	it ("recognises directions: looking east", function()
 		options.known_nouns = nil
-		local result = ml.parse("look e", options)
+		local result = parser("look e", options)
 		local expected = {
 			verb="examine",
 			direction="east",
@@ -192,7 +193,7 @@ describe ("parser", function()
 
 	it ("recognises directions: in", function()
 		options.known_nouns = {"mirror"}
-		local result = ml.parse("look in mirror", options)
+		local result = parser("look in mirror", options)
 		local expected = {
 			verb="examine",
 			nouns={"mirror"},
@@ -203,7 +204,7 @@ describe ("parser", function()
 
 	it ("does not confuse verbs for nouns", function()
 		options.known_nouns = {"small mailbox"}
-		local result = ml.parse("x", options)
+		local result = parser("x", options)
 		local expected = {
 			verb="examine",
 			nouns = { }

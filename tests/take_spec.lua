@@ -58,16 +58,16 @@ describe("take", function()
 
 	pending("distinguishes mutliple matches", function()
 		local expected = {"Did you mean the red key or the blue key?"}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("take the key")
 		for _, n in ipairs(ml.log) do print("\t",n) end
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("moves the item to inventory", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
 		assert.are.same({expected}, ml.output)
@@ -80,8 +80,8 @@ describe("take", function()
 	end)
 
 	it("removes the item", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("get mint")
 		-- check the mint is not in the bowl
 		local match = ml:search ("bowl")
@@ -92,8 +92,8 @@ describe("take", function()
 	end)
 
 	it("the same thing twice", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("get mint")
 		local expected = "You take the mint."
 		assert.are.equals(expected, ml.output[1])
@@ -103,56 +103,56 @@ describe("take", function()
 	end)
 
 	it("something fixed in place", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take the podium")
 		local expected = "The podium is fixed in place."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("something fixed in place with custom message", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take the bowl")
 		local expected = "You have no need for the bowl."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("what you cannot see", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take the headlamp")
 		local expected = "I don't see the headlamp."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("unspecified thing", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take")
 		local expected = "Be a little more specific what you want to take."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("missing noun", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take the grue")
 		local expected = "I don't see the grue."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("a person", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take mary")
 		local expected = "Mary wouldn't like that."
 		assert.are.equals(expected, ml.output[1])
 	end)
 
 	it("thing carried by another person", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take the topaz ring")
 		local expected = {"I don't see the topaz ring."}
 		assert.are.same(expected, ml.output)
@@ -160,16 +160,16 @@ describe("take", function()
 
 	it("all the things in the room", function()
 		local expected = {"Mary wouldn't like that.","The podium is fixed in place."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		ml:turn("take all")
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("all the things from something", function()
 		local expected = {"You take the mint."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 		local cmd = ml:turn("take all from the bowl")
 		assert.is.equals("all", cmd.nouns[1])
 		assert.is.equals("bowl", cmd.nouns[2])

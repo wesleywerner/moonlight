@@ -44,7 +44,7 @@
 
 ------------------------------------------------------------------------
 
---- The world model definition.
+--- The world model.
 -- The world model is a table of @{room}s.
 --
 -- See @{getting_started.lua} for a quick introduction.
@@ -98,6 +98,10 @@
 --
 -- @field name
 -- The name of the thing
+--
+-- @field count
+-- A key-value table of counts that a VERB was used on this thing.
+-- For example, if a a thing was examined 42 times, then item.count["examine"] == 42
 --
 -- @field description
 -- The detailed description of the thing when it is examined.
@@ -249,12 +253,17 @@ local options = require ("options")
 --
 -- @table responses
 local responses = require ("responses")
-
 local utils = require("utils")
 
---- Increment the number of times a noun has been verbed.
-local function countVerbUsedOnNoun (self, command)
-	-- the counter can live on a thing or a room
+
+--- Count the number of times a verb is used on a thing.
+-- The counter is stored on the @{thing} as a key-number table of verbs.
+-- item.count["examine"] = 42
+--
+-- @param self @{instance}
+--
+-- @param command @{command}
+local function count_verb_usage (self, command)
 	local target = command.first_item or self.room
 	local verb = command.verb
 
@@ -269,8 +278,12 @@ local function countVerbUsedOnNoun (self, command)
 end
 
 
---- Builds the standard set of rulebooks.
-local function standardRulebooks (self)
+--- Loads the standard rulebooks.
+--
+-- @param self @{instance}
+--
+-- @return table of standard rules.
+local function load_standard_rulebooks (self)
 
 	local rulebooks = { }
 	require("rulebooks")(rulebooks)
@@ -287,6 +300,7 @@ local function standardRulebooks (self)
 	require("search_rules")(rulebooks)
 	require("all_rules")(rulebooks)
 	require("reword_rules")(rulebooks)
+	require("simulate_rules")(rulebooks)
 
 	-- include testing rules
 	if self.options.testing then
@@ -298,10 +312,12 @@ local function standardRulebooks (self)
 end
 
 
---- Reset the simulator.
--- Clears the internal state of the player, the world and loads
--- the standard rulebooks.
-local function reset (self)
+--- Reset the simulator state.
+-- Clears the internal state of the world
+-- and loads the standard rulebooks.
+--
+-- @param self @{instance}
+local function reset_simulation (self)
 	self.rulebooks = nil
 	self.player = nil
 	self.room = nil
@@ -315,14 +331,14 @@ end
 -- @{instance}
 --
 -- @param timing
--- The @{TIMING} applicable
+-- The applicable timing as defined in
 --
 -- @param command
 -- The @{command} to validate.
 --
 -- @return boolean
--- Truthy value indicating that the rules passed.
-local function referRulebook (self, timing, command)
+-- Boolean value indicating that the rules passed.
+local function consult_rulebook (self, timing, command)
 
 	local book = self.rulebooks[timing]
 
@@ -387,41 +403,6 @@ local function referRulebook (self, timing, command)
 end
 
 
-local function thingClosed (self, thing)
-	return thing.closed == true
-end
-
-
-local function thingDark (self, thing)
-	if ((thing.dark == true) and not (thing.lit == true)) then
-		return true
-	end
-	return false
-end
-
-
---- Test if a thing is closed or dark, except when lit.
---
--- @param self
--- @{instance}
---
--- @param thing
--- The thing to query
---
--- @return
--- true if the thing is closed, or dark.
--- true if not closed, not dark, or dark and lit.
-local function thingClosedOrDark (self, thing)
-	return thingClosed (self, thing) or thingDark (self, thing)
---	if (thing.closed == true) then
---		return true
---	elseif ((thing.dark == true) and not (thing.lit == true)) then
---		return true
---	end
---	return false
-end
-
-
 --- Search for a world thing.
 -- @function search
 --
@@ -446,7 +427,7 @@ end
 local function search (self, term, parent, options)
 
 	-- helper to match a thing
-	local function match (item)
+	local match = function (item)
 		if type(term) == "string" then
 			-- the hyphen is a magic character in Lua patterns.
 			-- escape them in the item name to get a match.
@@ -475,13 +456,13 @@ local function search (self, term, parent, options)
 
 	-- helper to test if item contents should be queried,
 	-- based on seen things and if the item is closed or dark.
-	local function queryContents (item)
+	local queryContents = function (item)
 		-- do not query dark things
-		if not options.includeDark and thingDark (self, item) then
+		if not options.includeDark and item.is_dark then
 			return false
 		end
 		-- do not query closed things
-		if not options.includeClosed and thingClosed (self, item) then
+		if not options.includeClosed and item.closed then
 			return false
 		end
 		-- do not query persons
@@ -546,7 +527,25 @@ end
 
 
 --- Search and return the first match.
-local function searchFirst (self, term, parent, options)
+-- @function search_first
+--
+-- @param self
+-- @{instance}
+--
+-- @param term
+-- The name of the thing to find, the thing itself (to find it's parent)
+-- or a predicate function to match items.
+--
+-- @param parent
+-- The room to search. If given as `nil` all rooms are searched.
+--
+-- @param wizard
+-- Boolean flag includes searching things inside closed containers and
+-- in dark unlit rooms.
+--
+-- @return @{thing} or nil if no match found.
+-- @see search
+local function search_first (self, term, parent, options)
 	local matches = search (self, term, parent, options)
 	if matches then
 		return unpack(matches[1])
@@ -555,12 +554,15 @@ end
 
 
 --- Set the player character in the world simulation.
--- @function setPlayer
--- @param self
+-- The simulation will only run once a player has been set.
+--
+-- @function set_player
+--
+-- @param self @{instance}
+--
 -- @param name
--- The name of the player character.
--- TODO Rename setPlayer to player
-local function setPlayer (self, name)
+-- The name of the player @{thing}
+local function set_player (self, name)
 
 	-- unassign the current player
 	if self.player then
@@ -587,25 +589,25 @@ local function setPlayer (self, name)
 end
 
 
---- Set the world model.
--- This function resets to the standard rulebooks.
+--- Load a world model into the simulation.
+-- This method resets to the standard rulebooks, so be sure to add
+-- your rules after loading the world.
 --
 -- @param self
 -- @{instance}
 --
--- @param world
+-- @param world @{world}
 -- The world model to set
 --
 -- @return valid bool, table of issues
--- TODO Rename setWorld to Load
-local function setWorld (self, world)
+local function load_world (self, world)
 	-- ensure all rooms can contain things
 	for _, room in ipairs(world) do
 		room.contains = room.contains or { }
 	end
 
 	-- load standard rulebooks
-	self.rulebooks = standardRulebooks (self)
+	self.rulebooks = load_standard_rulebooks (self)
 
 	-- set the world
 	self.world = world
@@ -616,12 +618,22 @@ local function setWorld (self, world)
 end
 
 
---- Get the name of an item with the article prefixed.
-local function withArticle (self, item)
+--- Format the name of an item with the article prefixed.
+-- If no article is defined on the item, then standard "a/an" rules apply.
+--
+-- @param self @{instance}
+--
+-- @param item @{thing}
+--
+-- @return string
+local function format_name (self, item)
 
 	if item.person == true then
-		-- TODO include article with the person
-		return item.name
+		if item.article then
+			return string.format("%s %s", item.article, item.name)
+		else
+			return item.name
+		end
 	end
 
 	if item.article then
@@ -637,10 +649,18 @@ local function withArticle (self, item)
 end
 
 
---- Joins an array of items to read naturally.
--- It joins a list of names with commas or "and" depending on how
--- many names are listed.
-local function joinNames(self, names)
+--- Join a list of names into a sentence.
+-- Names are joined with commas, while the last item
+-- receives the "and" join, depending on how many names are listed.
+--
+-- @param self
+-- @{instance}
+--
+-- @param names
+-- indexed table of names
+--
+-- @return string
+local function list_join(self, names)
 
 	if #names == 2 then
 		return table.concat(names, " and ")
@@ -654,17 +674,16 @@ local function joinNames(self, names)
 end
 
 
---- Lists the contents of a container or supporter.
+--- List the things inside and/or on top of an item.
 --
--- @param self
+-- @param self @{instance}
 --
--- @param item
--- The item that will be described
+-- @param item @{thing}
+-- The item to query
 --
 -- @return string
-local function listContents (self, item)
+local function list_contents (self, item)
 
-	-- list all the items contained in the item, or on top of the item.
 	local items = { }
 	local containerText = nil
 	local supporterText = nil
@@ -673,20 +692,20 @@ local function listContents (self, item)
 	local lead = self.responses.lead["container"]
 
 	-- switch to room lead text
-	local isRoom = self:roomByName (item.name)
+	local isRoom = self:room_by_name (item.name)
 	if isRoom then
 		lead = self.responses.lead["room"]
 	end
 
-	if item.contains and not self:thingClosedOrDark (item) then
+	if item.contains and (not item.closed) and (self.room.is_lit) then
 		for k, v in pairs(item.contains) do
 			-- list items that are not the player, or don't have custom appearances.
 			if not v.isPlayer and not v.appearance then
-				table.insert(items, withArticle(self, v))
+				table.insert(items, format_name(self, v))
 			end
 		end
 		if #items > 0 then
-			containerText = string.format(lead, joinNames(self, items))
+			containerText = string.format(lead, list_join(self, items))
 		end
 	end
 
@@ -698,11 +717,11 @@ local function listContents (self, item)
 		for k, v in pairs(item.supports) do
 			-- list items that are not the player, or don't have custom appearances.
 			if not v.isPlayer and not v.appearance then
-				table.insert(items, withArticle(self, v))
+				table.insert(items, format_name(self, v))
 			end
 		end
 		if #items > 0 then
-			supporterText = string.format(self.responses.lead["supporter"], joinNames(self, items))
+			supporterText = string.format(self.responses.lead["supporter"], list_join(self, items))
 		end
 	end
 
@@ -717,7 +736,16 @@ local function listContents (self, item)
 end
 
 
-local function listAppearances (self, item)
+--- List special appearance descriptions of child items.
+-- A special appearance usually replaces the item's room listing.
+--
+-- @param self @{instance}
+--
+-- @param item @{thing}
+-- The item to query
+--
+-- @return string
+local function list_child_appearances (self, item)
 
 	local items = { }
 
@@ -751,9 +779,9 @@ end
 -- The item that will be described
 --
 -- @param brief
--- Truthy value to use brief descriptions: Only show the item description
+-- Boolean to use brief descriptions: Only show the item description
 -- if it is the first time examining it.
--- If options.verbose.descriptions is truthy then brief descriptions are
+-- If options.verbose.descriptions is Boolean then brief descriptions are
 -- ignored.
 --
 -- @return string
@@ -761,8 +789,8 @@ local function describe (self, item, brief)
 
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
-	local specialAppearances = listAppearances (self, item)
-	local contents = listContents (self, item)
+	local specialAppearances = list_child_appearances (self, item)
+	local contents = list_contents (self, item)
 
 	-- check if brief room descriptions have effect
 	if brief then
@@ -790,32 +818,36 @@ local function describe (self, item, brief)
 
 end
 
---- Describe the room that the player is currently in.
+--- Describe the room the player is in, with a listing of exits.
 --
 -- @param self @{instance}
 --
 -- @param brief
--- Truthy value to use brief descriptions: Only show the item description
+-- Boolean value to use brief descriptions: Only show the item description
 -- if it is the first time examining it.
--- If options.verbose.descriptions is truthy then brief descriptions are
+-- If options.verbose.descriptions is Boolean then brief descriptions are
 -- ignored.
-local function describeRoom (self, brief)
+local function describe_room (self, brief)
 
 	local output = { }
 	table.insert (output, describe (self, self.room, brief))
-	table.insert (output, self:listRoomExits())
+	table.insert (output, self:list_room_exits())
 	return table.concat (output, " ")
 
 end
 
 
---- List exits in a room.
-local function listRoomExits (self)
+--- List the exits in a room.
+-- The exits match the list of known directions.
+--
+-- @param self @{instance}
+--
+-- @return string
+-- In the format "You can go north, south, east, west ..."
+local function list_room_exits (self)
 
 	-- always list exits in a dark room
-	local darkroom = self.room.dark and not self.room.lit
-
-	if self.options.auto["list exits"] or darkroom then
+	if self.options.auto["list exits"] or self.room.is_dark then
 		if type(self.room.exits) == "table" then
 			local possibleWays = { }
 			for k, v in pairs(self.room.exits) do
@@ -823,7 +855,7 @@ local function listRoomExits (self)
 			end
 			if #possibleWays > 0 then
 				table.sort(possibleWays)
-				return "You can go " .. joinNames(self, possibleWays) .. "."
+				return "You can go " .. list_join(self, possibleWays) .. "."
 			end
 		end
 	end
@@ -834,8 +866,11 @@ end
 
 
 --- Lists items carried by the player.
--- @return string
-local function listInventory (self)
+--
+-- @param self @{instance}
+--
+-- @return string in the format "You are carrying..."
+local function list_inventory (self)
 
 	if #self.player.contains == 0 then
 		return self.responses.inventory["empty"]
@@ -844,23 +879,25 @@ local function listInventory (self)
 	local items = { }
 
 	for _, v in pairs(self.player.contains) do
-		table.insert (items, withArticle (self, v))
+		table.insert (items, format_name (self, v))
 	end
 
-	return string.format ("You are carrying %s.", joinNames (self, items))
+	return string.format ("You are carrying %s.", list_join (self, items))
 
 end
 
 
---- Detach a thing from it's parent
+--- Detach a thing from it's parent.
+-- This function is used internally to detach things when moving
+-- them between owners.
 --
 -- @param self
 -- @{instance}
 --
--- @thing
+-- @param thing
 -- The @{thing} to detach
 local function detach (self, thing)
-	local _, parent = self:searchFirst (thing)
+	local _, parent = self:search_first (thing)
 	if parent then
 		for place, cmp in ipairs(parent.contains or {}) do
 			if thing == cmp then
@@ -886,7 +923,7 @@ end
 --
 -- @param where
 -- A container @{thing}.
-local function moveIn (self, what, where)
+local function move_thing_into (self, what, where)
 	self:detach (what)
 	table.insert(where.contains, what)
 end
@@ -902,24 +939,32 @@ end
 --
 -- @param where
 -- The supporter @{thing}.
-local function moveOn (self, what, where)
+local function move_thing_onto (self, what, where)
 	self:detach (what)
 	table.insert(where.supports, what)
 end
 
 
---- Test if a persons is carrying a thing.
-local function isCarrying (self, item, owner)
-	return searchFirst(self, item, owner or self.player, true)
+--- Test if a thing is carrying another thing.
+--
+-- @param self @{instance}
+--
+-- @param item string or @{thing}
+-- The thing or name of the thing to query.
+--
+-- @param owner @{thing}
+-- The owner to query, if not given then the player is assumed.
+local function is_carrying (self, item, owner)
+	return search_first(self, item, owner or self.player, true)
 end
 
 
 --- Warp any thing to the player's inventory
 local function purloin (self, what)
 	-- wizard search, all rooms
-	local thing, parent = self:searchFirst (what, nil, true)
+	local thing, parent = self:search_first (what, nil, true)
 	if thing then
-		moveIn (self, thing, self.player)
+		move_thing_into (self, thing, self.player)
 		table.insert (self.output, string.format("Purloined the %s", thing.name))
 	else
 		table.insert (self.output, string.format("%s not found", tostring(what)))
@@ -928,7 +973,14 @@ end
 
 
 --- Get a list of children, contained or supported, by an item.
-local function listChildrenOf (self, item)
+--
+-- @param self @{instance}
+--
+-- @param item @{thing}
+-- The item to query
+--
+-- @return table of children @{thing}s
+local function list_children (self, item)
 
 	local list = { }
 
@@ -949,8 +1001,17 @@ local function listChildrenOf (self, item)
 end
 
 
---- Get a room by name.
-local function roomByName (self, name)
+--- Get a room by its name.
+-- This method does not limit the scope of the search.
+--
+--
+-- @param self @{instance}
+--
+-- @param name string
+-- The name of the room to query.
+--
+-- @return @{thing} or nil if no exit in that direction.
+local function room_by_name (self, name)
 	name = string.lower(name)
 	for _, r in pairs(self.world) do
 		if string.lower(r.name) == name then
@@ -961,7 +1022,14 @@ end
 
 
 --- Get the room adjoining the current by direction
-local function roomByDirection (self, direction)
+--
+-- @param self @{instance}
+--
+-- @param direction string
+-- The name of the direction to query.
+--
+-- @return @{thing} or nil if no exit in that direction.
+local function room_by_direction (self, direction)
 	if not self.room.exits then
 		return
 	end
@@ -969,7 +1037,7 @@ local function roomByDirection (self, direction)
 	if not way then
 		return
 	end
-	return roomByName (self, way)
+	return room_by_name (self, way)
 end
 
 
@@ -986,6 +1054,9 @@ end
 -- True if the action succeeded.
 local function simulate (self, command)
 
+	-- Evaluate room light levels
+	consult_rulebook (self, "before", "simulate")
+
 	local queue = { }
 
 	-- The command applies to ALL items
@@ -995,10 +1066,10 @@ local function simulate (self, command)
 
 		-- The ALL rulebook should identify the thing we are looking
 		-- at during the bulk action, stored in the allFrom value.
-		if referRulebook (self, "all", command) then
+		if consult_rulebook (self, "all", command) then
 
 			-- Queue a new command for each child item
-			local children = listChildrenOf (self, command.allFrom)
+			local children = list_children (self, command.allFrom)
 			for _, child in ipairs (children) do
 				if not child.isPlayer then
 					local newcommand = { }
@@ -1017,10 +1088,10 @@ local function simulate (self, command)
 
 	-- Process each command in the queue
 	for _, cmd in ipairs (queue) do
-		if referRulebook (self, "before", cmd) then
-			countVerbUsedOnNoun (self, cmd)
-			referRulebook (self, "on", cmd)
-			referRulebook (self, "after", cmd)
+		if consult_rulebook (self, "before", cmd) then
+			count_verb_usage (self, cmd)
+			consult_rulebook (self, "on", cmd)
+			consult_rulebook (self, "after", cmd)
 		end
 	end
 
@@ -1050,9 +1121,13 @@ local function callHook (self, command)
 end
 
 
---- List the nouns in the current room.
+--- List the nouns in the room that the player is in.
 -- Used to assist the parser in noun lookup.
-local function listNouns (self)
+--
+-- @param self @{instance}
+--
+-- @return table of nouns
+local function list_room_nouns (self)
 
 	local checklist = { }
 	local nounlist = { }
@@ -1089,10 +1164,17 @@ local function listNouns (self)
 end
 
 
---- Test the existence of a verb.
--- This function scans loaded rulebooks to determine
--- if the given verb is implemented.
-local function validVerb (self, verb)
+--- Test if the rulebooks will recognise a verb.
+-- This function scans the rulebooks to determine
+-- if the verb is implemented.
+--
+-- @param self
+-- @{instance}
+--
+-- @param verb string
+--
+-- @return Boolean
+local function is_verb_valid (self, verb)
 	local valid = false
 
 	-- test before rules
@@ -1118,13 +1200,13 @@ end
 --
 -- @param sentence string
 --
--- @returns @{command} object
+-- @return @{command} object
 local function parse (self, sentence)
 
 	local parser = require("parser")
 
 	-- list of known nouns in the current room
-	local known_nouns = listNouns(self)
+	local known_nouns = list_room_nouns(self)
 
 	-- Parse the sentence
 	local command = parser (sentence, {
@@ -1140,8 +1222,8 @@ local function parse (self, sentence)
 	command.second_noun = command.nouns[2]
 
 	-- Lookup world items by name
-	command.first_item = self:searchFirst(command.first_noun, self.room)
-	command.second_item = self:searchFirst(command.second_noun, self.room)
+	command.first_item = self:search_first(command.first_noun, self.room)
+	command.second_item = self:search_first(command.second_noun, self.room)
 
 	-- Handle referring to "it"
 	if (command.first_noun == "it") and (not command.first_item) then
@@ -1157,7 +1239,7 @@ local function parse (self, sentence)
 	-- The item will remain nil if it is not a thing.
 	if command.verb == "go" and command.direction then
 		if not command.first_item and self.room.exits then
-			command.first_item = searchFirst(self, self.room.exits[command.direction], self.room)
+			command.first_item = search_first(self, self.room.exits[command.direction], self.room)
 		end
 	end
 
@@ -1201,7 +1283,7 @@ local function turn (self, sentence)
 	self.log = { }
 
 	-- Consult the "before turn" rulebook
-	if referRulebook (self, "before", "turn") == false then
+	if consult_rulebook (self, "before", "turn") == false then
 		return
 	end
 
@@ -1209,7 +1291,7 @@ local function turn (self, sentence)
 	local command = self:parse (sentence)
 
 	-- Do we understand the verb?
-	if not validVerb (self, command.verb) then
+	if not is_verb_valid (self, command.verb) then
 		table.insert(self.output, string.format(self.responses.unknown["verb"], command.verb))
 		return command
 	end
@@ -1229,7 +1311,7 @@ local function turn (self, sentence)
 
 	-- refer the special reword rulebook, which can change the verb
 	-- to make more sense to the simulation
-	referRulebook (self, "reword", command)
+	consult_rulebook (self, "reword", command)
 
 	-- apply the player command to the simulation
 	simulate (self, command)
@@ -1240,7 +1322,7 @@ local function turn (self, sentence)
 		table.insert(self.output, hookResponse)
 	end
 
-	referRulebook (self, "after", "turn")
+	consult_rulebook (self, "after", "turn")
 
 	-- Increase the turn
 	self.turnNumber = self.turnNumber + 1
@@ -1292,7 +1374,7 @@ end
 -- @field world A table of @{thing}s that make up the simulated world.
 -- @field turn The @{turn} function.
 -- @field hook The @{hook} function.
--- @field setPlayer The @{setPlayer} function.
+-- @field set_player The @{set_player} function.
 -- @field output The @{output} table from the last @{turn}.
 -- @field turnNumber The simulation turn number.
 return {
@@ -1307,24 +1389,23 @@ return {
 	rulebooks = { },
 	-- functions
 	simulate = simulate,
-	reset = reset,
-	setWorld = setWorld,
-	setPlayer = setPlayer,
-	isCarrying = isCarrying,
-	moveIn = moveIn,
-	moveOn  = moveOn,
+	reset_simulation = reset_simulation,
+	load_world = load_world,
+	set_player = set_player,
+	is_carrying = is_carrying,
+	move_thing_into = move_thing_into,
+	move_thing_onto  = move_thing_onto,
 	describe = describe,
-	describeRoom = describeRoom,
-	listRoomExits = listRoomExits,
-	roomByName = roomByName,
-	roomByDirection = roomByDirection,
-	listInventory = listInventory,
-	withArticle = withArticle,
-	listContents = listContents,
+	describe_room = describe_room,
+	list_room_exits = list_room_exits,
+	room_by_name = room_by_name,
+	room_by_direction = room_by_direction,
+	list_inventory = list_inventory,
+	format_name = format_name,
+	list_contents = list_contents,
 	search = search,
-	searchFirst = searchFirst,
+	search_first = search_first,
 	validate = require("world_validator"),
-	thingClosedOrDark = thingClosedOrDark,
 	detach = detach,
 	purloin = purloin,
 	parse = parse,

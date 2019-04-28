@@ -17,8 +17,8 @@ describe ("it", function()
 
 	it ("refers to last observed thing", function()
 		local expected = {"You take the cup of coffee."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Wes")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Wes")
 		ml:turn ("examine the coffee")
 		ml:turn ("take it")
 		assert.are.same (expected, ml.output)
@@ -26,8 +26,8 @@ describe ("it", function()
 
 	it ("works multiple times", function()
 		local expected = {"You drop the cup of coffee."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Wes")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Wes")
 		ml:turn ("examine the coffee")
 		ml:turn ("take it")
 		ml:turn ("examine it")

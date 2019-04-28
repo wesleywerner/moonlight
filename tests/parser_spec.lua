@@ -214,7 +214,7 @@ describe ("parser", function()
 
 	it ("matches items with hyphens", function()
 		local expected = {"A small bio-fridge."}
-		ml:setWorld ({
+		ml:load_world ({
 			{
 				name = "Bio Lab",
 				contains = {
@@ -228,7 +228,7 @@ describe ("parser", function()
 					}
 				}
 			}})
-		ml:setPlayer ("Hugo")
+		ml:set_player ("Hugo")
 		local command = ml:turn ("examine bio-fridge")
 		assert.are.same (expected, ml.output)
 	end)

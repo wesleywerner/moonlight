@@ -1,68 +1,4 @@
-describe ("api thingClosedOrDark", function()
-
-	local ml = require("moonlight")
-
-	local function makeWorld ()
-		return {
-			{
-				name = "The Cave",
-				description = "A dank and musty old place.",
-				contains = {
-					{ name = "Alice", person = true },
-					{ name = "glowing rock" },
-					{ name = "stalagtite" },
-				}
-			},
-			{
-				name = "A forest path",
-				description = "A bright and lively path. A cave entrance lies to the north.",
-				contains = {
-					{ name = "Bob", person = true },
-					{ name = "hummingbird" },
-					{ name = "daisies", article="some" },
-				}
-			}
-		}
-	end
-
-	it ("false by default", function()
-		local expected = false
-		local test = { name = "Forest" }
-		local output = ml:thingClosedOrDark (test)
-		assert.are.equals(expected, output)
-	end)
-
-	it ("false when dark and lit", function()
-		local expected = false
-		local test = { name = "Forest", dark = true, lit = true }
-		local output = ml:thingClosedOrDark (test)
-		assert.are.equals(expected, output)
-	end)
-
-	it ("true when closed", function()
-		local expected = true
-		local test = { name = "Chest", closed = true }
-		local output = ml:thingClosedOrDark (test)
-		assert.are.equals(expected, output)
-	end)
-
-	it ("false when open", function()
-		local expected = false
-		local test = { name = "Chest", closed = false }
-		local output = ml:thingClosedOrDark (test)
-		assert.are.equals(expected, output)
-	end)
-
-	it ("true when dark and lit and closed", function()
-		local expected = true
-		local test = { name = "Forest", dark = true, lit = true, closed = true }
-		local output = ml:thingClosedOrDark (test)
-		assert.are.equals(expected, output)
-	end)
-
-end)
-
-describe ("api search", function()
+describe ("search", function()
 
 	local ml = require("moonlight")
 
@@ -106,7 +42,7 @@ describe ("api search", function()
 	end
 
 	it ("by name", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local output = ml:search ("stone altar", room)
 
@@ -121,7 +57,7 @@ describe ("api search", function()
 	end)
 
 	it ("by reference", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local thing = room.contains[1]
 		local output = ml:search (thing, room)
@@ -137,7 +73,7 @@ describe ("api search", function()
 	end)
 
 	it ("by predicate", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local function pred (test)
 			return test.name == "wooden casket"
@@ -155,7 +91,7 @@ describe ("api search", function()
 	end)
 
 	it ("seen things only", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local output = ml:search ("shrunken head", room)
 
@@ -164,9 +100,9 @@ describe ("api search", function()
 	end)
 
 	it ("in a dark room", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
-		room.dark = true
+		room.is_dark = true
 		local output = ml:search ("stone altar", room)
 
 		-- search has no result
@@ -174,7 +110,7 @@ describe ("api search", function()
 	end)
 
 	it ("as wizard", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local output = ml:search ("shrunken head", room, true)
 
@@ -187,7 +123,7 @@ describe ("api search", function()
 	end)
 
 	it ("by limited scope", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		-- search thing in a different room
 		local room = ml.world[2]
 		local output = ml:search ("stone altar", room)
@@ -197,7 +133,7 @@ describe ("api search", function()
 	end)
 
 	it ("includes rooms", function()
-		ml:setWorld (makeWorld ())
+		ml:load_world (makeWorld ())
 		local room = ml.world[1]
 		local output = ml:search ("Mayan Site")
 
@@ -212,7 +148,7 @@ describe ("api search", function()
 
 end)
 
-describe ("move thing", function()
+describe ("articles", function()
 
 	local function makeWorld ()
 		return {
@@ -222,15 +158,11 @@ describe ("move thing", function()
 					{
 						name = "Freddie",
 						person = true,
-						contains = {
-							{ name = "screwdriver" },
-							{ name = "laser gun" }
-						}
+						article = "Captain"
 					},
 					{
-						name = "security locker",
-						contains = { },
-						supports = { }
+						name = "Bob",
+						person = true
 					}
 				}
 			}
@@ -239,21 +171,11 @@ describe ("move thing", function()
 
 	local ml = require("moonlight")
 
-	it ("inside something", function()
-		local expectedResponse = {"You put the laser gun in the security locker."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
-		ml:turn ("put the gun in the locker")
-		--
-		assert.are.same (expectedResponse, ml.output)
-	end)
-
-	it ("on top something", function()
-		local expectedResponse = {"You put the laser gun on the security locker."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
-		ml:turn ("put the gun on the locker")
-		--
+	it ("on a person", function()
+		local expectedResponse = {"It is a Space Station. There is Captain Freddie here."}
+		ml:load_world (makeWorld ())
+		ml:set_player ("Bob")
+		ml:turn ("look")
 		assert.are.same (expectedResponse, ml.output)
 	end)
 

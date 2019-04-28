@@ -49,39 +49,39 @@ describe ("going", function()
 
 	it("up and down", function()
 		local expected = {"High up next to the old bell."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("go up")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("specific direction", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("go north")
 		local expected = {"A dank and musty old place. There is Alice, a glowing rock and a stalagtite here."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("invalid direction", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("go south")
 		local expected = {"You cannot go that way."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("bad direction", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("go west")
 		local expected = {"You cannot go that way."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("room without exits", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
+		ml:load_world (makeWorld())
+		ml:set_player ("Alice")
 		ml:turn("go north")
 		local expected = {"You cannot go that way."}
 		assert.are.same(expected, ml.output)

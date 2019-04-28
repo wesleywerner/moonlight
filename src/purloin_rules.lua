@@ -14,7 +14,7 @@ return function (rulebooks)
 					noun = noun .. " " .. command.second_noun
 				end
 
-				local thing = self.searchFirst (self, noun, nil, true)
+				local thing = self.search_first (self, noun, nil, true)
 				if thing then
 					command.first_item = thing
 				else
@@ -28,7 +28,7 @@ return function (rulebooks)
 		{
 			name = "move the item to the player",
 			action = function (self, command)
-				self.moveIn (self, command.first_item, self.player)
+				self.move_thing_into (self, command.first_item, self.player)
 			end
 		}
 	}

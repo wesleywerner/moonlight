@@ -27,7 +27,7 @@ return function (rulebooks)
 		{
 			name = "the player carries the key",
 			action = function (self, command)
-				if not self:isCarrying (command.second_item) then
+				if not self:is_carrying (command.second_item) then
 					return string.format(self.responses.thing["not carried"], command.second_item.name), false
 				end
 			end

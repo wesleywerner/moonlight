@@ -35,32 +35,32 @@ describe ("search", function()
 
 	it ("negative test", function()
 		local expected = {"Your search reveals nothing."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("search the lamp")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it ("broad", function()
 		local expected = {"Search what?"}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("search")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it ("found", function()
 		local expected = {"You search the couch.", "You found a silver key."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("search the couch")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it ("found does not auto take", function()
 		local expected = {"It is a tan couch. On it is a silver key."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("search the couch")
 		ml:turn ("examine the couch")
 		assert.are.same (expected, ml.output)
@@ -68,17 +68,17 @@ describe ("search", function()
 
 	it ("found auto takes things", function()
 		ml.options.auto["take things searched"] = true
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("search the couch")
 		ml.options.auto["take things searched"] = false
-		assert.is.truthy (ml:isCarrying ("silver key"))
+		assert.is.truthy (ml:is_carrying ("silver key"))
 	end)
 
 	it ("found by looking under things", function()
 		local expected = {"You search the couch.", "You found a silver key."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Carrie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
 		ml:turn ("look under the couch")
 		assert.are.same (expected, ml.output)
 	end)

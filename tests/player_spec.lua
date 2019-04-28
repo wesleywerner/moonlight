@@ -26,29 +26,29 @@ describe ("player", function()
 	local ml = require("src/moonlight")
 
 	it("is alice", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
+		ml:load_world (makeWorld())
+		ml:set_player ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("is bob", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = { "A bright and lively path. There is a hummingbird and some daisies here."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("switches players", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Alice")
+		ml:load_world (makeWorld())
+		ml:set_player ("Alice")
 		ml:turn("look")
 		local expected = { "A dank and musty old place. There is a glowing rock and a stalagtite here."}
 		assert.are.same(expected, ml.output)
 
-		ml:setPlayer ("Bob")
+		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = { "A bright and lively path. There is a hummingbird and some daisies here."}
 		assert.are.same(expected, ml.output)

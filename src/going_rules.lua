@@ -24,7 +24,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if command.first_item then
 					-- enter a door
-					local room = self:roomByName (command.first_item.destination or "")
+					local room = self:room_by_name (command.first_item.destination or "")
 					if not room then
 						return self.responses.go["not an exit"], false
 					end
@@ -36,7 +36,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.first_item then
 					-- find the room in the direction
-					local room = self:roomByDirection (command.direction)
+					local room = self:room_by_direction (command.direction)
 					if not room then
 						return self.responses.go["not an exit"], false
 					end
@@ -60,14 +60,14 @@ return function (rulebooks)
 				local room
 				if command.first_item then
 					-- enter a door
-					room = self:roomByName (command.first_item.destination)
+					room = self:room_by_name (command.first_item.destination)
 				else
 					-- go by direction
-					room = self:roomByDirection (command.direction)
+					room = self:room_by_direction (command.direction)
 				end
 
 				if room then
-					self:moveIn (self.player, room)
+					self:move_thing_into (self.player, room)
 					self.room = room
 
 					-- TODO move to FINALLY timing

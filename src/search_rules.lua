@@ -46,11 +46,11 @@ return function (rulebooks)
 
 					-- move the found thing into view
 					if parent.supports then
-						self:moveOn (found, parent)
+						self:move_thing_onto (found, parent)
 					elseif parent.contains then
-						self:moveIn (found, parent)
+						self:move_thing_into (found, parent)
 					else
-						self:moveIn (found, self.room)
+						self:move_thing_into (found, self.room)
 					end
 
 				end
@@ -65,7 +65,7 @@ return function (rulebooks)
 				if command.found then
 					for _, found in ipairs(command.found) do
 						table.insert (self.output,
-							string.format(self.responses.search["found"], self:withArticle(found)))
+							string.format(self.responses.search["found"], self:format_name(found)))
 					end
 				end
 			end

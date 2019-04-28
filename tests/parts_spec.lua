@@ -37,40 +37,40 @@ describe ("parts of things", function()
 
 	it("do not list in room descriptions", function()
 		local expected = {"You are in the Biology Lab. There is an oven here."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("look")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("do not list in thing descriptions", function()
 		local expected = {"It is a small square oven used for incinerating lab samples."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("examine oven")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("can be taken when not fixed", function()
 		local expected = {"You take the label."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("take the label")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("can be examined", function()
 		local expected = {"A push-button that fires up the oven."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("examine the button")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("can't be taken when fixed", function()
 		local expected = {"You can't remove the button."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("take the button")
 		assert.are.same (expected, ml.output)
 	end)

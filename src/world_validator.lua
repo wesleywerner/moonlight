@@ -1,3 +1,6 @@
+--- Provides validation for world models.
+--
+-- @module world_validator
 return function (self, world)
 
 	local issues = { }
@@ -33,12 +36,12 @@ return function (self, world)
 			}
 			if validDirections[k] then
 				hasCompassDirection = true
-				if not self:roomByName (v) then
+				if not self:room_by_name (v) then
 					-- perhaps the exit points to a door
-					local item = self:searchFirst (v, room)
+					local item = self:search_first (v, room)
 					if not item then
 						logerr ("Exit %q in room %q is invalid", v, room.name)
-					elseif not self:roomByName (item.destination or "") then
+					elseif not self:room_by_name (item.destination or "") then
 						logerr ("Exit %q in room %q is invalid", v, room.name)
 					end
 				end
@@ -80,7 +83,7 @@ return function (self, world)
 			end
 			-- test exits
 			if type(test.destination) == "string" then
-				if self:roomByName (test.destination) then
+				if self:room_by_name (test.destination) then
 					hasExitThing = true
 				else
 					logerr ("The %q destination for %q is invalid", test.destination, test.name)

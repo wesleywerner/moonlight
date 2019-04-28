@@ -25,8 +25,8 @@ describe ("soundex", function()
 		}
 	end
 
-	ml:setWorld (makeWorld ())
-	ml:setPlayer ("indiana")
+	ml:load_world (makeWorld ())
+	ml:set_player ("indiana")
 	ml.options.soundex = true
 
 	it("matches nouns", function()

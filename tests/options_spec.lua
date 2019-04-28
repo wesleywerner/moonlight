@@ -66,8 +66,8 @@ describe ("options", function()
 
 	it("brief room descriptions", function()
 		ml.options.verbose.roomDescriptions = false
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		-- first look gives full description
 		ml:turn ("look")
 		-- leaving the room, entering again
@@ -78,8 +78,8 @@ describe ("options", function()
 
 	it("brief empty room descriptions", function()
 		ml.options.verbose.descriptions = false
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		ml:turn ("go up")
 		ml:turn ("go down")
 		ml:turn ("go up")
@@ -88,8 +88,8 @@ describe ("options", function()
 
 	it("verbose room descriptions", function()
 		ml.options.verbose.descriptions = true
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Hugo")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Hugo")
 		-- first look gives full description
 		ml:turn ("look")
 		-- leaving the room, entering again
@@ -99,19 +99,19 @@ describe ("options", function()
 	end)
 
 	it("list exits in lit rooms", function()
-		ml:setWorld (makeWorld())
+		ml:load_world (makeWorld())
 		ml.options.auto["list exits"] = true
-		ml:setPlayer ("Bob")
+		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("list exits in dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:roomByName ("A forest path").dark = true
+		ml:load_world (makeWorld())
+		ml:room_by_name ("A forest path").dark = true
 		ml.options.auto["list exits"] = true
-		ml:setPlayer ("Bob")
+		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = {"You are in the dark. You can go east, north and west."}
 		assert.are.same(expected, ml.output)
@@ -119,8 +119,8 @@ describe ("options", function()
 
 	it("list contents of opened container", function()
 		ml.options.auto["list contents of opened"] = true
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Martha")
+		ml:load_world (makeWorld())
+		ml:set_player ("Martha")
 		ml:turn("open the cupboard")
 		local expected = {"You open the cupboard.", "Inside it is some pasta and some rice."}
 		assert.are.same(expected, ml.output)
@@ -128,8 +128,8 @@ describe ("options", function()
 
 	it("not list contents of opened container", function()
 		ml.options.auto["list contents of opened"] = false
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Martha")
+		ml:load_world (makeWorld())
+		ml:set_player ("Martha")
 		ml:turn("open the cupboard")
 		local expected = {"You open the cupboard."}
 		assert.are.same(expected, ml.output)

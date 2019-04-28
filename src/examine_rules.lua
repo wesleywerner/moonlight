@@ -15,7 +15,7 @@ return function (rulebooks)
 			name = "the room is lit",
 			action = function (self, command)
 				if self.room.is_dark then
-					return self.responses.examine["in the dark"] .. " " .. self:listRoomExits(), false
+					return self.responses.examine["in the dark"] .. " " .. self:list_room_exits(), false
 				end
 			end
 		},
@@ -26,7 +26,7 @@ return function (rulebooks)
 			name = "describe the room",
 			action = function (self, command)
 				if not command.first_item then
-					return self:describeRoom (command.brief)
+					return self:describe_room (command.brief)
 				end
 			end
 		},

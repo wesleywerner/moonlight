@@ -9,7 +9,7 @@ package.path = package.path .. ";./moonlight/?.lua"
 local ml = require("moonlight")
 
 -- Load the world model
-ml:setWorld ({
+ml:load_world ({
 	{
 		name = "The Kitchen",
 		description = "Your kitchen is spartan.",
@@ -68,7 +68,7 @@ ml:setWorld ({
 ml.options.auto["list contents of opened"] = true
 
 -- Set the player character by name
-ml:setPlayer ("Freddie")
+ml:set_player ("Freddie")
 
 -- Print a welcome message
 io.write("\nWelcome to the getting started game. You can LOOK AT things, OPEN things, UNLOCK things WITH keys, or ENTER doors. BYE or EXIT ends the game.\n\n")

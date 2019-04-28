@@ -19,7 +19,7 @@ return function (rulebooks)
 		{
 			name = "the player is carrying the first noun",
 			action = function (self, command)
-				if not self:isCarrying (command.first_item) then
+				if not self:is_carrying (command.first_item) then
 					return string.format(self.responses.thing["not carried"], command.first_item.name), false
 				end
 			end
@@ -28,7 +28,7 @@ return function (rulebooks)
 			name = "the second noun can contain things",
 			action = function (self, command)
 				if command.direction == "in" and type(command.second_item.contains) ~= "table" then
-					return string.format(self.responses.insert["not container"], self:withArticle (command.second_item)), false
+					return string.format(self.responses.insert["not container"], self:format_name (command.second_item)), false
 				end
 			end
 		},
@@ -36,7 +36,7 @@ return function (rulebooks)
 			name = "the second noun can support things",
 			action = function (self, command)
 				if command.direction == nil and type(command.second_item.supports) ~= "table" then
-					return string.format(self.responses.insert["not supporter"], self:withArticle (command.second_item)), false
+					return string.format(self.responses.insert["not supporter"], self:format_name (command.second_item)), false
 				end
 			end
 		},
@@ -55,7 +55,7 @@ return function (rulebooks)
 			name = "move the noun into the container",
 			action = function (self, command)
 				if command.direction == "in" then
-					self:moveIn (command.first_item, command.second_item)
+					self:move_thing_into (command.first_item, command.second_item)
 					return string.format(self.responses.insert["in"], command.first_item.name, command.second_item.name)
 				end
 			end
@@ -64,7 +64,7 @@ return function (rulebooks)
 			name = "move the noun onto the supporter",
 			action = function (self, command)
 				if command.direction == nil then
-					self:moveOn (command.first_item, command.second_item)
+					self:move_thing_onto (command.first_item, command.second_item)
 					return string.format(self.responses.insert["on"], command.first_item.name, command.second_item.name)
 				end
 			end

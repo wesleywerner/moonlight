@@ -17,9 +17,9 @@ describe("rulebook", function()
 
 	it("triggers my examine rule", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local local_bool = false
 
@@ -41,9 +41,9 @@ describe("rulebook", function()
 
 	it("does not trigger with unrelated verb", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local local_bool = false
 
@@ -65,9 +65,9 @@ describe("rulebook", function()
 
 	it("prevents the action with custom response", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local expected = "A magical force prevents you from examining the mailbox"
 
@@ -89,9 +89,9 @@ describe("rulebook", function()
 
 	it("pass through with custom response", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local expected = "A magical force prevents you from examining the mailbox"
 
@@ -114,9 +114,9 @@ describe("rulebook", function()
 
 	it("before every turn rule", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local counter = 0
 
@@ -137,9 +137,9 @@ describe("rulebook", function()
 
 	it("after every turn rule", function()
 
-		ml:reset()
-		ml:setWorld (makeWorld())
-		ml:setPlayer("You")
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
+		ml:set_player("You")
 
 		local counter = 0
 
@@ -159,8 +159,8 @@ describe("rulebook", function()
 	end)
 
 	it("standard player not set", function()
-		ml:reset()
-		ml:setWorld (makeWorld())
+		ml:reset_simulation()
+		ml:load_world (makeWorld())
 		ml:turn("examine the mailbox")
 		local expected = {"No player character has been set."}
 		assert.are.same(expected, ml.output)

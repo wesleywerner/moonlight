@@ -89,7 +89,7 @@ local myworld = {
 }
 
 -- Load the world model.
-local valid, issues = ml:setWorld (myworld)
+local valid, issues = ml:load_world (myworld)
 
 -- Demonstrate listing any potential issues with your model.
 -- The world still loads even with issues found.
@@ -107,7 +107,7 @@ ml.options.auto["take things searched"] = true
 ml.options.auto["open unlocked things"] = true
 
 -- Set the player character by name
-ml:setPlayer ("Carrie")
+ml:set_player ("Carrie")
 
 -- Print a welcome message
 io.write("\nWelcome! You can LOOK AT things, OPEN things, TAKE things, GO north, UNLOCK thing WITH thing, and SEARCH. Type BYE or EXIT to end the game.\n\n")

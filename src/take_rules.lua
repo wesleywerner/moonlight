@@ -47,7 +47,7 @@ return function (rulebooks)
 		{
 			name = "the noun is not already carried",
 			action = function (self, command)
-				if self:isCarrying (command.first_item) then
+				if self:is_carrying (command.first_item) then
 					return self.responses.take["when carried"], false
 				end
 			end
@@ -58,7 +58,7 @@ return function (rulebooks)
 		{
 			name = "take the noun",
 			action = function (self, command)
-				self:moveIn (command.first_item, self.player)
+				self:move_thing_into (command.first_item, self.player)
 			end
 		}
 	}

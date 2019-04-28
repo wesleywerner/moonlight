@@ -58,7 +58,7 @@ return function (rulebooks)
 			name = "list contents of opened",
 			action = function (self, command)
 				if self.options.auto["list contents of opened"] == true then
-					local contents = self:listContents (command.first_item)
+					local contents = self:list_contents (command.first_item)
 					return contents
 				end
 			end

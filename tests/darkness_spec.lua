@@ -32,40 +32,40 @@ describe ("darkness", function()
 	ml.options.auto["list exits"] = false
 
 	it("does not describe dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = {"You are in the dark. You can go s."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("does not describe things in dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("examine stalagmite")
-		local expected = {"I don't see the stalagmite."}
+		local expected = {"You are in the dark. You can go s."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("does not take things in dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("take the stalagmite")
-		local expected = {"I don't see the stalagmite."}
+		local expected = {"It is too dark to do that."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("does not take inventory in dark rooms", function()
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld())
+		ml:set_player ("Bob")
 		ml:turn("inventory")
 		local expected = {"It is too dark to do that."}
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("light source in the room", function()
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Bob")
 		-- warp the glowing rocks into the cave
 		ml:purloin ("glowing rock")
 		ml:turn ("drop glowing rock")
@@ -74,8 +74,8 @@ describe ("darkness", function()
 	end)
 
 	it("light source in open containers", function()
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Bob")
 		-- warp the glowing rocks into the cave
 		ml:purloin ("glowing rock")
 		ml:turn ("insert glowing rock in the carton")
@@ -84,8 +84,8 @@ describe ("darkness", function()
 	end)
 
 	it("light source in closed containers", function()
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Bob")
 		-- warp the glowing rocks into the cave
 		ml:purloin ("glowing rock")
 		ml:turn ("insert glowing rock in the carton")
@@ -95,11 +95,11 @@ describe ("darkness", function()
 	end)
 
 	it("carried light source", function()
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Bob")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Bob")
 		-- warp the glowing rocks into the cave
 		ml:purloin ("glowing rock")
-		assert.is.truthy (ml:isCarrying ("glowing rock"))
+		assert.is.truthy (ml:is_carrying ("glowing rock"))
 		ml:turn ("look")
 		assert.are.same ({"A dank and musty old place. There is a stalagmite and a carton here."}, ml.output)
 	end)

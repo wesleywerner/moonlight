@@ -70,40 +70,40 @@ describe ("open doors", function()
 
 	it("with direction, via direction", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Mary")
+		ml:load_world (makeWorld())
+		ml:set_player ("Mary")
 		ml:turn ("go east")
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("with direction, via name", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Mary")
+		ml:load_world (makeWorld())
+		ml:set_player ("Mary")
 		ml:turn ("go in the red door")
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("without direction, via direction", function()
 		local expected = {"You cannot go that way."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Joe")
+		ml:load_world (makeWorld())
+		ml:set_player ("Joe")
 		ml:turn ("go east")
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("without direction, via name", function()
 		local expected = {"You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Joe")
+		ml:load_world (makeWorld())
+		ml:set_player ("Joe")
 		ml:turn ("go the red door")
 		assert.are.same(expected, ml.output)
 	end)
 
 	it("via the wrong thing", function()
 		local expected = {"You cannot go that way."}
-		ml:setWorld (makeWorld())
-		ml:setPlayer ("Joe")
+		ml:load_world (makeWorld())
+		ml:set_player ("Joe")
 		ml:turn ("go in the fake door")
 		assert.are.same(expected, ml.output)
 	end)
@@ -140,8 +140,8 @@ describe ("closed doors", function()
 	end
 
 	it("can't go through", function()
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		ml:turn ("go in the rotting door")
 		local expected = {"The rotting door is closed."}
 		assert.are.same (expected, ml.output)
@@ -191,24 +191,24 @@ describe ("locked doors", function()
 
 	it("requires a door", function()
 		local expected = {ml.responses.unlock["needs door"]}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		ml:turn ("unlock")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("requires a key", function()
 		local expected = {ml.responses.unlock["needs key"]}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		ml:turn ("unlock the door")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("requires a key in hand", function()
 		local expected = {string.format(ml.responses.thing["not carried"], "brass key")}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		ml:turn ("drop brass key")
 		local cmd = ml:turn ("unlock the door with the brass key")
 		assert.are.same (expected, ml.output)
@@ -216,16 +216,16 @@ describe ("locked doors", function()
 
 	it("won't unlock with the wrong key", function()
 		local expected = {"It won't unlock."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		ml:turn ("unlock the door with the iron key")
 		assert.are.same (expected, ml.output)
 	end)
 
 	it("will unlock with the right key", function()
 		local expected = {"You unlock the rotting door with the brass key."}
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		local cmd = ml:turn ("unlock the door with the brass key")
 
 		assert.are.same (expected, ml.output)
@@ -235,8 +235,8 @@ describe ("locked doors", function()
 	it("auto opens unlocked things", function()
 		local expected = {"You unlock the rotting door with the brass key.", "You open the rotting door."}
 		ml.options.auto["open unlocked things"] = true
-		ml:setWorld (makeWorld ())
-		ml:setPlayer ("Freddie")
+		ml:load_world (makeWorld ())
+		ml:set_player ("Freddie")
 		local cmd = ml:turn ("unlock the door with the brass key")
 		ml.options.auto["open unlocked things"] = false
 

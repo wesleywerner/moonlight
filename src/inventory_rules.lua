@@ -18,7 +18,7 @@ return function (rulebooks)
 		{
 			name = "list inventory",
 			action = function (self)
-				return self:listInventory()
+				return self:list_inventory()
 			end
 		}
 	}

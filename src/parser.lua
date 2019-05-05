@@ -118,7 +118,7 @@ return function (sentence, options)
 		local skipNegativeInclude = false
 
 		-- multi matches: include the next noun and try again
-		while (matchCount > 1) and (position <= #parts) do
+		while (matchCount > 1) and (position < #parts) do
 			-- including the extra word moves the position forward
 			position = position + 1
 			skipNegativeInclude = true

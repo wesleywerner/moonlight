@@ -14,7 +14,7 @@ describe ("parser", function()
 		local result = parser("unlock the red door with the red key", options)
 		local expected = {
 			verb="unlock",
-			nouns={"red door", "red key"}
+			nouns={"red door", "red key", "key"}
 			}
 		assert.are.same(expected, result)
 	end)

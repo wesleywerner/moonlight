@@ -472,10 +472,10 @@ local function search (self, term, parent, options)
 		return true
 	end
 
-	-- stored as { matched item, parent, index, parent type }
+	-- use stack-based searching to query deep structures
 	local stack = { }
 
-	-- stored as { matched item, parent, index, parent type }
+	-- table of matched items found by the search
 	local results = { }
 
 	if parent then
@@ -485,36 +485,36 @@ local function search (self, term, parent, options)
 		end
 	else
 		-- search all rooms if no parent specified
-		for _, w in ipairs(self.world) do
-			table.insert (stack, {w})
+		for _, room in ipairs(self.world) do
+			table.insert (stack, {room})
 		end
 	end
 
-	-- while there are things on the stack to search
+	-- while there are items on the stack
 	while #stack > 0 do
 
-		-- query the next item
-		local item, itemparent, index, ctype = unpack (table.remove(stack))
+		-- load the next item
+		local item, parent = unpack (table.remove(stack))
 
-		-- queue all it's children for later querying
+		-- add it's children to the stack
 		if queryContents (item) then
 			for i, n in ipairs(item.contains or {}) do
-				table.insert (stack, { n, item, i, "container" })
+				table.insert (stack, { n, item })
 			end
 			for i, n in ipairs(item.supports or {}) do
-				table.insert (stack, { n, item, i, "supporter" })
+				table.insert (stack, { n, item })
 			end
 			for i, n in ipairs(item.hides or {}) do
-				table.insert (stack, { n, item, i, "hidden" })
+				table.insert (stack, { n, item })
 			end
 			for i, n in ipairs(item.parts or {}) do
-				table.insert (stack, { n, item, i, "part" })
+				table.insert (stack, { n, item })
 			end
 		end
 
-		-- test matching
+		-- query the current item
 		if match (item) then
-			table.insert (results, { item, itemparent, index, ctype })
+			table.insert (results, { item, parent })
 		end
 
 	end

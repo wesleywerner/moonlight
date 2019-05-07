@@ -27,7 +27,7 @@ return function (rulebooks)
 			action = function (self, command)
 				if not command.first_item then
 					local output = { }
-					table.insert (output, self:describe (self.room, command.brief))
+					table.insert (output, self:describe (self.room))
 					table.insert (output, self:list_room_exits())
 					return table.concat (output, " ")
 				end

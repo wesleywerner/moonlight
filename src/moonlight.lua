@@ -778,25 +778,19 @@ end
 -- @param item
 -- The item that will be described
 --
--- @param brief
--- Usually given when describing a room.
--- True: Omit the description text if the player has examined the item
--- before. Only print @{thing}s and exits.
--- If options.verbose.descriptions is truthy then this option is ignored.
---
 -- @return string
-local function describe (self, item, brief)
+local function describe (self, item)
 
 	-- default item description if none is specified
 	local desc = item.description or string.format("It is a %s.", item.name)
 	local specialAppearances = list_child_appearances (self, item)
 	local contents = list_contents (self, item)
 
-	-- see the document string for info on this behaviour
-	if brief then
-		local verbose = self.options.verbose.descriptions
-		local firstVisit = item.count["examine"] == 1
-		if (not verbose and not firstVisit) then
+	-- Omit the description if the player has examined the item before
+	-- This option is ignored if options.verbose.descriptions is true.
+	if not self.options.verbose.descriptions then
+		local first_visit = item.count["examine"] == 1
+		if (not first_visit) then
 			-- negate the full room description
 			desc = nil
 		end

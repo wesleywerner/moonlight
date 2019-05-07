@@ -72,10 +72,7 @@ return function (rulebooks)
 
 					-- TODO move to FINALLY timing
 					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.
-					-- The command also carries the BRIEF flag to indicate to examine rules
-					-- so that brief room descriptions can be used.
 					local cmd = self:parse ("examine")
-					cmd.brief = true
 					self:simulate (cmd)
 				end
 			end

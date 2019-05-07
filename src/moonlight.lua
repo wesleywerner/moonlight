@@ -889,6 +889,20 @@ local function detach (self, thing)
 end
 
 
+--- Move the player into a room.
+-- Usually a room or a container.
+--
+-- @param self
+-- @{instance}
+--
+-- @param where
+-- A container @{thing}.
+local function move_player (self, where)
+	self:move_thing_into (self.player, where)
+	self.room = where
+end
+
+
 --- Move an item into a container.
 --
 -- @param self
@@ -1369,6 +1383,7 @@ return {
 	load_world = load_world,
 	set_player = set_player,
 	is_carrying = is_carrying,
+	move_player = move_player,
 	move_thing_into = move_thing_into,
 	move_thing_onto  = move_thing_onto,
 	describe = describe,

@@ -67,8 +67,7 @@ return function (rulebooks)
 				end
 
 				if room then
-					self:move_thing_into (self.player, room)
-					self.room = room
+					self:move_player (room)
 
 					-- TODO move to FINALLY timing
 					-- call the EXAMINE action after entering a room, so it follows the normal examine rulebook.

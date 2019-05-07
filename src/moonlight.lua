@@ -779,10 +779,10 @@ end
 -- The item that will be described
 --
 -- @param brief
--- Boolean to use brief descriptions: Only show the item description
--- if it is the first time examining it.
--- If options.verbose.descriptions is Boolean then brief descriptions are
--- ignored.
+-- Usually given when describing a room.
+-- True: Omit the description text if the player has examined the item
+-- before. Only print @{thing}s and exits.
+-- If options.verbose.descriptions is truthy then this option is ignored.
 --
 -- @return string
 local function describe (self, item, brief)
@@ -792,7 +792,7 @@ local function describe (self, item, brief)
 	local specialAppearances = list_child_appearances (self, item)
 	local contents = list_contents (self, item)
 
-	-- check if brief room descriptions have effect
+	-- see the document string for info on this behaviour
 	if brief then
 		local verbose = self.options.verbose.descriptions
 		local firstVisit = item.count["examine"] == 1
@@ -815,24 +815,6 @@ local function describe (self, item, brief)
 	else
 		return nil
 	end
-
-end
-
---- Describe the room the player is in, with a listing of exits.
---
--- @param self @{instance}
---
--- @param brief
--- Boolean value to use brief descriptions: Only show the item description
--- if it is the first time examining it.
--- If options.verbose.descriptions is Boolean then brief descriptions are
--- ignored.
-local function describe_room (self, brief)
-
-	local output = { }
-	table.insert (output, describe (self, self.room, brief))
-	table.insert (output, self:list_room_exits())
-	return table.concat (output, " ")
 
 end
 
@@ -1396,7 +1378,6 @@ return {
 	move_thing_into = move_thing_into,
 	move_thing_onto  = move_thing_onto,
 	describe = describe,
-	describe_room = describe_room,
 	list_room_exits = list_room_exits,
 	room_by_name = room_by_name,
 	room_by_direction = room_by_direction,

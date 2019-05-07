@@ -26,7 +26,10 @@ return function (rulebooks)
 			name = "describe the room",
 			action = function (self, command)
 				if not command.first_item then
-					return self:describe_room (command.brief)
+					local output = { }
+					table.insert (output, self:describe (self.room, command.brief))
+					table.insert (output, self:list_room_exits())
+					return table.concat (output, " ")
 				end
 			end
 		},

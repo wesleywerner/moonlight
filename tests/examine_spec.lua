@@ -71,14 +71,6 @@ describe("examine", function()
 		assert.are.equals(expected, ml.output[1])
 	end)
 
-	pending("room without description", function()
-		ml:load_world (makeWorld())
-		ml:set_player("You")
-		ml:turn("look in the bowl")
-		local expected = "An opaque blue bowl. Inside it is a mint."
-		assert.are.equals(expected, ml.output[1])
-	end)
-
 	it("a supporter", function()
 		ml:load_world (makeWorld())
 		ml:set_player("You")

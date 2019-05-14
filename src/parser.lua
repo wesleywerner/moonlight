@@ -1,6 +1,8 @@
 --- The parser
 -- @module parser
 
+--local dbg = require("debugger")
+--dbg.auto_where = 2
 local utils = require("utils")
 local soundexlib = require("soundex")
 
@@ -39,14 +41,6 @@ return function (sentence, options)
 		for _, word in ipairs(options.known_nouns) do
 			soundexlib:set (word)
 		end
-		--for _, word in ipairs(options.ignores) do
-		--	soundexlib:set (word)
-		--end
-		--for _, wordlist in ipairs(options.synonyms) do
-		--	for _, word in ipairs(wordlist) do
-		--		soundexlib:set (word)
-		--	end
-		--end
 	end
 
 	-- Split the sentence into parts. Always work in lowercase.
@@ -88,7 +82,8 @@ return function (sentence, options)
 
 	local nouns = { }
 
-	local function matches (test)
+	-- List known nouns that contains "test"
+	local function match_filter (test)
 		local count = 0
 		local match = nil
 		for _, trueNoun in ipairs (options.known_nouns) do
@@ -101,45 +96,57 @@ return function (sentence, options)
 		return count, match
 	end
 
+	-- Process each part of the sentence
+	while #parts > 0 do
 
-	-- match known nouns in the sentence using iterative scanning.
-	-- start with the first word. if it has multiple matches
-	-- then include the next word and scan again
-	-- until exactly one or none match.
-	for position = 1, #parts do
+		-- test the next part
+		local test_part = table.remove(parts)
 
-		local noun = parts[position]
+		-- get a list of known nouns that contains test_part
+		local matched_names = utils.filter(options.known_nouns,
+			function(_idx, v)
+				return string.match (v:lower(), test_part)
+			end)
 
-		-- get the number of matches
-		local matchCount, matchWord = matches (noun)
-
-		-- if a word does not match, include it in the noun list
-		-- unless it is part of a multi-match scenario
-		local skipNegativeInclude = false
-
-		-- multi matches: include the next noun and try again
-		while (matchCount > 1) and (position < #parts) do
-			-- including the extra word moves the position forward
-			position = position + 1
-			skipNegativeInclude = true
-			matchCount, matchWord = matches (string.format ("%s %s", noun, parts[position]))
-		end
-
-		-- a single match is success
-		if matchCount == 1 then
-			if not utils.contains (nouns, matchWord) then
-				table.insert (nouns, matchWord)
+		if #matched_names == 0 then
+			-- take the input value for no match.
+			-- the value is kept so that rulebooks can refer to it later.
+			table.insert (nouns, 1, test_part)
+		elseif #matched_names == 1 then
+			-- accept a single match (ignores duplicates)
+			if (nouns[1] ~= matched_names[1]) then
+				table.insert (nouns, 1, matched_names[1])
 			end
 		else
-			-- no match will use the player provided word as the noun.
-			-- this allows rulebooks to refer to this noun even though
-			-- it does not match any known thing.
-			if not skipNegativeInclude then
-				table.insert (nouns, noun)
+			-- AMBIGUOUS MATCH
+			-- If there are multiple known nouns that match our part
+			-- then we will try one more time by combining the
+			-- current part with the next part.
+			-- This will catch nouns composed of multiple words.
+			-- There are edge cases - similar nouns that start with
+			-- 2 or more matching words.
+			-- It is just bad game design to name items so similarly IMHO.
+			if #parts > 0 then
+				-- get next word and combine with current
+				local next_part = table.remove(parts)
+				test_part = next_part .. " " .. test_part
+				-- find matches again
+				local matched_names = utils.filter(options.known_nouns,
+					function(_idx, v)
+						return string.match (v:lower(), test_part)
+					end)
+				-- only settle for exact matches
+				if #matched_names == 1 then
+					-- accept and ignore duplicates
+					if (nouns[1] ~= matched_names[1]) then
+						table.insert (nouns, 1, matched_names[1])
+					end
+				else
+					-- put the next_part back for the next iteration
+					table.insert(parts, next_part)
+				end
 			end
 		end
-
-		position = position + 1
 
 	end
 

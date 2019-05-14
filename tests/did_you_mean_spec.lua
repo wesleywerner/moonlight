@@ -23,8 +23,9 @@ describe("did you mean", function()
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
 		ml:turn ("take the key")
-		for _, n in ipairs(ml.log) do print("\t",n) end
 		assert.are.same (expected, ml.output)
+		-- test the internal state remembers the ambiguous query
+		--assert.are.truthy ()
 	end)
 
 	pending("accepts a valid response", function()

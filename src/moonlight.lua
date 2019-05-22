@@ -253,8 +253,12 @@ local options = require ("options")
 --
 -- @table responses
 local responses = require ("responses")
-local utils = require("utils")
 
+--- An instance of the @{agency} module.
+local agency = require ("agency")
+
+--- An instance of the @{utils} module.
+local utils = require("utils")
 
 --- Count the number of times a verb is used on a thing.
 -- The counter is stored on the @{thing} as a key-number table of verbs.
@@ -322,6 +326,7 @@ local function reset_simulation (self)
 	self.player = nil
 	self.room = nil
 	self.world = nil
+	self.turnNumber = 1
 end
 
 
@@ -415,10 +420,6 @@ end
 --
 -- @param parent
 -- The room to search. If given as `nil` all rooms are searched.
---
--- @param wizard
--- Boolean flag includes searching things inside closed containers and
--- in dark unlit rooms.
 --
 -- @return
 -- An indexed table of matches, each match a collection
@@ -538,10 +539,6 @@ end
 --
 -- @param parent
 -- The room to search. If given as `nil` all rooms are searched.
---
--- @param wizard
--- Boolean flag includes searching things inside closed containers and
--- in dark unlit rooms.
 --
 -- @return @{thing} or nil if no match found.
 -- @see search
@@ -1303,6 +1300,9 @@ local function turn (self, sentence)
 	-- to make more sense to the simulation
 	consult_rulebook (self, "reword", command)
 
+	-- Process independent agents
+	agency:turn (self)
+
 	-- apply the player command to the simulation
 	simulate (self, command)
 
@@ -1378,6 +1378,7 @@ return {
 	turnNumber = 1,
 	rulebooks = { },
 	-- functions
+	agency = agency,
 	simulate = simulate,
 	reset_simulation = reset_simulation,
 	load_world = load_world,

@@ -67,11 +67,11 @@ describe ("search", function()
 	end)
 
 	it ("found auto takes things", function()
-		ml.options.auto["take things searched"] = true
+		ml.options.flags["take things searched"] = true
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
 		ml:turn ("search the couch")
-		ml.options.auto["take things searched"] = false
+		ml.options.flags["take things searched"] = false
 		assert.is.truthy (ml:is_carrying ("silver key"))
 	end)
 

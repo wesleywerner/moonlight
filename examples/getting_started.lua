@@ -101,10 +101,10 @@ if not valid then
 end
 
 -- Set the option to always try take things found while searching
-ml.options.auto["take things searched"] = true
+ml.options.flags["take things searched"] = true
 
 -- Set the option to auto open things when unlocking them
-ml.options.auto["open unlocked things"] = true
+ml.options.flags["open unlocked things"] = true
 
 -- Set the player character by name
 ml:set_player ("Carrie")

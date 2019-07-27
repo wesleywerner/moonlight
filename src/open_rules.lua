@@ -57,7 +57,7 @@ return function (rulebooks)
 			-- TODO move to finally timing
 			name = "list contents of opened",
 			action = function (self, command)
-				if self.options.auto["list contents of opened"] == true then
+				if self.options.flags["list contents of opened"] == true then
 					local contents = self:list_contents (command.first_item)
 					return contents
 				end

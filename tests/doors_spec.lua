@@ -234,11 +234,11 @@ describe ("locked doors", function()
 
 	it("auto opens unlocked things", function()
 		local expected = {"You unlock the rotting door with the brass key.", "You open the rotting door."}
-		ml.options.auto["open unlocked things"] = true
+		ml.options.flags["open unlocked things"] = true
 		ml:load_world (makeWorld ())
 		ml:set_player ("Freddie")
 		local cmd = ml:turn ("unlock the door with the brass key")
-		ml.options.auto["open unlocked things"] = false
+		ml.options.flags["open unlocked things"] = false
 
 		assert.are.same (expected, ml.output)
 		assert.is_false (cmd.first_item.locked)

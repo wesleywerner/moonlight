@@ -74,7 +74,7 @@ return function (rulebooks)
 			-- TODO move to FINALLY timing
 			name = "apply the take-found-things option",
 			action = function (self, command)
-				if self.options.auto["take things searched"] then
+				if self.options.flags["take things searched"] then
 					for _, found in ipairs(command.found) do
 						self:simulate (self:parse("take " .. found.name))
 					end

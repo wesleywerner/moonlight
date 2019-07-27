@@ -65,7 +65,7 @@ ml:load_world ({
 })
 
 -- Auto list contents of containers when opened
-ml.options.auto["list contents of opened"] = true
+ml.options.flags["list contents of opened"] = true
 
 -- Set the player character by name
 ml:set_player ("Freddie")

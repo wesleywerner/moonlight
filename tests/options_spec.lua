@@ -100,7 +100,7 @@ describe ("options", function()
 
 	it("list exits in lit rooms", function()
 		ml:load_world (makeWorld())
-		ml.options.auto["list exits"] = true
+		ml.options.flags["list exits"] = true
 		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = {"A bright and lively path. A cave entrance lies to the north. There is a hummingbird and some daisies here. You can go east, north and west."}
@@ -110,7 +110,7 @@ describe ("options", function()
 	it("list exits in dark rooms", function()
 		ml:load_world (makeWorld())
 		ml:room_by_name ("A forest path").dark = true
-		ml.options.auto["list exits"] = true
+		ml.options.flags["list exits"] = true
 		ml:set_player ("Bob")
 		ml:turn("look")
 		local expected = {"You are in the dark. You can go east, north and west."}
@@ -118,7 +118,7 @@ describe ("options", function()
 	end)
 
 	it("list contents of opened container", function()
-		ml.options.auto["list contents of opened"] = true
+		ml.options.flags["list contents of opened"] = true
 		ml:load_world (makeWorld())
 		ml:set_player ("Martha")
 		ml:turn("open the cupboard")
@@ -127,7 +127,7 @@ describe ("options", function()
 	end)
 
 	it("not list contents of opened container", function()
-		ml.options.auto["list contents of opened"] = false
+		ml.options.flags["list contents of opened"] = false
 		ml:load_world (makeWorld())
 		ml:set_player ("Martha")
 		ml:turn("open the cupboard")

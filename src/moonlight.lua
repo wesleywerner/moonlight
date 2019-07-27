@@ -193,7 +193,7 @@
 
 ------------------------------------------------------------------------
 
---- A table of options that define parser and response behavior.
+--- A table of options that define parser and response behaviour.
 -- @table options
 --
 -- @field verbs
@@ -217,8 +217,8 @@
 -- @field directions
 -- Indexed table of known directions.
 --
--- @field auto
--- @{auto} options that set automatic responses to certain actions.
+-- @field flag
+-- @{flags} modify the engine behaviour
 --
 -- @field soundex
 -- A boolean to enable soundex matching of known nouns to the player's
@@ -233,17 +233,36 @@
 -- True by default.
 -- See @{testing.lua}.
 
+local options = require ("options")
+
 ------------------------------------------------------------------------
 
---- A table to set automatic responses.
--- Available options are:
--- list exits: list all exits after the room description
--- list contents of opened: list the contents of a container when opening it
--- @table auto
--- @field key true/false
--- @usage auto["list exits"] = true
+--- A table of optional flags to modify the engine behaviour.
+-- @table flags
+-- @field flag true/false
+-- @usage
+-- -- list all exits after the room description
+-- ["list exits"] = true
+--
+-- -- list the contents of a container when opening it
+-- ["list contents of opened"] = true
+--
+-- -- take things found while searching
+-- ["take things searched"] = false
+--
+-- -- open things when unlocking them
+-- ["open unlocked things"] = false
 
-local options = require ("options")
+options.flags = {
+	-- list all exits after the room description
+	["list exits"] = true,
+	-- list the contents of a container when opening it
+	["list contents of opened"] = true,
+	-- take things found while searching
+	["take things searched"] = false,
+	-- open things when unlocking them
+	["open unlocked things"] = false
+}
 
 ------------------------------------------------------------------------
 
@@ -283,6 +302,9 @@ end
 
 
 --- Loads the standard rulebooks.
+--
+-- These additional rules are loaded conditionally upon the relevant
+-- @{instance}.options.flags:
 --
 -- @param self @{instance}
 --
@@ -820,7 +842,7 @@ end
 local function list_room_exits (self)
 
 	-- always list exits in a dark room
-	if self.options.auto["list exits"] or self.room.is_dark then
+	if self.options.flags["list exits"] or self.room.is_dark then
 		if type(self.room.exits) == "table" then
 			local possibleWays = { }
 			for k, v in pairs(self.room.exits) do

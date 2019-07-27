@@ -80,7 +80,7 @@ ml:load_world ({
 })
 
 -- Auto list the exits out of the current room
-ml.options.auto["list exits"] = true
+ml.options.flags["list exits"] = true
 
 -- Set the player character by name
 ml:set_player ("Freddie")

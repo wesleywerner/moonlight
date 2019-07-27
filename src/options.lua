@@ -35,16 +35,6 @@ local options = {
 		"out", "outside",
 		"under", "behind"
 		},
-	auto = {
-		-- list all exits after the room description
-		["list exits"] = true,
-		-- list the contents of a container when opening it
-		["list contents of opened"] = true,
-		-- take things found while searching
-		["take things searched"] = false,
-		-- open things when unlocking them
-		["open unlocked things"] = false
-	},
 	verbose = {
 		rulebooks = true,
 		parser = true,

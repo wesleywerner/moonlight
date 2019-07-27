@@ -25,12 +25,18 @@
 -- @field direction
 -- The word of the direction implied in the sentence.
 --
+-- @field first_noun
+-- An alias for nouns[1].
+--
+-- @field second_noun
+-- An alias for nouns[2].
+--
 -- @field first_item
--- The world item (table) that matches the first of the nouns field.
+-- The first @{thing} in the nouns list.
 -- If this has a value it is guaranteed to match an item in the world.
 --
 -- @field second_item
--- The world item (table) that matches the second of the nouns field.
+-- The second @{thing} in the nouns list.
 -- If this has a value it is guaranteed to match an item in the world.
 --
 
@@ -440,8 +446,11 @@ end
 -- The name of the thing to find, the thing itself (to find it's parent)
 -- or a predicate function to match items.
 --
--- @param parent
+-- @param[opt] parent
 -- The room to search. If given as `nil` all rooms are searched.
+--
+-- @param[opt] options
+-- A table of @{search_options}
 --
 -- @return
 -- An indexed table of matches, each match a collection
@@ -462,6 +471,22 @@ local function search (self, term, parent, options)
 			return term (item)
 		end
 	end
+
+	--- A table of options affecting how searches are carried out.
+	-- Each option is toggled with a Boolean `true` value.
+	-- If `true` is given instead this table itself, then all possible
+	-- options are taken as `true`.
+	--
+	-- @table search_options
+	--
+	-- @field includeClosed
+	-- Search inside closed containers
+	--
+	-- @field includeDark
+	-- Search inside unlit containers (including rooms)
+	--
+	-- @field includePersonal
+	-- Search inside the player's inventory
 
 	-- options of true allows all
 	if options == nil then
@@ -559,8 +584,11 @@ end
 -- The name of the thing to find, the thing itself (to find it's parent)
 -- or a predicate function to match items.
 --
--- @param parent
+-- @param[opt] parent
 -- The room to search. If given as `nil` all rooms are searched.
+--
+-- @param[opt] options
+-- A table of @{search_options}
 --
 -- @return @{thing} or nil if no match found.
 -- @see search
@@ -583,6 +611,8 @@ end
 -- The name of the player @{thing}
 local function set_player (self, name)
 
+	-- TODO we have isPlayer and player. remove one.
+	-- TODO self.player clashes with the thing.player property? Rename to self.ego?
 	-- unassign the current player
 	if self.player then
 		self.player.isPlayer = nil
@@ -620,6 +650,9 @@ end
 --
 -- @return valid bool, table of issues
 local function load_world (self, world)
+
+	assert (type(world) == "table", "The world object must be a table")
+
 	-- ensure all rooms can contain things
 	for _, room in ipairs(world) do
 		room.contains = room.contains or { }
@@ -1051,7 +1084,8 @@ end
 
 
 --- Simulate an action in the world.
--- Applies the given command to the world model.
+-- This requires a valid world state (room and a player is set).
+-- This action does not forward the turn counter.
 --
 -- @param self
 -- @{instance}

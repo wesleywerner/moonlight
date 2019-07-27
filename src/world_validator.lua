@@ -96,6 +96,7 @@ return function (self, world)
 	-- check rooms have names
 	for i, room in ipairs(world) do
 		if not room.name then
+			room.name = string.format ("Room #%d", i)
 			logerr ("Room #%d does not have a name set.", i)
 		end
 	end
@@ -124,6 +125,19 @@ return function (self, world)
 			end
 		end
 
+	end
+
+	-- attempt to find player persons
+	local player_predicate = function (item)
+		return item.player == true
+	end
+	local player_matches = self:search (player_predicate, nil, true)
+	if player_matches then
+		if #player_matches > 1 then
+			logerr ("%d things are set as %q", #player_matches, "player")
+		end
+		local first_player =  unpack(player_matches[1])
+		self:set_player (first_player)
 	end
 
 	-- return valid, issues

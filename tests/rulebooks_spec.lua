@@ -158,12 +158,4 @@ describe("rulebook", function()
 
 	end)
 
-	it("standard player not set", function()
-		ml:reset_simulation()
-		ml:load_world (makeWorld())
-		ml:turn("examine the mailbox")
-		local expected = {"No player character has been set."}
-		assert.are.same(expected, ml.output)
-	end)
-
 end)

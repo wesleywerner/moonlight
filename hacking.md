@@ -68,6 +68,6 @@ lua LDoc/ldoc.lua --dir site/api .
 
 World things have various collections: things contained, things supported, things hidden, parts of things... To add another such collection add support for the new collection in these functions:
 
-`listNouns`: so that the children of the new collection are listed in known nouns.
+`list_room_nouns`: so that the children of the new collection are listed in known nouns.
 `search`: so that the simulator can locate the child things when resolving names to objects.
-`listContents`: if you want the children of the new collection listed in item descriptions.
+`list_contents`: if you want the children of the new collection listed in item descriptions.

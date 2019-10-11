@@ -1,6 +1,6 @@
 # moonlight user's guide
 
-* Loading Moonlight
+* Getting Started
 * The World Model
   * Definition
     * Rooms
@@ -18,9 +18,10 @@
   * Default Actions
   * Parser Behaviour
 
-# Loading Moonlight
+# Getting Started
 
-Moonlight is written in pure Lua, require it like any module.
+Moonlight is written in pure Lua, this means it can be easily embedded in new and existing projects.
+It also allows us to create quick and easy prototypes with the standard Lua libraries.
 
 ```
 local ml = require("moonlight")

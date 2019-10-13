@@ -1,7 +1,40 @@
---- The standard rulebooks table.
+--- The standard rulebooks module.
 -- Provides functions to make working with rulebooks easier.
 -- @module rulebooks
+--
 return function (rulebooks)
+
+	--- A rule is a table with a name (string) and action (function).
+	-- The action signature is (@{moonlight} instance, @{moonlight:command} object).
+	-- @table rule
+	-- @usage
+	--
+	-- local my_examine_rule = {
+	-- 	name = "my examine rule",
+	-- 	action = function (moonlight, command)
+	-- 		if command.first_item and commandfirst_item.name == "mailbox" then
+	-- 			-- the player has command.verb on the mailbox
+	-- 		end
+	-- 	end
+	-- }
+
+	--- A key-value table of rules that get triggered before a verb is actioned.
+	-- The key being the verb, the value a @{rule}
+	-- @table before
+	-- @usage
+	-- table.insert(moonlight.rulebooks.before.examine, my_before_examine_rule)
+
+	--- A key-value table of rules that get triggered on a verb action.
+	-- The key being the verb, the value a @{rule}
+	-- @table on
+	-- @usage
+	-- table.insert(moonlight.rulebooks.on.examine, my_examine_rule)
+
+	--- A key-value table of rules that get triggered after a verb was actioned.
+	-- The key being the verb, the value a @{rule}
+	-- @table after
+	-- @usage
+	-- table.insert(moonlight.rulebooks.after.examine, my_after_examine_rule)
 
 	--- Ensures the default rule categories exist.
 	function rulebooks.reset (self)

@@ -43,4 +43,6 @@ return function (rulebooks)
 		}
 	}
 
+	rulebooks.after.examine = { }
+
 end

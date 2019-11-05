@@ -1,0 +1,2 @@
+-- Model shorthand format and examples.
+--

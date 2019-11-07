@@ -49,6 +49,9 @@ end
 -- a property which contains other properties.
 -- This is identified as a line contains a colon with no inline value.
 --
+-- @field is_quoted boolean
+-- True if the context is "quoted"
+--
 -- @field is_empty boolean
 -- true if the key and value are both empty.
 
@@ -90,6 +93,13 @@ local function parse_line(line)
 
   local is_comment = string.find(key, "^%-%-") and true or false
 
+  -- process quoted lines
+  local is_quoted = string.find(key, "^\".+\"$") and true or false
+  if is_quoted then
+    -- remove the quotes from the key
+    key = string.sub(key, 2, key:len()-1)
+  end
+
   -- interpret booleans
   if value == "true" or value == "yes" then
     value = true
@@ -104,6 +114,7 @@ local function parse_line(line)
     value = value,
     is_comment = is_comment,
     is_compound = is_compound,
+    is_quoted = is_quoted,
     is_empty = key == "" and value == ""
   }
 
@@ -157,12 +168,18 @@ local function build (input)
         top = stack[#stack]
       else
         if context.value == "" then
-          -- new room/thing by name
-          local new_item = { ["name"] = context.key }
-          --new_item["line no"] = no
-          table.insert(top, new_item)
-          table.insert(stack, new_item)
-          top = stack[#stack]
+          -- Quoted lines insert as string into the top item.
+          -- This is for lists of strings in a table e.g. an unlock list.
+          if context.is_quoted then
+            table.insert(top, context.key)
+          else
+            -- new room/thing by name
+            local new_item = { ["name"] = context.key }
+            --new_item["line no"] = no
+            table.insert(top, new_item)
+            table.insert(stack, new_item)
+            top = stack[#stack]
+          end
         elseif context.key ~= "" then
           -- direct property assignment
           top[context.key] = context.value

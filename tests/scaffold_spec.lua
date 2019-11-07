@@ -46,7 +46,14 @@ describe ("scaffold", function()
     assert.is_true(output.is_compound)
   end)
 
-  it ("reads a nested structure", function()
+  it ("parse quoted line", function()
+    local output = scaffold.parse_line("    \"Quoted\"")
+    assert.are.equal ("Quoted", output.key)
+    assert.are.equal ("", output.value)
+    assert.is_true(output.is_quoted)
+  end)
+
+  it ("builds a model from notation", function()
     local model = scaffold.build([[
 The Relaxation Lounge
   description: This room looks very relaxed.
@@ -61,7 +68,9 @@ The Relaxation Lounge
           description: candle
         Apple
           description: apple
-
+        Silver Key
+          unlocks:
+            "Cabinet"
     ]])
     --require 'pl.pretty'.dump(model)
     local expected = {
@@ -86,6 +95,12 @@ The Relaxation Lounge
               {
                 name = "Apple",
                 description = "apple"
+              },
+              {
+                name = "Silver Key",
+                unlocks = {
+                  "Cabinet"
+                }
               }
             }
           }

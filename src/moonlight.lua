@@ -945,6 +945,11 @@ local function detach (self, thing)
 				table.remove (parent.supports, place)
 			end
 		end
+		for place, cmp in ipairs(parent.hides or {}) do
+			if thing == cmp then
+				table.remove (parent.hides, place)
+			end
+		end
 	end
 end
 

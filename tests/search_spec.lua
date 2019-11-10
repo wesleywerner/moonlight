@@ -27,13 +27,21 @@ describe ("search", function()
 									description = "A flat silver key."
 								}
 							}
-						}
+						},
+            {
+              name = "lockbox",
+              hides = {
+								{
+									name = "gold key"
+								}
+              }
+            }
 					}
 				},
 			}
 	end
 
-	it ("negative test", function()
+	it ("reveals nothing", function()
 		local expected = {"Your search reveals nothing."}
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
@@ -41,7 +49,7 @@ describe ("search", function()
 		assert.are.same (expected, ml.output)
 	end)
 
-	it ("broad", function()
+	it ("thing name not provided", function()
 		local expected = {"Search what?"}
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
@@ -49,7 +57,7 @@ describe ("search", function()
 		assert.are.same (expected, ml.output)
 	end)
 
-	it ("found", function()
+	it ("finds the thing", function()
 		local expected = {"You search the couch.", "You found a silver key."}
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
@@ -57,13 +65,30 @@ describe ("search", function()
 		assert.are.same (expected, ml.output)
 	end)
 
-	it ("found does not auto take", function()
+	it ("found thing moved on top of supporter", function()
 		local expected = {"It is a tan couch. On it is a silver key."}
 		ml:load_world (makeWorld ())
 		ml:set_player ("Carrie")
 		ml:turn ("search the couch")
 		ml:turn ("examine the couch")
 		assert.are.same (expected, ml.output)
+	end)
+
+	it ("found thing moved into room", function()
+		local expected = {"It is a gold key."}
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
+		ml:turn ("search the lockbox")
+		ml:turn ("examine gold key")
+		assert.are.same (expected, ml.output)
+	end)
+
+	it ("found thing removes it from the hides table", function()
+		ml:load_world (makeWorld ())
+		ml:set_player ("Carrie")
+		ml:turn ("search the lockbox")
+    local lockbox = ml:search_first ("lockbox")
+		assert.are.same ({}, lockbox.hides)
 	end)
 
 	it ("found auto takes things", function()

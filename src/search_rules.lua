@@ -45,9 +45,9 @@ return function (rulebooks)
 					table.insert (command.found, found)
 
 					-- move the found thing into view
-					if parent.supports then
+					if type(parent.supports) == "table" then
 						self:move_thing_onto (found, parent)
-					elseif parent.contains then
+					elseif type(parent.contains) == "table" then
 						self:move_thing_into (found, parent)
 					else
 						self:move_thing_into (found, self.room)

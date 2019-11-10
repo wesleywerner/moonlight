@@ -25,8 +25,8 @@ describe ("scaffold", function()
   end)
 
   it ("parse a '-- comment line'", function()
-    local output = scaffold.parse_line("    -- this is a comment")
-    assert.are.equal ("-- this is a comment", output.key)
+    local output = scaffold.parse_line("    -- this is a comment: ignore it")
+    assert.are.equal ("-- this is a comment: ignore it", output.key)
     assert.is_true(output.is_comment)
   end)
 

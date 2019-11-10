@@ -77,9 +77,12 @@ local function parse_line(line)
     end
   end
 
+  line = trim(line)
+  local is_comment = string.find(line, "^%-%-") and true or false
+
   -- split key/value
-  local seperator_position = string.find(line, ":")
-  if seperator_position then
+  local separator_position = string.find(line, ":")
+  if separator_position and not is_comment then
     -- previous key match pattern: "(%a+):"
     key = string.match(line, "[%a_]+[%a%d_]*")
     value = string.match(line, ":(.+)")
@@ -87,11 +90,10 @@ local function parse_line(line)
     -- an empty value makes this line a container
     is_compound = value == ""
   else
-    -- simply trim the line to get the key
-    key = trim(line)
+    -- no separator takes the entire line.
+    -- comments takes the entire line too.
+    key = line
   end
-
-  local is_comment = string.find(key, "^%-%-") and true or false
 
   -- process quoted lines
   local is_quoted = string.find(key, "^\".+\"$") and true or false

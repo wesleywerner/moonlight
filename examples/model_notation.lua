@@ -1,5 +1,43 @@
---- Moonlight world model notation examples.
+--- Moonlight world model notation and examples.
 -- Browse the @{moonlight} api to learn all about this game.
+--
+-- A Moonlight world is data-driven, in practical terms that means
+-- the model consists of nested tables and simple data types (numbers and strings).
+-- The world notation is a human readable approach to easily construct
+-- a world model.
+--
+-- To parse a block of notation, require "scaffold" and call the `build`
+-- function, this returns a constructed world model in the form of Lua tables.
+--
+-- Notation Syntax
+-- 1. Rooms are listed on the first level (no indentation).
+-- 2. One indent equals 2 spaces.
+-- 3. A line without a colon creates a named thing (a Lua table with a "name" property).
+-- 4. Two or more words separated by a colon signifies a key:value property.
+-- 5. A line with a key: (and no value) creates a nested table (aka compound property).
+-- 6. A line surrounded by "double quotes" signifies a string item (as opposed to a named thing)
+--
+--
+--
+-- First rule of notation: Name the room or thing on the first line.
+-- Second rule: indent properties with 2 spaces.
+--
+-- example:
+-- The Sanctuary
+--   description: You are in a courtyard, a stone archway exits to the south.
+--
+-- result:
+-- {
+--   description = "You are in a courtyard, a stone archway exits to the south.",
+--   name = "The Sanctuary"
+-- }
+--
+--
+--
+--
+--
+--
+--
 
 -- Add moonlight dependencies to the path.
 package.path = package.path .. ";./moonlight/?.lua"
@@ -7,6 +45,15 @@ package.path = package.path .. ";./moonlight/?.lua"
 -- Load moonlight and scaffold modules
 local moonlight = require("moonlight")
 local scaffold = require("scaffold")
+
+require 'pl.pretty'.dump(scaffold.build([[
+The Sanctuary
+  description: You stand in a courtyard, a stone archway exits to the south.
+The Outpost
+  description:
+]]))
+
+require 'os'.exit(0)
 
 -- The model notation follows these rules:
 -- 1. Indentation is 2 spaces.

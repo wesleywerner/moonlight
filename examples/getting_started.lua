@@ -89,14 +89,19 @@ local myworld = {
 }
 
 -- Load the world model.
-local valid, issues = ml:load_world (myworld)
-
 -- Demonstrate listing any potential issues with your model.
--- The world still loads even with issues found.
-if not valid then
-	io.write ("Some issues with your world model:\n")
-	for _, issue in ipairs (issues) do
-		io.write ("\t", issue)
+local warnings, errors = ml:load_world (myworld)
+
+if #warnings > 0 then
+	print("Note these warnings in your model:")
+	for _, message in ipairs (warnings) do
+		print(message)
+	end
+end
+if #errors > 0 then
+  print("Errors in your model will prevent you from running the simulation:")
+	for _, message in ipairs (errors) do
+		print("Error: ", message)
 	end
 end
 

@@ -3,18 +3,23 @@
 -- @module world_validator
 return function (self, world)
 
-	local issues = { }
+	local warnings = { }
+	local errors = { }
 
-	local function logerr (template, ...)
-		table.insert (issues, string.format(template, ...))
+	local function log_err (template, ...)
+		table.insert (errors, string.format(template, ...))
+	end
+
+	local function log_warn (template, ...)
+		table.insert (warnings, string.format(template, ...))
 	end
 
 	if type(world) ~= "table" then
-		logerr ("The world must be table.")
+		log_err ("The world must be table.")
 	end
 
 	if #world == 0 then
-		logerr ("The world table must contain at least one room.")
+		log_err ("The world table must contain at least one room.")
 	end
 
 	-- helper to test exits in rooms
@@ -40,13 +45,13 @@ return function (self, world)
 					-- perhaps the exit points to a door
 					local item = self:search_first (v, room)
 					if not item then
-						logerr ("Exit %q in room %q is invalid", v, room.name)
+						log_err ("Exit %q in room %q is invalid", v, room.name)
 					elseif not self:room_by_name (item.destination or "") then
-						logerr ("Exit %q in room %q is invalid", v, room.name)
+						log_err ("Exit %q in room %q is invalid", v, room.name)
 					end
 				end
 			else
-				logerr ("The %q exit in %q has to be a fully named compass direction", k, room.name)
+				log_err ("The %q exit in %q has to be a fully named compass direction", k, room.name)
 			end
 			-- destination is valid
 		end
@@ -86,7 +91,7 @@ return function (self, world)
 				if self:room_by_name (test.destination) then
 					hasExitThing = true
 				else
-					logerr ("The %q destination for %q is invalid", test.destination, test.name)
+					log_err ("The %q destination for %q is invalid", test.destination, test.name)
 				end
 			end
 		end
@@ -97,7 +102,7 @@ return function (self, world)
 	for i, room in ipairs(world) do
 		if not room.name then
 			room.name = string.format ("Room #%d", i)
-			logerr ("Room #%d does not have a name set.", i)
+			log_err ("Room #%d does not have a name set.", i)
 		end
 	end
 
@@ -114,14 +119,14 @@ return function (self, world)
 	for _, room in ipairs(world) do
 
 		if not room.exits then
-			logerr ("Room %q has no exits", room.name)
+			log_warn ("Room %q has no exits", room.name)
 		end
 
 		if room.exits then
 			local roomOk = testRoomExits (room)
 			local roomThingsOk = testThings (room)
 			if not roomOk and not roomThingsOk then
-				logerr ("Room %q has no exits", room.name)
+				log_warn ("Room %q has no exits", room.name)
 			end
 		end
 
@@ -134,13 +139,16 @@ return function (self, world)
 	local player_matches = self:search (player_predicate, nil, true)
 	if player_matches then
 		if #player_matches > 1 then
-			logerr ("%d things are set as %q", #player_matches, "player")
+			log_warn ("%d things are set as %q", #player_matches, "player")
 		end
 		local first_player =  unpack(player_matches[1])
 		self:set_player (first_player)
 	end
 
-	-- return valid, issues
-	return #issues == 0, issues
+	-- check that unlock lists contain lists of strings.
+	-- check that unlock lists point to valid things.
+	-- TODO
+
+	return warnings, errors
 
 end

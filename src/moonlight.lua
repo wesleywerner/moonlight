@@ -638,17 +638,24 @@ local function set_player (self, name)
 end
 
 
---- Load a world model into the simulation.
+--- Load a world model into the simulator.
 -- This method resets to the standard rulebooks, so be sure to add
 -- your rules after loading the world.
+-- @function load_world
 --
 -- @param self
 -- @{instance}
 --
 -- @param world @{world}
--- The world model to set
+-- The world model to load.
 --
--- @return valid bool, table of issues
+-- @see scaffold
+--
+-- @return Three values: bool (no errors or warnings),
+--   table (list of warnings), table (list of errors).
+--   The simulation can continue if there are warnings.
+--   Any errors will prevent the simulation from running.
+--
 local function load_world (self, world)
 
 	assert (type(world) == "table", "The world object must be a table")
@@ -665,8 +672,9 @@ local function load_world (self, world)
 	self.world = world
 
 	-- validate
-	local valid, issues = self:validate (world)
-	return valid, issues
+	local warnings, errors = self:validate (world)
+	return warnings, errors
+
 end
 
 

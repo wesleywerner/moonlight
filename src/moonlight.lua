@@ -337,6 +337,7 @@ local function load_standard_rulebooks (self)
 	-- include testing rules
 	if self.options.testing then
 		require("purloin_rules")(rulebooks)
+		require("inspect_rules")(rulebooks)
 	end
 
 	return rulebooks

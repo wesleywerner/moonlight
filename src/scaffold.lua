@@ -136,6 +136,7 @@ local function build (input)
   local top = stack[#stack]
   local indent_factor = nil
   local last_indent = nil
+  local expects_compound_property = false
   local lines = split_lines(input)
 
   for no, line in ipairs(lines) do
@@ -148,6 +149,19 @@ local function build (input)
       -- adjust indent by factor of 2 to get 1:1 ratio of indentation changes
       context.indent = context.indent / 2
 
+      -- If the previous line was a compound property then
+      -- detect if the indent is unexpectedly less. If this is the case
+      -- then pop the stack, leaving the compound property empty.
+      if last_indent then
+        local indent_is_reduced = last_indent >= context.indent
+        if expects_compound_property and indent_is_reduced then
+          table.remove(stack)
+          top = stack[#stack]
+        end
+      end
+      -- reset the compound expectation flag
+      expects_compound_property = false
+
       -- indent n-1 pops the stack
       if last_indent then
           local indent_amount = context.indent - last_indent
@@ -155,7 +169,6 @@ local function build (input)
           while indent_amount < 0 do
               table.remove(stack)
               indent_amount = indent_amount + 1
-              -- refocus top
               top = stack[#stack]
           end
       end
@@ -163,11 +176,12 @@ local function build (input)
       -- push a new table to the stack
       if context.is_compound then
         local new_item = { }
-        --new_item["line no"] = no
         top[context.key] = new_item
         -- push it to the stack
         table.insert(stack, new_item)
         top = stack[#stack]
+        -- flag that the next line expects a compound value
+        expects_compound_property = true
       else
         if context.value == "" then
           -- Quoted lines insert as string into the top item.

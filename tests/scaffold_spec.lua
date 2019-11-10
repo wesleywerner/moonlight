@@ -53,6 +53,76 @@ describe ("scaffold", function()
     assert.is_true(output.is_quoted)
   end)
 
+  it ("interprets boolean values", function()
+    local model = scaffold.build([[
+An empty room
+  truthy_via_symbol: true
+  truthy_via_synonym: yes
+  falsy_via_symbol: false
+  falsy_via_synonym: no
+]])
+    local expected = {
+      {
+        name = "An empty room",
+        truthy_via_symbol = true,
+        truthy_via_synonym = true,
+        falsy_via_symbol = false,
+        falsy_via_synonym = false
+      }
+    }
+    --require 'pl.pretty'.dump(model)
+    --require 'pl.pretty'.dump(expected)
+    assert.are.same (expected, model)
+  end)
+
+  it ("builds empty compound properties", function()
+    -- This test ensures that the notation allows listing
+    -- one or more compound properties that translate into
+    -- empty tables. e.g. an empty "supports" property indicates
+    -- the thing can support other things with an empty initial state.
+    local model = scaffold.build([[
+The Relaxation Lounge
+  description: This room looks very relaxed.
+  contains:
+    Cabinet
+      description: It is a smoothly lacquered wooden cabinet.
+      contains:
+    Toolbox
+      contains:
+    Sofa
+      description: A comfy looking chair.
+      supports:
+      hides:
+    ]])
+    --require 'pl.pretty'.dump(model)
+    local expected = {
+      {
+        name = "The Relaxation Lounge",
+        description = "This room looks very relaxed.",
+        contains = {
+          {
+            name = "Cabinet",
+            description = "It is a smoothly lacquered wooden cabinet.",
+            contains = { }
+          },
+		  {
+			  name = "Toolbox",
+			  contains = { }
+		  },
+          {
+			  name = "Sofa",
+			  description = "A comfy looking chair.",
+			  supports = { },
+			  hides = { }
+		  }
+        }
+      }
+    }
+    --require 'pl.pretty'.dump(expected)
+    assert.are.same(expected, model)
+  end)
+
+
   it ("builds a model from notation", function()
     local model = scaffold.build([[
 The Relaxation Lounge
@@ -109,28 +179,6 @@ The Relaxation Lounge
     }
     --require 'pl.pretty'.dump(expected)
     assert.are.same(expected, model)
-  end)
-
-  it ("interprets boolean values", function()
-    local model = scaffold.build([[
-An empty room
-  truthy_via_symbol: true
-  truthy_via_synonym: yes
-  falsy_via_symbol: false
-  falsy_via_synonym: no
-]])
-    local expected = {
-      {
-        name = "An empty room",
-        truthy_via_symbol = true,
-        truthy_via_synonym = true,
-        falsy_via_symbol = false,
-        falsy_via_synonym = false
-      }
-    }
-    --require 'pl.pretty'.dump(model)
-    --require 'pl.pretty'.dump(expected)
-    assert.are.same (expected, model)
   end)
 
 end)
